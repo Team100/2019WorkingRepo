@@ -7,4 +7,5 @@ public class Functions {
     public static int subtract(int a, int b){
         return a - b;
     }
+    public static boolean aGreater(int a, int b) { return a > b; }
 }

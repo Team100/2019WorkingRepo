@@ -16,6 +16,14 @@ class FunctionsTest {
         assertEquals(5, Functions.subtract(10,5));
         assertEquals(1,Functions.subtract(3,2));
         assertEquals(-5, Functions.subtract(5,10));
+
+    }
+
+    @org.junit.jupiter.api.Test
+    void aGreater(){
+        assertTrue(Functions.aGreater(3,2));
+        assertFalse(Functions.aGreater(2,3));
+        assertFalse(Functions.aGreater(10,12));
     }
 
 
