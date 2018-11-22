@@ -1,0 +1,30 @@
+{
+  "hsv": {
+    "hue": [22.66187050359712, 56.230899830220714],
+    "saturation": [68.79496402877697, 213.87096774193546],
+    "value": [84.84712230215827, 185.73005093378610]
+  },
+  "contours": {
+    "min_area": 250.0,
+    "min_perimeter": 0,
+    "min_width": 0,
+    "max_width": 1000,
+    "min_height": 0,
+    "max_height": 1000,
+    "solidity": [0, 100],
+    "min_vertices": 0,
+    "max_vertices": 1000000,
+    "min_ratio": 0,
+    "max_ratio": 1000,
+    "external_contours": true
+  },
+  "camera": {
+    "width": 640,
+    "height": 480,
+    "frame_rate": 30
+  },
+  "image_center": 159.5,
+  "horizontal_dist_per_pixel": 0.1962,
+  "distance_offset": 0,
+  "network_tables": "roborio-100-frc.local"
+}
