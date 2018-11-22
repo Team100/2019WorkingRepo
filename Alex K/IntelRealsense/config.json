@@ -24,7 +24,7 @@
     "frame_rate": 30
   },
   "image_center": 159.5,
-  "horizontal_dist_per_pixel": 0.1962,
+  "horizontal_degrees_per_pixel": 0.1962,
   "distance_offset": 0,
   "network_tables": "roborio-100-frc.local"
 }

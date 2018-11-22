@@ -62,7 +62,7 @@ while True:
             x, y, w, h = cv2.boundingRect(cube)
 
             # Get angle and distance
-            att = round((cx - config.image_center) * config.horizontal_distance_per_pixel, 4)
+            att = round((cx - config.image_center) * config.horizontal_degrees_per_pixel, 4)
             dtt = depth.get_distance(cx, cy)
 
             # Add to respective lists
