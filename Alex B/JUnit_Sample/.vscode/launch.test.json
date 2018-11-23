@@ -1,0 +1,30 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "junit5-jupiter-starter-gradle",
+                "projectName": "junit5-jupiter-starter-gradle",
+                "workingDirectory": "c:\\Users\\abeaver\\Documents\\Robotics\\2019WorkingRepo\\Alex B\\JUnit_Sample\\junit5-jupiter-starter-gradle",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "junit5-jupiter-starter-gradle",
+                "projectName": "junit5-jupiter-starter-gradle",
+                "workingDirectory": "c:\\Users\\abeaver\\Documents\\Robotics\\2019WorkingRepo\\Alex B\\JUnit_Sample\\junit5-jupiter-starter-gradle",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}
