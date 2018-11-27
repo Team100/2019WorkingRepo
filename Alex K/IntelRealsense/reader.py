@@ -16,20 +16,20 @@ config = parse_json(open("config.json"), object_hook=lambda d: namedtuple("Confi
 
 # Configure Intel RealSense camera
 camera_config = rs.config()
-camera_config.enable_stream(rs.stream.depth, config.camera.height, config.camera.width,
+camera_config.enable_stream(rs.stream.depth, config.camera.width, config.camera.height,
                             rs.format.z16, config.camera.frame_rate)
-camera_config.enable_stream(rs.stream.color, config.camera.height, config.camera.width,
+camera_config.enable_stream(rs.stream.color, config.camera.width, config.camera.height,
                             rs.format.bgr8, config.camera.frame_rate)
-
-# Start Intel RealSense camera
-camera = rs.pipeline()
-camera.start(camera_config)
-
 
 # Connect to network tables
 NetworkTables.initialize(server=config.network_tables)
 wait(5)
 table = NetworkTables.getTable("Camera")
+
+# Start Intel RealSense camera
+# After NetworkTables connection due to frame timeout
+camera = rs.pipeline()
+camera.start(camera_config)
 
 while True:
     try:
