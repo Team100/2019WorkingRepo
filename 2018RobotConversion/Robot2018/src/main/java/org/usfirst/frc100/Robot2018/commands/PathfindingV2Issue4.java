@@ -36,7 +36,7 @@ public class PathfindingV2Issue4 extends Command {
 	private static double leftVelocity;
 	private static double rightVelocity;
 	private static double angle;	
-	private PathfindingV2Issue4 runner = new PathfindingV2Issue4();
+	//private PathfindingV2Issue4 runner = new PathfindingV2Issue4();
 	Timer timer;
 	public PathfindingV2Issue4() {
 
