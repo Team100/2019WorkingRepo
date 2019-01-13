@@ -7,10 +7,10 @@ class ipPreset:
     ROBOT_IP = '10.1.0.2'
     LOCALHOST = 'localhost'
     X240_LAN = '169.254.234.20'
-
+    ROBOT_ETHERNET = '	169.254.1.252'
 
 class robotConfig:
-    ROBOT_IP = ipPreset.X240_LAN
+    ROBOT_IP = ipPreset.ROBOT_ETHERNET
 
 
 cond = threading.Condition()
@@ -45,3 +45,4 @@ while runStatus:
     if(test1):
         runStatus = False
 print("DONE")
+
