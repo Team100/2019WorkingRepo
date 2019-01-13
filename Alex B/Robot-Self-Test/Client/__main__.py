@@ -7,10 +7,11 @@ class ipPreset:
     ROBOT_IP = '10.1.0.2'
     LOCALHOST = 'localhost'
     X240_LAN = '169.254.234.20'
-    ROBOT_ETHERNET = '	169.254.1.252'
+    ROBOT_ETHERNET = '169.254.1.252'
+    USB = '172.22.11.2'
 
 class robotConfig:
-    ROBOT_IP = ipPreset.ROBOT_ETHERNET
+    ROBOT_IP = ipPreset.USB
 
 
 cond = threading.Condition()
@@ -35,14 +36,14 @@ with cond:
 table = NetworkTables.getTable('')
 
 print("Connected!")
-print("Getting data from NT")
+wait = input("Press Enter to Generate Report")
+st = table.getSubTable('selftest')
+testRunning = st.getBoolean('running', False)
 
-runStatus = True
-while runStatus:
-    st = table.getSubTable('selftest')
-
-    test1 = st.getBoolean('test1',False)
-    if(test1):
-        runStatus = False
-print("DONE")
-
+test1 = st.getString('test1', '')
+test2 = st.getString('test2', '')
+print("="*25)
+print("Report")
+print("Running: " + str(testRunning))
+print("Test 1 : " + test1)
+print("Test 2 : " + test2)
