@@ -4,7 +4,6 @@ import threading
 from networktables import NetworkTables
 
 
-
 def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
 
