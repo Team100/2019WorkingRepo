@@ -67,10 +67,12 @@ class Threader extends Thread{
     nt.getEntry("test2").setString("");
 
     nt.getEntry("stage").setNumber(0);
+    transitionTo1();
     test1();
-    transition12();
+    transitionTo2();
     test2();
-    
+    transitionTo1();
+    test3();
     
   }
   private void test1(){
@@ -103,7 +105,15 @@ class Threader extends Thread{
     
     
   }
-  private void transition12(){
+  private void transitionTo1(){
+    Robot.robotArm.raise();
+    
+    while(Robot.robotArm.isAtLowLimit() == true){
+      
+    }
+    Robot.robotArm.stop();
+  }
+  private void transitionTo2(){
     Robot.robotArm.lower();
     
     while(Robot.robotArm.isAtHighLimit() == true){
@@ -131,6 +141,35 @@ class Threader extends Thread{
       }
       else if(Robot.robotArm.isAtHighLimit() == true){
         nt.getEntry("test2").setString("FAIL: Reached High");
+        System.out.println("FAILED");
+        run = false;
+      } 
+    }
+    
+    Robot.robotArm.stop();
+    SmartDashboard.putBoolean("DONE", true);
+    
+    
+    
+    
+  }
+  private void test3(){
+
+    double start = Robot.robotArm.getPotValue();
+    Robot.robotArm.raise();
+    boolean run = true;
+    while(run){
+      if(Robot.robotArm.isAtHighLimit()==true && Robot.robotArm.getPotValue() < start){
+
+        nt.getEntry("test3").setString("PASS");
+        run = false;
+  
+      }
+      else if(Robot.robotArm.isAtHighLimit()){
+        nt.getEntry("test3").setString("FAIL: Bad Encoder");
+      }
+      else if(Robot.robotArm.isAtLowLimit() == true){
+        nt.getEntry("test3").setString("FAIL: Reached Low");
         System.out.println("FAILED");
         run = false;
       } 

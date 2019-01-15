@@ -1,4 +1,4 @@
-@Echo off
+@echo off
 Echo Deploying Robot Project
-gradlew deploy  --offline -Dorg.gradle.java.home="C:\Users\Public\frc2019\jdk"
+./gradlew deploy
 PAUSE 

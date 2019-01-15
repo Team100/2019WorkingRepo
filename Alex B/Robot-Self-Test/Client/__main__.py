@@ -2,6 +2,9 @@ import os
 import sys
 import threading
 from networktables import NetworkTables
+
+
+
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
 
@@ -48,15 +51,24 @@ def connectionListener(connected, info):
 NetworkTables.initialize(server=RobotConfig.ROBOT_IP)
 NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
 
+table = NetworkTables.getTable('')
 with cond:
     print("Waiting")
     if not notified[0]:
         cond.wait()
 
 
-table = NetworkTables.getTable('')
+def clearTable():
+    stt = table.getSubTable('selftest')
+
+    stt.putString('test1', '')
+    stt.putString('test2', '')
+    stt.putString('test3', '')
+
 
 print("Connected!")
+clearTable()
+print("NetworkTable Cleared")
 hr()
 wait = input("Press Enter to Generate Report")
 
@@ -64,9 +76,9 @@ cls()
 hr()
 st = table.getSubTable('selftest')
 testRunning = st.getBoolean('running', False)
-
-test1 = st.getString('test1', '')
-test2 = st.getString('test2', '')
+test1 = st.getString('test1','UNKNOWN')
+test2 = st.getString('test2','UNKNOWN')
+test3 = st.getString('test3','UNKNOWN')
 
 print("Report")
 print("Team   : " + RobotConfig.TEAM)
@@ -74,4 +86,5 @@ print("Name   : " + RobotConfig.NAME)
 print("Running: " + str(testRunning))
 print("Test 1 : " + test1)
 print("Test 2 : " + test2)
+print("Test 3 : " + test3)
 hr()
