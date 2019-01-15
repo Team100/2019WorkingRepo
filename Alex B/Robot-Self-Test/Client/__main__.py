@@ -6,7 +6,7 @@ from networktables import NetworkTables
 
 
 def cls():
-    os.system('cls' if os.name=='nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def hr():
@@ -36,11 +36,12 @@ class RobotConfig:
     NAME = 'WILDHATS GENERAL'
 
 
-
 cond = threading.Condition()
 notified = [False]
 connection = ''
-def connectionListener(connected, info):
+
+
+def connection_listener(connected, info):
     print(info, '; Connected=%s' % connected)
     connection=connected
     with cond:
@@ -49,7 +50,7 @@ def connectionListener(connected, info):
 
 
 NetworkTables.initialize(server=RobotConfig.ROBOT_IP)
-NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
+NetworkTables.addConnectionListener(connection_listener, immediateNotify=True)
 
 table = NetworkTables.getTable('')
 with cond:
@@ -58,7 +59,7 @@ with cond:
         cond.wait()
 
 
-def clearTable():
+def clear_table():
     stt = table.getSubTable('selftest')
 
     stt.putString('test1', '')
@@ -67,7 +68,7 @@ def clearTable():
 
 
 print("Connected!")
-clearTable()
+clear_table()
 print("NetworkTable Cleared")
 hr()
 wait = input("Press Enter to Generate Report")
@@ -76,9 +77,9 @@ cls()
 hr()
 st = table.getSubTable('selftest')
 testRunning = st.getBoolean('running', False)
-test1 = st.getString('test1','UNKNOWN')
-test2 = st.getString('test2','UNKNOWN')
-test3 = st.getString('test3','UNKNOWN')
+test1 = st.getString('test1', 'UNKNOWN')
+test2 = st.getString('test2', 'UNKNOWN')
+test3 = st.getString('test3', 'UNKNOWN')
 
 print("Report")
 print("Team   : " + RobotConfig.TEAM)
