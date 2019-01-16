@@ -3,3 +3,6 @@
 
 # JetBrains IDE generated files
 **/.idea/
+
+# Visual Studio Code generated files
+**/.vscode/

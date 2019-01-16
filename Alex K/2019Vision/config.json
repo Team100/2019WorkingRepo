@@ -1,0 +1,48 @@
+{
+  "blur": {
+    "radius": 4.504504504504511
+  },
+  "camera": {
+    "height": 2
+  },
+  "camera_port": 1,
+  "contours": {
+    "external_contours": true,
+    "max_height": 1000,
+    "max_ratio": 1000,
+    "max_vertices": 1000000,
+    "max_width": 1000,
+    "min_area": 275.0,
+    "min_height": 0,
+    "min_perimeter": 1.0,
+    "min_ratio": 0,
+    "min_vertices": 0,
+    "min_width": 0,
+    "solidity": [
+      0,
+      100
+    ]
+  },
+  "display": {
+    "bounding": true,
+    "debug": false,
+    "window": true
+  },
+  "horizontal_degrees_per_pixel": 0.1962,
+  "hsv": {
+    "hue": [
+      54.9,
+      105.2
+    ],
+    "saturation": [
+      183.0,
+      255.0
+    ],
+    "value": [
+      101.8,
+      255.0
+    ]
+  },
+  "image_center": 319.5,
+  "network_tables": "127.0.0.1"
+}
