@@ -1,0 +1,2 @@
+# Video Compression Benchmarks
+Benchmarking 5 different compression algorithms for transmitting video over the network. Currently this benchmarks: `gzip`, `lzma`, `bz2`, `brotli`, and `zlib`. The initial benchmarks were done on a laptop with a core i7 and 16gb of RAM. To see the benchmarks, go to [metrics.csv](metrics.csv).
