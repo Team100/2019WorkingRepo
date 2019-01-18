@@ -24,7 +24,6 @@ def update_config(*_):
     j["hsv"]["value"] = [val_min.get(), val_max.get()]
     j["display"]["window"] = display_window.get()
     j["display"]["bounding"] = display_bounding.get()
-    j["display"]["rotation"] = display_rotation.get()
     j["display"]["debug"] = display_debug.get()
 
     json.dump(j, open("config.json", "w"), sort_keys=True, indent=2)
@@ -63,7 +62,6 @@ val_min.set(data["hsv"]["value"][0])
 val_max.set(data["hsv"]["value"][1])
 display_window.set(data["display"]["window"])
 display_bounding.set(data["display"]["bounding"])
-display_rotation.set(data["display"]["rotation"])
 display_debug.set(data["display"]["debug"])
 
 # Scale for hue min
@@ -93,9 +91,6 @@ Scale(root, variable=val_max, from_=0, to=255, orient=HORIZONTAL, length=255, re
 
 # Checkbox for display window
 Checkbutton(root, text="Display Window?", variable=display_window, onvalue=True, offvalue=False, height=5, width=20, command=update_config).pack(anchor=CENTER)
-
-# Checkbox for display rotation box
-Checkbutton(root, text="Display Rotation?", variable=display_rotation, onvalue=True, offvalue=False, height=5, width=20, command=update_config).pack(anchor=CENTER)
 
 # Checkbox for display bounding box
 Checkbutton(root, text="Display Bounding Box?", variable=display_bounding, onvalue=True, offvalue=False, height=5, width=20, command=update_config).pack(anchor=CENTER)
