@@ -11,25 +11,25 @@
 
 package org.usfirst.frc100.Robot2017;
 
+import org.usfirst.frc100.Robot2017.commands.AutoDrive;
+import org.usfirst.frc100.Robot2017.commands.AutoDriveToPeg;
+import org.usfirst.frc100.Robot2017.commands.AutoDriveToPegOtherSide;
+import org.usfirst.frc100.Robot2017.commands.StraightAuto;
+import org.usfirst.frc100.Robot2017.commands.UpdateDashboard;
+import org.usfirst.frc100.Robot2017.subsystems.BallHandling;
+import org.usfirst.frc100.Robot2017.subsystems.DriveTrain;
+import org.usfirst.frc100.Robot2017.subsystems.GearMech;
+import org.usfirst.frc100.Robot2017.subsystems.Knewmatics;
+import org.usfirst.frc100.Robot2017.subsystems.PeterssUnbeatableScalingMechanismWithoutpNeumatics;
+
 import edu.wpi.first.wpilibj.CameraServer;
-
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-
-import org.usfirst.frc100.Robot2017.OI;
-import org.usfirst.frc100.Robot2017.RobotMap;
-import org.usfirst.frc100.Robot2017.commands.*;
-import org.usfirst.frc100.Robot2017.subsystems.*;
-
-import com.ctre.CANTalon.TalonControlMode;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -91,16 +91,11 @@ public class Robot extends IterativeRobot {
     }
 
     public void autonomousInit() {
-    	if(RobotMap.leftFollower.getControlMode() != TalonControlMode.Follower){
-    		RobotMap.leftFollower.changeControlMode(TalonControlMode.Follower);
-    		RobotMap.leftFollower.set(3);
-    		RobotMap.leftFollower.setSafetyEnabled(false);
-    	}
-    	if(RobotMap.rightFollwer.getControlMode() != TalonControlMode.Follower){
-    		RobotMap.rightFollwer.changeControlMode(TalonControlMode.Follower);
-    		RobotMap.rightFollwer.set(5);
-    		RobotMap.rightFollwer.setSafetyEnabled(false);
-    	}
+        RobotMap.leftFollower.follow(RobotMap.leftMaster);
+        RobotMap.leftFollower.setSafetyEnabled(false);
+        RobotMap.rightFollwer.follow(RobotMap.rightMaster);
+        RobotMap.rightFollwer.setSafetyEnabled(false);
+    	
         // schedule the autonomous command (example)
         if (autonomousCommand != null){
         	autonomousCommand.start();
@@ -139,16 +134,11 @@ public class Robot extends IterativeRobot {
     }
 
     public void teleopInit() {
-    	if(RobotMap.leftFollower.getControlMode() != TalonControlMode.Follower){
-    		RobotMap.leftFollower.changeControlMode(TalonControlMode.Follower);
-    		RobotMap.leftFollower.set(3);
-    		RobotMap.leftFollower.setSafetyEnabled(false);
-    	}
-    	if(RobotMap.rightFollwer.getControlMode() != TalonControlMode.Follower){
-    		RobotMap.rightFollwer.changeControlMode(TalonControlMode.Follower);
-    		RobotMap.rightFollwer.set(5);
-    		RobotMap.rightFollwer.setSafetyEnabled(false);
-    	}
+    	RobotMap.leftFollower.follow(RobotMap.leftMaster);
+        RobotMap.leftFollower.setSafetyEnabled(false);
+        RobotMap.rightFollwer.follow(RobotMap.rightMaster);
+        RobotMap.rightFollwer.setSafetyEnabled(false);
+
     	RobotMap.driveTrainLeftEncoder.reset();
     	RobotMap.driveTrainRightEncoder.reset();
         // This makes sure that the autonomous stops running when

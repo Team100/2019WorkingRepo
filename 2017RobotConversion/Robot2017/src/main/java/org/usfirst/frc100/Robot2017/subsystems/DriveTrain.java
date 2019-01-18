@@ -12,27 +12,20 @@
 package org.usfirst.frc100.Robot2017.subsystems;
 
 import org.usfirst.frc100.Robot2017.Robot;
-
 import org.usfirst.frc100.Robot2017.RobotMap;
-import org.usfirst.frc100.Robot2017.commands.*;
-
+import org.usfirst.frc100.Robot2017.commands.FollowMotionProfile;
+import org.usfirst.frc100.Robot2017.commands.PIDControllerHenry;
+import org.usfirst.frc100.Robot2017.commands.TankDrive;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.SpeedController;
-import edu.wpi.first.wpilibj.Ultrasonic;
-import edu.wpi.first.wpilibj.VictorSP;
-
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
@@ -40,11 +33,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  *
  */
 public class DriveTrain extends Subsystem {
-	
+
 	/*
     private final SpeedController leftMotor = RobotMap.driveTrainleftMotor;
     private final SpeedController rightMotor = RobotMap.driveTrainrightMotor;
-    private final RobotDrive drive = RobotMap.driveTraindrive;
+    private final DifferentialDrive drive = RobotMap.driveTraindrive;
     private final Encoder leftEncoder = RobotMap.driveTrainleftEncoder;
     private final Encoder rightEncoder = RobotMap.driveTrainrightEncoder;
     private final Solenoid leftShifter = RobotMap.driveTrainleftShifter;
@@ -58,7 +51,7 @@ public class DriveTrain extends Subsystem {
 	public final Encoder driveTrainLeftEncoder = RobotMap.driveTrainLeftEncoder;
 	public final Encoder driveTrainRightEncoder = RobotMap.driveTrainRightEncoder;
 
-	private final RobotDrive robotDrive = RobotMap.driveTrainRobotDrive;
+	private final DifferentialDrive DifferentialDrive = RobotMap.driveTrainDifferentialDrive;
 	
 	public boolean bel = true; 
 	
@@ -339,22 +332,22 @@ public class DriveTrain extends Subsystem {
 	}
     
     public void driveRobot(Joystick joy, Joystick joy2){
-		//Robot.driveTrain.robotDrive.tankDrive(joy.getRawAxis(1), -joy2.getRawAxis(1));
-		//Robot.driveTrain.robotDrive.arcadeDrive(-joy.getRawAxis(0), -joy2.getRawAxis(1));	//L = L/R, R = F/B
-    	Robot.driveTrain.robotDrive.arcadeDrive(-joy2.getRawAxis(0), -joy.getRawAxis(1));	//L = F/B, R = L/R
+		//Robot.driveTrain.DifferentialDrive.tankDrive(joy.getRawAxis(1), -joy2.getRawAxis(1));
+		//Robot.driveTrain.DifferentialDrive.arcadeDrive(-joy.getRawAxis(0), -joy2.getRawAxis(1));	//L = L/R, R = F/B
+    	Robot.driveTrain.DifferentialDrive.arcadeDrive(-joy2.getRawAxis(0), -joy.getRawAxis(1));	//L = F/B, R = L/R
     }
     
     public void driveRobot(double l, double r){
-		//Robot.driveTrain.robotDrive.tankDrive(-l, r);
-		//Robot.driveTrain.robotDrive.arcadeDrive(-joy.getRawAxis(0), -joy2.getRawAxis(1));	//L = L/R, R = F/B
-    	//Robot.driveTrain.robotDrive.arcadeDrive(-joy2.getRawAxis(0), -joy.getRawAxis(1));	//L = F/B, R = L/R
-		Robot.driveTrain.robotDrive.arcadeDrive(-l, r);
+		//Robot.driveTrain.DifferentialDrive.tankDrive(-l, r);
+		//Robot.driveTrain.DifferentialDrive.arcadeDrive(-joy.getRawAxis(0), -joy2.getRawAxis(1));	//L = L/R, R = F/B
+    	//Robot.driveTrain.DifferentialDrive.arcadeDrive(-joy2.getRawAxis(0), -joy.getRawAxis(1));	//L = F/B, R = L/R
+		Robot.driveTrain.DifferentialDrive.arcadeDrive(-l, r);
     }
     
     
 
     public void stop(){
-    	robotDrive.tankDrive(0, 0);
+    	DifferentialDrive.tankDrive(0, 0);
     }
     
     public boolean isDriveTrainShifterOpen(){
