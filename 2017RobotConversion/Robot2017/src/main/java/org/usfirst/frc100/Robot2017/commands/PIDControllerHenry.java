@@ -53,7 +53,7 @@ public class PIDControllerHenry extends PIDController {
   public PIDControllerHenry(double Kp, double Ki, double Kd, double Kf, PIDSource source,
                        PIDOutput output, double period) {
 
-    super(Kp, Ki, Kd, Kf, source, output);
+    super(Kp, Ki, Kd, Kf, source, output, kDefaultPeriod);
   
     
     m_buf = new ArrayDeque<Double>(m_bufLength + 1);
