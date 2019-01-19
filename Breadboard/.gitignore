@@ -1,6 +1,5 @@
 # Created by https://www.gitignore.io/api/c++,java,linux,macos,gradle,windows,visualstudiocode
 
-### C++ ###
 # Prerequisites
 *.d
 
@@ -34,7 +33,6 @@
 *.out
 *.app
 
-### Java ###
 # Compiled class file
 *.class
 
@@ -59,7 +57,6 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-### Linux ###
 *~
 
 # temporary files which can be created if a process still has a handle open of a deleted file
@@ -74,7 +71,6 @@ hs_err_pid*
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
-### macOS ###
 # General
 .DS_Store
 .AppleDouble
@@ -102,14 +98,12 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
-### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
@@ -134,7 +128,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-### Gradle ###
 .gradle
 /build/
 
