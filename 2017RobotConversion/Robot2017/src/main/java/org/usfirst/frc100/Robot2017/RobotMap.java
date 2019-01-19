@@ -136,9 +136,10 @@ public class RobotMap {
     	driveTrainDifferentialDrive = new DifferentialDrive(rightMaster, leftMaster);
         driveTrainDifferentialDrive.setSafetyEnabled(false);
         driveTrainDifferentialDrive.setExpiration(0.1);
-        driveTrainDifferentialDrive.setSensitivity(0.5);
+        //driveTrainDifferentialDrive.setSensitivity(0.5);
         driveTrainDifferentialDrive.setMaxOutput(1.0);
-        driveTrainDifferentialDrive.setInvertedMotor(DifferentialDrive.MotorType.kRearRight, true);
+        //driveTrainDifferentialDrive.setInvertedMotor(DifferentialDrive.MotorType.kRearRight, true);
+        driveTrainDifferentialDrive.setRightSideInverted(true);
         
         gyro = new ADXRS450_Gyro();
         //LiveWindow.addActuator("driveTrain", "gyro", gyro);
