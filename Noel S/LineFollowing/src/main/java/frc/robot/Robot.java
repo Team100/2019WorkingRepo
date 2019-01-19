@@ -25,6 +25,8 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private AnalogInput lineFollower1;
+  private AnalogInput lineFollower2;
+  private AnalogInput lineFollower3;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -35,7 +37,9 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    lineFollower1 = new AnalogInput(2);
+    lineFollower1 = new AnalogInput(1);
+    lineFollower2 = new AnalogInput(2);
+    lineFollower3 = new AnalogInput(3);
   }
 
   /**
@@ -48,7 +52,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("lineFollower1", lineFollower1.getValue());
+    SmartDashboard.putNumber("lineFollower1 ", lineFollower1.getValue());
+    SmartDashboard.putNumber("lineFollower2 ", lineFollower2.getValue());
+    SmartDashboard.putNumber("lineFollower3 ", lineFollower3.getValue());
   }
 
 
