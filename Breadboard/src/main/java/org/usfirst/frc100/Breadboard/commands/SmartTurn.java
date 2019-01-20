@@ -21,7 +21,9 @@ public class SmartTurn extends CommandGroup {
     // addSequential(new Command2());
     // these will run in order.
 
-    addSequential(new TurnToHeading(true, heading));
+    TurnToHeading t = new TurnToHeading();
+    t.setAddHeading(heading);
+    addSequential(t);
 
     // To run multiple commands at the same time,
     // use addParallel()

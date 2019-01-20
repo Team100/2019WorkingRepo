@@ -18,6 +18,7 @@ public class Constants {
     public static int DRIVE_TRAIN_LEFT_FOLLOWER_CANID = 1;
     public static int DRIVE_TRAIN_RIGHT_MASTER_CANID = 15;
     public static int DRIVE_TRAIN_RIGHT_FOLLOWER_CANID = 14;
+    public static double DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT = 0.2;
     public static double DRIVE_TRAIN_MAX_MOTOR_OUTPUT = 0.5;
 
     public static SerialPort.Port NAVX_COMM_PORT = SerialPort.Port.kUSB;

@@ -85,7 +85,6 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void disabledInit(){
-        drivetrain.getDrive().setSafetyEnabled(false);
     }
 
     @Override

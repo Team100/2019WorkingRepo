@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.command.Command;
 
 public class TurnToHeading extends Command {
   private double dest;
+  double heading;
   boolean turnLeft = false;
   boolean done=false;
   boolean first = true;
@@ -24,10 +25,18 @@ public class TurnToHeading extends Command {
     requires(Robot.drivetrain);
   }
   public TurnToHeading(boolean add, double destination){
-    dest = destination;
+    heading = destination;
     this.add = add;
 
     requires(Robot.drivetrain);
+  }
+
+  public void setAddHeading(double destination){
+    System.out.println("DesiredDest: " + destination);
+
+    heading = destination;
+    add = true;
+    first = true;
   }
 
   // Called just before this Command runs the first time
@@ -38,20 +47,34 @@ public class TurnToHeading extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    if(first){
-      if(add) dest = Robot.ahrs.getFusedHeading() + dest;
-      done = false;
-      while(dest >= 360){ dest -= 360; }
-      System.out.println("Starting: " + Robot.ahrs.getFusedHeading());
-      System.out.println("Target Heading: " + dest);
+    double current = Robot.ahrs.getYaw();
 
-      if(dest < Robot.ahrs.getFusedHeading()){
-        turnLeft=true;
+    if(first){
+      dest = heading;
+      if(add) dest += current;
+      done = false;
+      while (dest > 180) dest -= 360;
+      while (dest < - 180) dest += 360;
+      System.out.println("Starting: " + current+180);
+      System.out.println("Target Heading: " + dest+180);
+
+      double diff;
+
+      if((current-dest) > 0){//current is larger
+        if(Math.abs(current-dest) > Math.abs(current-360-dest)) diff = Math.abs(current-360-dest);
+        else diff = Math.abs(current-dest);
+      } else {
+        if(Math.abs(dest-current) > Math.abs(dest-360-current)) diff = Math.abs(dest-360-current);
+        else diff = Math.abs(dest-current);
       }
+
+      if(current+diff == dest) turnLeft = false;
+      else if(current-diff == dest) turnLeft = true;
+
     first = false;
     }
 
-    if(Math.abs(dest-Robot.ahrs.getFusedHeading()) < Constants.TURN_BUFFER){
+    if(Math.abs(dest-current) < Constants.TURN_BUFFER){
       done=true;
       first = true;
       Robot.drivetrain.stop();
