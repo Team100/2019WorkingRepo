@@ -61,7 +61,7 @@ public class Drivetrain extends Subsystem {
         differentialDrive1 = new DifferentialDrive(leftMaster, rightMaster);
         addChild("Differential Drive 1",differentialDrive1);
         differentialDrive1.setSafetyEnabled(false);
-        differentialDrive1.setExpiration(0.1);
+        differentialDrive1.setExpiration(0.7);
         differentialDrive1.setMaxOutput(Constants.DRIVE_TRAIN_MAX_MOTOR_OUTPUT);
 
         
@@ -79,10 +79,10 @@ public class Drivetrain extends Subsystem {
         leftFollower.follow(leftMaster);
         rightFollower.follow(rightMaster);
 
-        leftMaster.setInverted(true);
-        leftFollower.setInverted(InvertType.FollowMaster);
-        rightMaster.setInverted(true);
-        rightFollower.setInverted(InvertType.FollowMaster);
+        leftMaster.setInverted(Constants.DRIVE_TRAIN_LEFT_MASTER_INVERT);
+        leftFollower.setInverted(Constants.DRIVE_TRAIN_LEFT_FOLLOWER_INVERT);
+        rightMaster.setInverted(Constants.DRIVE_TRAIN_RIGHT_MASTER_INVERT);
+        rightFollower.setInverted(Constants.DRIVE_TRAIN_RIGHT_FOLLOWER_INVERT);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class Drivetrain extends Subsystem {
         /*
          * Use single stick of [LEFT] joystick for driving (X and Y axis)
          */
-        differentialDrive1.arcadeDrive(Robot.oi.getLeftStick().getY(), Robot.oi.getLeftStick().getX());
+        differentialDrive1.arcadeDrive(-Robot.oi.getLeftStick().getY(), Robot.oi.getLeftStick().getX());
         
         /*
          * Use both left and right sticks for driving (L) Up+Down, (R) Left+Right

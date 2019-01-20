@@ -31,10 +31,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    m_leftMaster = new WPI_TalonSRX(1);
-    m_leftFollower = new VictorSPX(0);
-    m_rightMaster =  new WPI_TalonSRX(14);
-    m_rightFollower = new VictorSPX(15);
+    m_leftMaster = new WPI_TalonSRX(0);
+    m_leftFollower = new VictorSPX(1);
+    m_rightMaster =  new WPI_TalonSRX(15);
+    m_rightFollower = new VictorSPX(14);
     m_myRobot = new DifferentialDrive(m_leftMaster,m_rightMaster);
     m_rightFollower.follow(m_rightMaster);
     m_leftFollower.follow(m_leftMaster);

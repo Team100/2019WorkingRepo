@@ -7,6 +7,8 @@
 
 package org.usfirst.frc100.Breadboard;
 
+import com.ctre.phoenix.motorcontrol.InvertType;
+
 import edu.wpi.first.wpilibj.SerialPort;
 
 /**
@@ -18,6 +20,11 @@ public class Constants {
     public static int DRIVE_TRAIN_LEFT_FOLLOWER_CANID = 1;
     public static int DRIVE_TRAIN_RIGHT_MASTER_CANID = 15;
     public static int DRIVE_TRAIN_RIGHT_FOLLOWER_CANID = 14;
+    public static boolean DRIVE_TRAIN_LEFT_MASTER_INVERT = false;
+    public static InvertType DRIVE_TRAIN_LEFT_FOLLOWER_INVERT = InvertType.FollowMaster;
+    public static boolean DRIVE_TRAIN_RIGHT_MASTER_INVERT = false;
+    public static InvertType DRIVE_TRAIN_RIGHT_FOLLOWER_INVERT = InvertType.FollowMaster;
+
     public static double DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT = 0.2;
     public static double DRIVE_TRAIN_MAX_MOTOR_OUTPUT = 0.5;
 
