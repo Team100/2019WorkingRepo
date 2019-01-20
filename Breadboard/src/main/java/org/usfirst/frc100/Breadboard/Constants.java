@@ -7,15 +7,25 @@
 
 package org.usfirst.frc100.Breadboard;
 
+import edu.wpi.first.wpilibj.SerialPort;
+
 /**
  * Add your docs here.
  */
 public class Constants {
 
-    public static int DRIVE_TRAIN_LEFT_MASTER_CANID = 20;
+    public static int DRIVE_TRAIN_LEFT_MASTER_CANID = 0;
     public static int DRIVE_TRAIN_LEFT_FOLLOWER_CANID = 1;
     public static int DRIVE_TRAIN_RIGHT_MASTER_CANID = 15;
     public static int DRIVE_TRAIN_RIGHT_FOLLOWER_CANID = 14;
-    public static int BALL_ROLLER_INTAKE_PWM = 8;
+    public static double DRIVE_TRAIN_MAX_MOTOR_OUTPUT = 0.5;
+
+    public static SerialPort.Port NAVX_COMM_PORT = SerialPort.Port.kUSB;
+    public static int TURN_BUFFER = 15;
+
+
+    public static int BALL_PICKUP_INTAKE_PWM = 8;
+    
+    public static double BALL_PICKUP_DURATION = 0.5;
 
 }
