@@ -16,31 +16,44 @@ public class TurnToHeading extends Command {
   private double dest;
   boolean turnLeft = false;
   boolean done=false;
+  boolean first = true;
+  boolean add;
+
   public TurnToHeading() {
     // Use requires() here to declare subsystem dependencies
     requires(Robot.drivetrain);
   }
-  public TurnToHeading(double destination){
+  public TurnToHeading(boolean add, double destination){
     dest = destination;
+    this.add = add;
+
+    requires(Robot.drivetrain);
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    done = false;
-    while(dest >= 360){ dest -= 360; }
-    System.out.println("Target Heading: " + dest);
-
-    if(dest < Robot.ahrs.getFusedHeading()){
-      turnLeft=true;
-    }
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
+    if(first){
+      if(add) dest = Robot.ahrs.getFusedHeading() + dest;
+      done = false;
+      while(dest >= 360){ dest -= 360; }
+      System.out.println("Starting: " + Robot.ahrs.getFusedHeading());
+      System.out.println("Target Heading: " + dest);
+
+      if(dest < Robot.ahrs.getFusedHeading()){
+        turnLeft=true;
+      }
+    first = false;
+    }
+
     if(Math.abs(dest-Robot.ahrs.getFusedHeading()) < Constants.TURN_BUFFER){
       done=true;
+      first = true;
       Robot.drivetrain.stop();
     }
     else if(turnLeft){
