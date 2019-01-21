@@ -20,10 +20,11 @@ public class SmartTurn extends CommandGroup {
     // e.g. addSequential(new Command1());
     // addSequential(new Command2());
     // these will run in order.
+    heading += Robot.ahrs.getFusedHeading();
+    while(heading > 360) heading -= 360;
+    while(heading < 0) heading += 360;
 
-    TurnToHeading t = new TurnToHeading();
-    t.setAddHeading(heading);
-    addSequential(t);
+    addSequential(new TurnRelative(heading + 90));
 
     // To run multiple commands at the same time,
     // use addParallel()

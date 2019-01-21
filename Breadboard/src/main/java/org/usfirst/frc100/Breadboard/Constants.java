@@ -45,4 +45,20 @@ public class Constants {
     //Ball Pickup
     public static int BALL_PICKUP_INTAKE_PWM = 8;
 
+    //Drivetrain
+    public static double DT_MASTER_P = 1;
+    public static double DT_MASTER_I = 0;
+    public static double DT_MASTER_D = 0;
+    public static double DT_MASTER_F = 0;
+
+    public static double DT_TURN_MIN_ROTATION_ANGLE = -180;
+    public static double DT_TURN_MAX_ROTATION_ANGLE = 180;
+
+    public static double DT_TURN_MIN_OUTPUT = -1;
+    public static double DT_TURN_MAX_OUTPUT = 1;
+
+    public static double DT_TURN_ABSOLUTE_TOLERANCE = 5;
+    
+    
+
 }
