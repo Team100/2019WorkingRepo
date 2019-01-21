@@ -2,6 +2,11 @@ import cv2
 
 print("Acquiring camera...")
 camera = cv2.VideoCapture("http://raspberrypi.local:5802/?action=stream")
+
+if not camera.isOpened():
+    print("Unable to acquire camera, exiting...")
+    exit(1)
+
 print("Camera acquired, running...")
 
 while True:
