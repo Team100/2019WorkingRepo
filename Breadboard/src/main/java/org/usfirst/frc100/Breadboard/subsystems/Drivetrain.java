@@ -110,13 +110,13 @@ public class Drivetrain extends Subsystem {
     
     }
 
-    public void pivotLeft(){
-        leftMaster.set(ControlMode.PercentOutput, -Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
-        rightMaster.set(ControlMode.PercentOutput, -Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
+    public void pivotLeft(double sl){
+        leftMaster.set(ControlMode.PercentOutput, -(sl*Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT));
+        rightMaster.set(ControlMode.PercentOutput, -(sl*Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT));
     }
-    public void pivotRight(){
-        leftMaster.set(ControlMode.PercentOutput, Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
-        rightMaster.set(ControlMode.PercentOutput, Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
+    public void pivotRight(double sr){
+        leftMaster.set(ControlMode.PercentOutput, sr*Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
+        rightMaster.set(ControlMode.PercentOutput, sr*Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
     }
     public void stop(){
         leftMaster.set(ControlMode.PercentOutput, 0);

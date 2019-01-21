@@ -54,7 +54,7 @@ public class TurnToHeading extends Command {
       if(add) dest += current;
       done = false;
       while (dest > 180) dest -= 360;
-      while (dest < - 180) dest += 360;
+      while (dest < -180) dest += 360;
       System.out.println("Starting: " + current+180);
       System.out.println("Target Heading: " + dest+180);
 
@@ -74,16 +74,16 @@ public class TurnToHeading extends Command {
     first = false;
     }
 
-    if(Math.abs(dest-current) < Constants.TURN_BUFFER){
+    if(Math.abs(dest-current) < Constants.TURN_STOP_BUFFER){
       done=true;
       first = true;
       Robot.drivetrain.stop();
-    }
-    else if(turnLeft){
-      Robot.drivetrain.pivotLeft();
-    }
-    else{
-      Robot.drivetrain.pivotRight();
+    }else if(Math.abs(dest-current) < Constants.TURN_SLOW_BUFFER){
+      if(turnLeft) Robot.drivetrain.pivotLeft(Constants.DRIVE_TRAIN_PIVOT_SLOW_PERCENTAGE);
+      else Robot.drivetrain.pivotRight(Constants.DRIVE_TRAIN_PIVOT_SLOW_PERCENTAGE);
+    } else {
+      if(turnLeft) Robot.drivetrain.pivotLeft(Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
+      else Robot.drivetrain.pivotRight(Constants.DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
     }
     
   }
