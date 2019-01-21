@@ -77,7 +77,7 @@ public class OI {
         turnButton.whenPressed(new TurnToHeading(false, 90));
 
         pivotButton = new JoystickButton(leftStick, 3);
-        pivotButton.whenPressed(new SmartTurn(90));
+        pivotButton.whenPressed(new SmartTurn(45));
 
         pivotHalfButton = new JoystickButton(leftStick, 4);
         pivotHalfButton.whenPressed(new TurnRelative(90));
