@@ -29,7 +29,7 @@ public class Constants {
     public static double DRIVE_TRAIN_MAX_MOTOR_OUTPUT = 0.5;
 
     public static SerialPort.Port NAVX_COMM_PORT = SerialPort.Port.kUSB;
-    public static int TURN_BUFFER = 15;
+    public static int TURN_BUFFER = 11;
 
 
     public static int BALL_PICKUP_INTAKE_PWM = 8;
