@@ -13,13 +13,13 @@ import org.usfirst.frc100.Breadboard.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class TurnRelative extends Command {
+public class TurnAbsolute extends Command {
   double targetAngle;
   double targetHeading;
   double degreeTolerance;
   boolean first = true;
 
-  public TurnRelative(double targetAngle) {
+  public TurnAbsolute(double targetAngle) {
     // Use requires() here to declare subsystem dependencies
     requires(Robot.drivetrain);
     while(targetAngle > 180)targetAngle -= 360;
@@ -37,9 +37,8 @@ public class TurnRelative extends Command {
   @Override
   protected void execute() {
     if(first){
-      System.out.println("INIT_RELATIVE");
+      System.out.println("INIT_ABSOLUTE");
       targetHeading = targetAngle;
-      targetHeading += Robot.getCurrentHeading();
       while(targetHeading < -180) targetHeading += 360;
       while(targetHeading > 180) targetHeading -= 360;
       Robot.drivetrain.turnPID.setSetpoint(targetHeading);
@@ -59,7 +58,6 @@ public class TurnRelative extends Command {
     while(current < -180) current += 360;
     return Math.abs(current)<degreeTolerance;
   }
-
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
