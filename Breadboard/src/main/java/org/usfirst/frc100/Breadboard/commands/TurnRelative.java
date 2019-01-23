@@ -22,10 +22,15 @@ public class TurnRelative extends Command {
   public TurnRelative(double targetAngle) {
     // Use requires() here to declare subsystem dependencies
     requires(Robot.drivetrain);
-    while(targetAngle > 180)targetAngle -= 360;
-    while(targetAngle < -180)targetAngle += 360;
+    targetAngle = normalize(targetAngle);
     this.targetAngle = targetAngle;
     degreeTolerance = Constants.DT_TURN_ABSOLUTE_TOLERANCE;
+  }
+
+  public double normalize(double input){
+    while(input > 180) input -= 360;
+    while(input < -180) input += 360;
+    return input;
   }
 
   // Called just before this Command runs the first time
@@ -40,8 +45,7 @@ public class TurnRelative extends Command {
       System.out.println("INIT_RELATIVE");
       targetHeading = targetAngle;
       targetHeading += Robot.getCurrentHeading();
-      while(targetHeading < -180) targetHeading += 360;
-      while(targetHeading > 180) targetHeading -= 360;
+      targetHeading = normalize(targetHeading);
       Robot.drivetrain.turnPID.setSetpoint(targetHeading);
       Robot.drivetrain.turnPID.enable();
       first = false;
@@ -54,12 +58,9 @@ public class TurnRelative extends Command {
 
   private boolean isOnTarget(){
     double current = Robot.getCurrentHeading();
-    current = current - targetHeading;
-    while(current > 180) current -= 360;
-    while(current < -180) current += 360;
+    current = normalize(current - targetHeading);
     return Math.abs(current)<degreeTolerance;
   }
-
 
   // Make this return true when this Command no longer needs to run execute()
   @Override

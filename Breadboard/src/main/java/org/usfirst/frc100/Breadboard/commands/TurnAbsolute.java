@@ -22,12 +22,17 @@ public class TurnAbsolute extends Command {
   public TurnAbsolute(double targetAngle) {
     // Use requires() here to declare subsystem dependencies
     requires(Robot.drivetrain);
-    while(targetAngle > 180)targetAngle -= 360;
-    while(targetAngle < -180)targetAngle += 360;
+    targetAngle = normalize(targetAngle);
     this.targetAngle = targetAngle;
     degreeTolerance = Constants.DT_TURN_ABSOLUTE_TOLERANCE;
   }
 
+  public double normalize(double input){
+    while(input > 180) input -= 360;
+    while(input < -180) input += 360;
+    return input;
+  }
+  
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
@@ -38,9 +43,7 @@ public class TurnAbsolute extends Command {
   protected void execute() {
     if(first){
       System.out.println("INIT_ABSOLUTE");
-      targetHeading = targetAngle;
-      while(targetHeading < -180) targetHeading += 360;
-      while(targetHeading > 180) targetHeading -= 360;
+      targetHeading = normalize(targetAngle);
       Robot.drivetrain.turnPID.setSetpoint(targetHeading);
       Robot.drivetrain.turnPID.enable();
       first = false;
@@ -53,9 +56,7 @@ public class TurnAbsolute extends Command {
 
   private boolean isOnTarget(){
     double current = Robot.getCurrentHeading();
-    current = current - targetHeading;
-    while(current > 180) current -= 360;
-    while(current < -180) current += 360;
+    current = normalize(current - targetHeading);
     return Math.abs(current)<degreeTolerance;
   }
 
