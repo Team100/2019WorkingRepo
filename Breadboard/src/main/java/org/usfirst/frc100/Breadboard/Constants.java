@@ -21,44 +21,41 @@ public class Constants {
      */
     public static int DRIVE_TRAIN_LEFT_MASTER_CANID = 0;
     public static int DRIVE_TRAIN_LEFT_FOLLOWER_CANID = 1;
-    public static int DRIVE_TRAIN_RIGHT_MASTER_CANID = 15;
     public static int DRIVE_TRAIN_RIGHT_FOLLOWER_CANID = 14;
+    public static int DRIVE_TRAIN_RIGHT_MASTER_CANID = 15;
     public static SerialPort.Port NAVX_COMM_PORT = SerialPort.Port.kUSB;
+    public static int ELEVATOR_MASTER_CANID = 10;
+    public static int ELEVATOR_FOLLOWER_CANID = 11;
+    public static int BALL_PICKUP_INTAKE_PWM = 8;
 
     /*
-     * Subsystem-specific constants
+     * Drivetrain
      */
-    /*Drivetrain*/
     public static double DRIVE_TRAIN_MAX_MOTOR_OUTPUT = 0.5;
     public static boolean DRIVE_TRAIN_LEFT_MASTER_INVERT = false;
     public static InvertType DRIVE_TRAIN_LEFT_FOLLOWER_INVERT = InvertType.FollowMaster;
     public static boolean DRIVE_TRAIN_RIGHT_MASTER_INVERT = false;
     public static InvertType DRIVE_TRAIN_RIGHT_FOLLOWER_INVERT = InvertType.FollowMaster;
-    /*SmartPivot system (NavX + Drivetrain)*/
-    public static double DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT = 0.5;
-    //NOT ACTUAL SPEED, PERCENTAGE OF PIVOT_MOTOR_OUTPUT(LINE ABOVE) [0 -> 1]
-    public static double DRIVE_TRAIN_PIVOT_SLOW_PERCENTAGE = 0.6;
-    public static int TURN_STOP_BUFFER = (int)(25*DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
-    public static int TURN_SLOW_BUFFER = (int)(80*DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT);
-
-
-    //Ball Pickup
-    public static int BALL_PICKUP_INTAKE_PWM = 8;
-
-    //Drivetrain
+    //PID Rotation with NavX
     public static double DT_MASTER_P = 0.007;
     public static double DT_MASTER_I = 0.00004;
     public static double DT_MASTER_D = 0.002;
     public static double DT_MASTER_F = 0;
-
     public static double DT_TURN_MIN_ROTATION_ANGLE = -180;
     public static double DT_TURN_MAX_ROTATION_ANGLE = 180;
-
     public static double DT_TURN_MIN_OUTPUT = -1;
     public static double DT_TURN_MAX_OUTPUT = 1;
-
     public static double DT_TURN_ABSOLUTE_TOLERANCE = 1;
-    
+    public static double DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT = 0.5;
+    public static double DRIVE_TRAIN_PIVOT_SLOW_PERCENTAGE = 0.6;
+
+    /*
+     * Elevator
+     */
+    public static double ELEVATOR_GRAVITY_COUNTER = 0;
+    public static double ELEVATOR_MAX_MOTOR_OUTPUT = 0.5;
+    public static boolean ELEVATOR_MASTER_INVERT = false;
+    public static InvertType ELEVATOR_FOLLOWER_INVERT = InvertType.FollowMaster;
     
 
 }

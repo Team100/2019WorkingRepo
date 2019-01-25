@@ -74,20 +74,20 @@ public class OI {
         pickupButton.whileHeld(new Pickup());
 
         turnButton = new JoystickButton(leftStick, 2);
-        turnButton.whenPressed(new TurnToHeading(false, 90));
+        turnButton.whenPressed(new TurnAbsolute(90));
 
         pivotButton = new JoystickButton(leftStick, 3);
         pivotButton.whenPressed(new TurnRelative(90));
 
         pivotHalfButton = new JoystickButton(leftStick, 4);
-        pivotHalfButton.whenPressed(new TurnAbsolute(90));
+        pivotHalfButton.whenPressed(new TurnRelative(-90));
 
 
         // SmartDashboard Buttons
         SmartDashboard.putData("Autonomous Command", new AutonomousCommand());
         SmartDashboard.putData("Drive", new Drive());
         SmartDashboard.putData("Pickup", new Pickup());
-        SmartDashboard.putData("Turn to 90", new TurnToHeading(false, 90));
+        SmartDashboard.putData("Turn to 90", new TurnAbsolute(90));
         SmartDashboard.putData("Pivot 90 ->", new TurnRelative(90));
         SmartDashboard.putData("Pivot 90 <-", new TurnRelative(-90));
 
