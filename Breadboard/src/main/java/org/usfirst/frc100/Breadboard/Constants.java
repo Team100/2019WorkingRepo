@@ -52,8 +52,8 @@ public class Constants {
     /*
      * Elevator
      */
-    public static double ELEVATOR_GRAVITY_COUNTER = 0;
-    public static double ELEVATOR_MAX_MOTOR_OUTPUT = 0.5;
+    public static double ELEVATOR_GRAVITY_COUNTER = 0.1;
+    public static double ELEVATOR_MAX_MOTOR_OUTPUT = 0.2;
     public static boolean ELEVATOR_MASTER_INVERT = false;
     public static InvertType ELEVATOR_FOLLOWER_INVERT = InvertType.FollowMaster;
     
