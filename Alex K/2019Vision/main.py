@@ -252,7 +252,7 @@ try:
                 # ## End calculating angle of plane
                 # ##
             except:
-                aop = -1
+                aop = 0
 
             if config.display.debug:
                 cv2.putText(frame, "Angle of Plane: {0}".format(aop), (16, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
