@@ -51,6 +51,7 @@ void loop() {
       color = 0x000000; //off
       Serial.println('X');
       break;
+      // test
   }
   }
 
