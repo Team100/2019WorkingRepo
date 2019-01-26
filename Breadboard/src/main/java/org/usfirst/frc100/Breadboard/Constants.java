@@ -47,7 +47,6 @@ public class Constants {
     public static double DT_TURN_MAX_OUTPUT = 1;
     public static double DT_TURN_ABSOLUTE_TOLERANCE = 1;
     public static double DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT = 0.5;
-    public static double DRIVE_TRAIN_PIVOT_SLOW_PERCENTAGE = 0.6;
 
     /*
      * Elevator

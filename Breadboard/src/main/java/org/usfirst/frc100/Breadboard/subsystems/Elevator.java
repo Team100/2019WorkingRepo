@@ -28,6 +28,7 @@ public class Elevator extends Subsystem {
         victor10 = new WPI_VictorSPX(Constants.ELEVATOR_MASTER_CANID);
         victor11 = new WPI_VictorSPX(Constants.ELEVATOR_FOLLOWER_CANID);
 
+        //Most likely won't be Master/Follower setup, but I was just playing around
         victor11.follow(victor10);
 
         victor10.setInverted(Constants.ELEVATOR_MASTER_INVERT);
