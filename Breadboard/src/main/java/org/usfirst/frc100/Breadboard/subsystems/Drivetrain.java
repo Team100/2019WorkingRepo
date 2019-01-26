@@ -106,7 +106,7 @@ public class Drivetrain extends Subsystem implements PIDOutput{
         /*
          * Use both left and right sticks for driving (L) Up+Down, (R) Left+Right
          */
-        differentialDrive1.arcadeDrive(Robot.oi.getLeftStick().getY(), Robot.oi.getRightStick().getX());
+        differentialDrive1.arcadeDrive(-Robot.oi.getLeftStick().getY(), Robot.oi.getRightStick().getX());
     }
 
     public void stop(){

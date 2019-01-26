@@ -47,7 +47,7 @@ public class Elevator extends Subsystem {
     }
 
     public void elevate() {
-        victor10.set(ControlMode.PercentOutput, Constants.ELEVATOR_MAX_MOTOR_OUTPUT*(-Robot.oi.leftStick.getThrottle())+Constants.ELEVATOR_GRAVITY_COUNTER);
+        victor10.set(ControlMode.PercentOutput, Constants.ELEVATOR_MAX_MOTOR_OUTPUT*(-Robot.oi.getDual().getThrottle())+Constants.ELEVATOR_GRAVITY_COUNTER);
     }
 
     // Put methods for controlling this subsystem

@@ -31,7 +31,7 @@ public class Constants {
     /*
      * Drivetrain
      */
-    public static double DRIVE_TRAIN_MAX_MOTOR_OUTPUT = 0.5;
+    public static double DRIVE_TRAIN_MAX_MOTOR_OUTPUT = 0.8;
     public static boolean DRIVE_TRAIN_LEFT_MASTER_INVERT = false;
     public static InvertType DRIVE_TRAIN_LEFT_FOLLOWER_INVERT = InvertType.FollowMaster;
     public static boolean DRIVE_TRAIN_RIGHT_MASTER_INVERT = false;
