@@ -37,9 +37,10 @@ observer.schedule(FileWatcher(update_config), path=".", recursive=False)
 observer.start()
 
 # Connect to NetworkTables
-NetworkTables.initialize(server=config.network_tables)
-wait(3)
-table = NetworkTables.getTable("camera")
+if config.network_tables:
+    NetworkTables.initialize(server=config.network_tables)
+    wait(3)
+    table = NetworkTables.getTable("camera")
 
 # Start connection
 camera = cv2.VideoCapture(config.camera_port)
@@ -136,91 +137,122 @@ try:
 
             dtt = round(((d1 + d2) / 2) / 20.25 * 39 / 62.1 * 60, 4)
 
-            # ##
-            # ##  Begin calculating angle of plane
-            # ##
-            if facing[i] == -1:
-                (nx1, ny1) = points1[2]
-                (nx2, ny2) = points2[2]
-            else:
-                (nx1, ny1) = points1[2]
-                (nx2, ny2) = points2[2]
+            # Fix division by zero errors
+            try:
+                # ##
+                # ##  Begin calculating angle of plane
+                # ##
+                if facing[i] == -1:
+                    (nx1, ny1) = points1[2]
+                    (nx2, ny2) = points2[2]
+                else:
+                    (nx1, ny1) = points1[2]
+                    (nx2, ny2) = points2[2]
 
-            slope = (ny1 - ny2) / (nx1 - nx2)
+                slope = (ny1 - ny2) / (nx1 - nx2)
 
-            my = ny1
-            v1 = (nx1 - nx2)
-            v2 = (ny1 - ny2)
-            v3 = 0
-            if slope != 0:
-                my = (slope * (319.5 + slope * 239.5) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
+                my = ny1
+                v1 = (nx1 - nx2)
+                v2 = (ny1 - ny2)
+                v3 = 0
+                if slope != 0:
+                    my = (slope * (319.5 + slope * 239.5) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
 
-            # Display debugging parallel lines
-            if config.display.debug:
-                cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
-                cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
+                # Display debugging parallel lines
+                if config.display.debug:
+                    cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
+                    cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
 
-            my -= 239.5
-            norm_theta = my / 6 / 57.3
+                my -= 239.5
+                norm_theta = my / 6 / 57.3
 
-            om1 = 0
-            om2 = math.cos(norm_theta)
-            om3 = math.sin(norm_theta)
+                om1 = 0
+                om2 = math.cos(norm_theta)
+                om3 = math.sin(norm_theta)
 
-            n11 = v2 * om3 - v3 * om2
-            n12 = v3 * om1 - v1 * om3
-            n13 = v1 * om2 - v2 * om1
+                n11 = v2 * om3 - v3 * om2
+                n12 = v3 * om1 - v1 * om3
+                n13 = v1 * om2 - v2 * om1
 
-            if facing[i] == -1:
-                inner1 = max(max(points1[0][0], points1[1][0]), max(points1[2][0], points1[3][0]))
-                inner2 = min(min(points2[0][0], points2[1][0]), min(points2[2][0], points2[3][0]))
-                (nx1, ny1) = points1[0]
-                (nx2, ny2) = points2[0]
-            else:
-                inner1 = min(min(points1[0][0], points1[1][0]), min(points1[2][0], points1[3][0]))
-                inner2 = max(max(points2[0][0], points2[1][0]), max(points2[2][0], points2[3][0]))
-                (nx1, ny1) = points1[0]
-                (nx2, ny2) = points2[0]
+                if facing[i] == -1:
+                    inner1 = max(max(points1[0][0], points1[1][0]), max(points1[2][0], points1[3][0]))
+                    inner2 = min(min(points2[0][0], points2[1][0]), min(points2[2][0], points2[3][0]))
+                    (nx1, ny1) = points1[0]
+                    (nx2, ny2) = points2[0]
 
-            slope = (ny1 - ny2) / (nx1 - nx2)
+                    na1 = 90 - abs(math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)
+                    na2 = 90 - abs(math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)
 
-            my = ny1
-            v1 = (nx1 - nx2)
-            v2 = (ny1 - ny2)
-            v3 = 0
-            if slope != 0:
-                my = (slope * (319.5 + slope * 239.5) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
+                    cv2.putText(frame, "new angle -1: {0}".format(90 - abs(
+                        math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)),
+                                (16, 380), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                (255, 255, 255), 1)
+                    cv2.putText(frame, "new angle 1: {0}".format(
+                        90 - abs(
+                            math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)),
+                                (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                (255, 255, 255), 1)
+                else:
+                    inner1 = min(min(points1[0][0], points1[1][0]), min(points1[2][0], points1[3][0]))
+                    inner2 = max(max(points2[0][0], points2[1][0]), max(points2[2][0], points2[3][0]))
+                    (nx1, ny1) = points1[0]
+                    (nx2, ny2) = points2[0]
 
-            if config.display.debug:
-                cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
-                cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
+                    na1 = 90 - abs(math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)
+                    na2 = 90 - abs(math.atan((points2[0][1] - points2[3][1]) / (points2[0][0] - points2[3][0])) * RAD2DEG)
 
-            my -= 239.5
-            norm_theta = my / 6 / 57.3
+                    cv2.putText(frame, "new angle 1: {0}".format(90 - abs(
+                        math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)),
+                                (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                (255, 255, 255), 1)
+                    cv2.putText(frame, "new angle -1: {0}".format(90 -
+                                                                  abs(math.atan((points2[0][1] - points2[3][1]) / (
+                                                                              points2[0][0] - points2[3][
+                                                                          0])) * RAD2DEG)), (16, 380),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                (255, 255, 255), 1)
 
-            om1 = 0
-            om2 = math.cos(norm_theta)
-            om3 = math.sin(norm_theta)
+                slope = (ny1 - ny2) / (nx1 - nx2)
 
-            n21 = v2 * om3 - v3 * om2
-            n22 = v3 * om1 - v1 * om3
-            n23 = v1 * om2 - v2 * om1
+                my = ny1
+                v1 = (nx1 - nx2)
+                v2 = (ny1 - ny2)
+                v3 = 0
+                if slope != 0:
+                    my = (slope * (319.5 + slope * 239.5) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
 
-            ab1 = n12 * n23 - n13 * n22
-            ab2 = n13 * n21 - n11 * n23
+                if config.display.debug:
+                    cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
+                    cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
 
-            inner1 -= 50
-            inner2 -= 50
-            width = inner1 - inner2
-            if width > 0:
-                width += 10
-            else:
-                width *= -1
+                my -= 239.5
+                norm_theta = my / 6 / 57.3
 
-            aop = (90 - abs(math.atan(ab1 / (ab2 + 0.000001)) / 3.1415 * 180)) * 2
-            # ##
-            # ## End calculating angle of plane
-            # ##
+                om1 = 0
+                om2 = math.cos(norm_theta)
+                om3 = math.sin(norm_theta)
+
+                n21 = v2 * om3 - v3 * om2
+                n22 = v3 * om1 - v1 * om3
+                n23 = v1 * om2 - v2 * om1
+
+                ab1 = n12 * n23 - n13 * n22
+                ab2 = n13 * n21 - n11 * n23
+
+                inner1 -= 50
+                inner2 -= 50
+                width = inner1 - inner2
+                if width > 0:
+                    width += 10
+                else:
+                    width *= -1
+
+                aop = (90 - abs(math.atan(ab1 / (ab2 + 0.000001)) / 3.1415 * 180)) * 2 * 4 / 3
+                # ##
+                # ## End calculating angle of plane
+                # ##
+            except:
+                aop = -1
 
             if config.display.debug:
                 cv2.putText(frame, "Angle of Plane: {0}".format(aop), (16, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
@@ -241,7 +273,8 @@ try:
             })
 
         # Post to NetworkTables
-        table.putString("data", stringify_json(json_representation))
+        if config.network_tables:
+            table.putString("data", stringify_json(json_representation))
 
         # Check if should display
         if config.display.window:
