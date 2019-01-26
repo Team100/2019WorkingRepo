@@ -47,6 +47,7 @@ void loop() {
     case 'Y':
       color = 0xFFFF00; //yellow
       Serial.println('Y');
+      break;
     case 'X':
       color = 0x000000; //off
       Serial.println('X');
