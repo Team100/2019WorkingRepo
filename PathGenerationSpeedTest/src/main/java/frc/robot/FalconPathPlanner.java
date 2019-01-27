@@ -92,12 +92,12 @@ public class FalconPathPlanner
 		this.origPath = doubleArrayCopy(path);
 
 		//default values DO NOT MODIFY;
-		pathAlpha = 0.7;
-		pathBeta = 0.3;
+		pathAlpha = 0.005;
+		pathBeta = 0.1;
 		pathTolerance = 0.0000001;
 
-		velocityAlpha = 0.1;
-		velocityBeta = 0.3;
+		velocityAlpha = 0.005;
+		velocityBeta = 0.1;
 		velocityTolerance = 0.0000001;
 	}
 
@@ -640,7 +640,7 @@ public class FalconPathPlanner
 			else
 			{
 				smoothPath = inject(smoothPath,inject[i]);
-				smoothPath = smoother(smoothPath, 0.1, 0.3, 0.0000001);	
+				smoothPath = smoother(smoothPath, 0.05, 0.3, 0.0000001);//TODO change 0.7 back to 0.1	
 			}
 		}
 

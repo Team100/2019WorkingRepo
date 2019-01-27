@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.subsystems.DriveTrain;
 
+import com.kauailabs.navx.frc.*;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -23,6 +25,7 @@ import frc.robot.subsystems.DriveTrain;
  * project.
  */
 public class Robot extends TimedRobot {
+  public static AHRS ahrs;
 // public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
   public static DriveTrain driveTrain = new DriveTrain();
 
@@ -37,6 +40,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+   ahrs = new AHRS(SerialPort.Port.kUSB1);
     m_oi = new OI();
     // chooser.addOption("My Auto", new MyAutoCommand());
     SmartDashboard.putData("Auto mode", m_chooser);
@@ -61,11 +65,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void disabledInit() {
+    ahrs.reset();
   }
 
   @Override
   public void disabledPeriodic() {
     Scheduler.getInstance().run();
+    SmartDashboard.putNumber("Heading", ahrs.getFusedHeading());
   }
 
   /**
@@ -121,6 +127,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
+    SmartDashboard.putNumber("Heading", ahrs.getFusedHeading());
   }
 
   /**

@@ -9,11 +9,12 @@ package frc.robot.commands;
 
 import com.analog.adis16448.frc.ADIS16448_IMU;
 
-import edu.wpi.first.*;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import frc.robot.FalconPathPlanner;
+
+import frc.robot.*;
 
 import edu.wpi.first.networktables.*;
 public class turnGo extends Command {
@@ -34,16 +35,7 @@ public class turnGo extends Command {
   @Override
   protected void initialize() {
     String state = "";
-    double globalAngle = imu.getAngle();
-    if(globalAngle < 90 && globalAngle > 0){
-      //This state is leftleft
-    }else if(globalAngle < 180 && globalAngle > 90){
-      //this state is leftright
-    }else if(globalAngle < 270 && globalAngle > 180){
-      //this state is rightleft
-    }else if(globalAngle < 360 && globalAngle > 270){
-      //this state is rightright
-    }
+    double globalAngle = Robot.ahrs.getFusedHeading();
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("camera");
     String cameraData = table.getEntry("data").getString(null);
@@ -62,26 +54,38 @@ public class turnGo extends Command {
 
     }
   }
-
-    // endLocationX = Math.sin(angle) * distance/12;
-    // endLocationY = Math.cos(angle) * distance/12;
-    extrusion = distance/10; 
+  angle = 40;
+  distance = 96;
+  double relativeAngle = 0;
+  if(globalAngle < 90 && globalAngle > 0){
+    //This state is leftleft
+    relativeAngle = (360-globalAngle) - angle;
+  }else if(globalAngle < 180 && globalAngle > 90){
+    //this state is leftright
+    relativeAngle = (360-globalAngle) + angle;
+  }else if(globalAngle < 270 && globalAngle > 180){
+    //this state is rightleft
+    relativeAngle = (360-globalAngle) + angle;
+  }else if(globalAngle < 360 && globalAngle > 270){
+    //this state is rightright
+    relativeAngle = (360-globalAngle) - angle;
+  }
+  endLocationX = Math.cos(relativeAngle) * distance/12;
+  endLocationY = Math.sin(relativeAngle) * distance/12;
+    extrusion = distance/12/4; 
     waypoints = new double[4][2];
-    waypoints[0][0] = 0.0;
-    waypoints[0][1] = 0.0;
+    waypoints[1][0] = 0.0;
+    waypoints[1][1] = 0.0;
     waypoints[3][0] = endLocationX;
     waypoints[3][1] = endLocationY;
-    waypoints[1][0] = 0.0;
-    waypoints[1][1] = 0.0 + extrusion;
-    waypoints[2][0] = endLocationX;
-    waypoints[2][1] = endLocationY-extrusion;
-     
+    waypoints[2][0] = endLocationX + (extrusion/3);
+    waypoints[2][1] = endLocationY - (extrusion*3);
 		fin = false;
 		long start = System.currentTimeMillis();
 
 		//create waypoint path
     /*double[][] path = {}*/
-		double totalTime = (((distance/12)/8)+3); //seconds
+		double totalTime = (((distance/12)/7)+3); //seconds
 		double timeStep = 0.02; //period of control loop on Rio, seconds
 		double robotTrackWidth = 2; //distance between left and right wheels, feet
 		final FalconPathPlanner path = new FalconPathPlanner(waypoints);
@@ -101,7 +105,7 @@ public class turnGo extends Command {
       pathfinderPath[i][1] = path.smoothRightVelocity[i][1];
       pathfinderPath[i][2] = path.heading[i][1];
     }
-    System.out.println("distance =" + (distance));
+    System.out.println("X end pos =" + (endLocationX) + ". Y end pos" + endLocationY + ". Angle: " + angle + ". Global angle" + globalAngle);
     
     // calculations for curvature https://www.desmos.com/calculator/vhrlmfzv7p
     //new PathFinder(pathfinderPath);
