@@ -7,12 +7,12 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.utility.T100TalonSRX;
+import frc.robot.utility.T100VictorSPX;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,8 +27,10 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private static final int kMotorPort = 1;
+  private static final int kMotorPort2 = 2;
   private static final int kJoystickPort = 0;
-  private WPI_TalonSRX m_motor;
+  private T100TalonSRX m_motor;
+  private T100VictorSPX m_motor2;
   private Joystick m_joystick;
 
   /**
@@ -40,7 +42,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    m_motor = new WPI_TalonSRX(kMotorPort);
+    m_motor = new T100TalonSRX(kMotorPort);
+    m_motor2 = new T100VictorSPX(kMotorPort2);
     m_joystick = new Joystick(kJoystickPort);
   }
 
