@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,6 +26,10 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private static final int kMotorPort = 1;
+  private static final int kJoystickPort = 0;
+  private WPI_TalonSRX m_motor;
+  private Joystick m_joystick;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -33,6 +40,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    m_motor = new WPI_TalonSRX(kMotorPort);
+    m_joystick = new Joystick(kJoystickPort);
   }
 
   /**
@@ -86,6 +95,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    m_motor.set(m_joystick.getY());
   }
 
   /**
