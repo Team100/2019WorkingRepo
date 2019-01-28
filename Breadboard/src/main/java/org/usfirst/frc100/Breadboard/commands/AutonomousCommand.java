@@ -11,7 +11,6 @@
 
 package org.usfirst.frc100.Breadboard.commands;
 import edu.wpi.first.wpilibj.command.Command;
-import org.usfirst.frc100.Breadboard.Robot;
 
 /**
  *

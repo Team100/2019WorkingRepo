@@ -7,14 +7,14 @@
 
 package org.usfirst.frc100.Breadboard.commands;
 
-import org.usfirst.frc100.Breadboard.Robot;
+//import org.usfirst.frc100.Breadboard.Robot;
 
 import edu.wpi.first.wpilibj.command.Command;
 
 public class Elevate extends Command {
     public Elevate() {
       // Use requires() here to declare subsystem dependencies
-      requires(Robot.elevator);
+      //requires(Robot.elevator);
     }
 
     // Called just before this Command runs the first time
@@ -25,7 +25,7 @@ public class Elevate extends Command {
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-      Robot.elevator.elevate();
+      //Robot.elevator.elevate();
     }
 
     // Make this return true when this Command no longer needs to run execute()
