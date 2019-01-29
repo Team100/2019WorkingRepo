@@ -17,7 +17,9 @@ bool doblinkG = false;
 bool doblinkB = false;
 bool doblinkY = false;
 bool dochaseR = false;
-int chaseR = 0;
+bool dochaseG = false;
+bool dochaseB = false;
+bool dochaseY = false;
 // Generally, you should use "unsigned long" for variables that hold time
 // The value will quickly become too large for an int to store
 unsigned long previousMillis = 0;        // will store last time LED was updated
@@ -26,6 +28,17 @@ unsigned long previousMillis = 0;        // will store last time LED was updated
 const long interval = 500;
 //---------------------------------------------------------------------------------------//
 uint32_t color = 0x35FF00; //orange
+
+void noDos() {
+  doblinkR = false;
+        doblinkG = false;
+        doblinkB = false;
+        doblinkY = false;
+        dochaseR = false;
+        dochaseG = false;
+        dochaseB = false;
+        dochaseY = false;
+}
 
 void simpleOn(uint32_t color, int tail, int head) {
   for (int i = tail; i < head; i++) {
@@ -48,102 +61,75 @@ void loop() {
     int colorByte = Serial.read();
     switch (colorByte) {
       case 'R':
-        doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
-        color = 0x00FF00; //red
         Serial.println('R');
+        noDos();
+        color = 0x00FF00; //red 
         break;
       case 'G':
-        doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
-        color = 0xFF0000; //green
         Serial.println('G');
+        noDos();
+        color = 0xFF0000; //green
         break;
       case 'B':
-        doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
-        color = 0x0000FF; //blue
         Serial.println('B');
+        noDos();
+        color = 0x0000FF; //blue
         break;
       case 'Y':
-        doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
-        color = 0xFFFF00; //yellow
         Serial.println('Y');
+        noDos();
+        color = 0xFFFF00; //yellow
         break;
       case 'X':
-        doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
-        color = 0x000000; //off
         Serial.println('X');
+        noDos();
+        color = 0x000000; //off
         break;
       case 'r':
         Serial.println("Rblink");
+        noDos();
         doblinkR = true;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
         break;
       case 'g':
         Serial.println("Gblink");
-        doblinkR = false;
+        noDos();
         doblinkG = true;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
         break;
       case 'b':
         Serial.println("Bblink");
-        doblinkR = false;
-        doblinkG = false;
+        noDos();
         doblinkB = true;
-        doblinkY = false;
-        dochaseR = false;
         break;
       case 'y':
         Serial.println("Yblink");
-        doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
+        noDos();
         doblinkY = true;
-        dochaseR = false;
         break;
       case 'O':
         Serial.println('O');
-        doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
+        noDos();
         color = 0x35FF00;
         break;
       case '1':
         Serial.println("Rchase");
-        doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
+        noDos();
         dochaseR = true;
-        color = 0x00FF00;
-        for (int i = tail; i < head; i += 2) {
-          strip.setPixelColor(i + chaseR, color);
-        }
+        break;
+      case '2':
+        Serial.println("Gchase");
+        noDos();
+        dochaseG = true;
+        break;
+      case '3':
+        Serial.println("Bchase");
+        noDos();
+        dochaseB = true;
+        break;
+      case '4':
+        Serial.println("Ychase");
+        noDos();
+        dochaseY = true;
+        break;
     }
     strip.show();
   }
@@ -208,22 +194,91 @@ void loop() {
     simpleOn(color, tail, head);
   }
   if (dochaseR) {
+    color = 0x000000;
     unsigned long currentMillis = millis();
     Serial.println(currentMillis);
     if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
-      if (chaseR = 0) {
-        ledState = HIGH;
-        chaseR = 1;
-      } else {
-        ledState = LOW;
-        chaseR = 0;
-      }
-        for (int i = tail; i < head; i+=2) {
-          strip.setPixelColor(i + chaseR, color);
+        for (int i = tail; i < head; i++) {
+          strip.setPixelColor(i, 0x00FF00);
+          strip.show();
+          delay(10);
+          color = 0x000000;
         }
-        strip.show();
+        for (int i = tail; i < head; i++) {
+          strip.setPixelColor(i, 0x000000);
+          strip.show();
+          delay(10);
+          color = 0x000000;
+        }
     }
+    simpleOn(color, tail, head);
+  }
+  if (dochaseG) {
+    color = 0x000000;
+    unsigned long currentMillis = millis();
+    Serial.println(currentMillis);
+    if (currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;
+        for (int i = tail; i < head; i++) {
+          strip.setPixelColor(i, 0xFF0000);
+          strip.show();
+          delay(10);
+          color = 0x000000;
+        }
+        for (int i = tail; i < head; i++) {
+          strip.setPixelColor(i, 0x000000);
+          strip.show();
+          delay(10);
+          color = 0x000000;
+        }
+    }
+    simpleOn(color, tail, head);
+  }
+  if (dochaseB) {
+    color = 0x000000;
+    unsigned long currentMillis = millis();
+    Serial.println(currentMillis);
+    if (currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;
+        for (int i = tail; i < head; i++) {
+          strip.setPixelColor(i, 0x0000FF);
+          strip.show();
+          delay(10);
+          color = 0x000000;
+        }
+        for (int i = tail; i < head; i++) {
+          strip.setPixelColor(i, 0x000000);
+          strip.show();
+          delay(10);
+          color = 0x000000;
+        }
+    }
+    simpleOn(color, tail, head);
+  }
+  if (dochaseY) {
+    color = 0x000000;
+    unsigned long currentMillis = millis();
+    Serial.println(currentMillis);
+    if (currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;
+        for (int i = tail; i < head; i++) {
+          strip.setPixelColor(i, 0xFFFF00);
+          strip.show();
+          delay(10);
+          color = 0x000000;
+        }
+        for (int i = tail; i < head; i++) {
+          strip.setPixelColor(i, 0x000000);
+          strip.show();
+          delay(10);
+          color = 0x000000;
+        }
+    }
+    simpleOn(color, tail, head);
+  }
+  if(!doblinkR && !doblinkG && !doblinkB && !doblinkY && !dochaseR && !dochaseG && !dochaseB && !dochaseY){
+    Serial.println("Solid Color");
     simpleOn(color, tail, head);
   }
 }
