@@ -32,3 +32,11 @@ while True:
         s.close()
         camera.release()
         break
+    except ConnectionResetError:
+        s.close()
+        camera.release()
+        break
+    except ConnectionAbortedError:
+        s.close()
+        camera.release()
+        break
