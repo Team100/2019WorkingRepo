@@ -12,9 +12,15 @@ import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm;
 import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm.HomeStates;
 import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm.States;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class TeleopArmController extends Command {
+  private Timer t;
+  private Timer homerTimer;
+  private int cyclesInErrorState;
+  private DigitalInput limitSwitch = new DigitalInput(1);
   public TeleopArmController() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
@@ -23,6 +29,8 @@ public class TeleopArmController extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    t.reset();
+    t.start();
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -37,6 +45,7 @@ public class TeleopArmController extends Command {
         home();
         break;
       case GOING_DOWN:
+        
         break;
       case DOWN:
         break;
@@ -47,6 +56,7 @@ public class TeleopArmController extends Command {
       case TELEOP:
         break;
       case ERROR:
+        cyclesInErrorState += 1;
         break;
 
     }
@@ -58,61 +68,71 @@ public class TeleopArmController extends Command {
         //If Limit Switch Pressed... set to "At Limit Switch"
         //Else Set to "Lowering to Limit Switch"
 
-        /*
-        if(limitSwitch.isPressed()){
+        homerTimer.reset();
+        homerTimer.start();
+        if(limitSwitch.get()){
           Robot.robotArm.homeState=HomeStates.ELEV_AT_LIMIT_SWITCH;
         }
         else{
           Robot.robotArm.homeState = HomeStates.ELEV_LOWERING_TO_LIMIT_SWITCH;
           Robot.robotArm.robotArmMotor.set(-0.33);
         }
-        */
+        
         
         break;
 
       case  ELEV_LOWERING_TO_LIMIT_SWITCH:
         //If Limit Switch Pressed... set to "At Limit Switch"
         //If timer expires... stop everything
-        /*
-        if(limitSwitch.isPressed()){
+        
+        if(limitSwitch.get()){
           Robot.robotArm.homeState = HomeStates.ELEV_AT_LIMIT_SWITCH;
-          Robot.robotArm.set(0);
+          Robot.robotArm.robotArmMotor.set(0);
         }
-        else if (timer.expired()){
+        else if (homerTimer.get() >= 750){
           Robot.robotArm.homeState = HomeStates.FATAL;
-          Robot.robotArm.set(0);
+          Robot.robotArm.robotArmMotor.set(0);
+          
         }
-        */
+        
         break;
 
       case ELEV_AT_LIMIT_SWITCH:
         //Transition to raising above limit switch
         //Start timer
-        /*
-         * Robot.robotArm.set(0.33);
-         * Robot.robotArm.homeState = HomeStates.ELEV_RAISING_TO_ABOVE_LIMIT_SWITCH;
-         */
+        homerTimer.stop();
+        homerTimer.reset();
+        homerTimer.start();
+        Robot.robotArm.robotArmMotor.set(0.33);
+        Robot.robotArm.homeState = HomeStates.ELEV_RAISING_TO_ABOVE_LIMIT_SWITCH;
+         
         break;
 
       case ELEV_RAISING_TO_ABOVE_LIMIT_SWITCH:
         //When limit switch not pressed...transition to COMPLETE
         //If timer expires... stop everything
 
-        /*
-         * if(!limitSwitch.isPressed()){
-         *    Robot.robotArm.set(0);
-         *    Robot.robotArm.homeState = HomeStates.COMPLETE;
-         * } 
-         */
+        if(!limitSwitch.get()){
+          Robot.robotArm.robotArmMotor.set(0);
+          Robot.robotArm.homeState = HomeStates.COMPLETE;
+        } 
+        else if(homerTimer.get()>750){
+          Robot.robotArm.robotArmMotor.set(0);
+          Robot.robotArm.homeState = HomeStates.FATAL;
+        }
         
         break;
 
       case COMPLETE:
         Robot.robotArm.state = States.DOWN;
+        Robot.robotArm.homeState = HomeStates.NOT_STARTED;
+        homerTimer.stop();
+        
         break;
 
       case FATAL:
         Robot.robotArm.state = States.ERROR;
+        homerTimer.stop();
         break;
       default:
         System.out.println("DEFAULT CASE FOR TELEOP ARM CONTROLLER REACHED... IS THIS INTENTIONAL?");
