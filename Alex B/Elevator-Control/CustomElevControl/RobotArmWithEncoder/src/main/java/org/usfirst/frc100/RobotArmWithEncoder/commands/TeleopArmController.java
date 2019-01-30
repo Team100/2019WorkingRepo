@@ -7,6 +7,7 @@
 
 package org.usfirst.frc100.RobotArmWithEncoder.commands;
 
+import org.usfirst.frc100.RobotArmWithEncoder.Constants;
 import org.usfirst.frc100.RobotArmWithEncoder.Robot;
 import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm;
 import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm.HomeStates;
@@ -14,13 +15,11 @@ import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm.States;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 public class TeleopArmController extends Command {
   private Timer t;
   private Timer homerTimer;
   private int cyclesInErrorState;
-  private DigitalInput limitSwitch = new DigitalInput(1);
   public TeleopArmController() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
@@ -45,11 +44,24 @@ public class TeleopArmController extends Command {
         home();
         break;
       case GOING_DOWN:
-        
+        if(Robot.robotArm.robotArmEncoder.get() < Constants.ARM_ENCODER_LOWER_BUFFER){
+          Robot.robotArm.robotArmMotor.set(0);
+          Robot.robotArm.state = States.DOWN;
+        }
+        else if(t.get()>Constants.ROBOT_ELEVATOR_STATE_CONTROLLER_MAX_TRANSITION_TIME_TOP_BOTTOM){
+          Robot.robotArm.state = States.ERROR;
+        }
         break;
       case DOWN:
+        
         break;
       case GOING_UP:
+        if(t.get() > Constants.ROBOT_ELEVATOR_STATE_CONTROLLER_MAX_TRANSITION_TIME_TOP_BOTTOM){
+          Robot.robotArm.state = States.ERROR;
+        }
+        if(Robot.robotArm.robotArmEncoder.get() > Constants.ARM_ENCODER_MAX_VALUE-Constants.ARM_ENCODER_TOP_BUFFER){
+          Robot.robotArm.state = States.UP;
+        }
         break;
       case UP:
         break;
@@ -70,7 +82,7 @@ public class TeleopArmController extends Command {
 
         homerTimer.reset();
         homerTimer.start();
-        if(limitSwitch.get()){
+        if(Robot.robotArm.limitSwitch.get()){
           Robot.robotArm.homeState=HomeStates.ELEV_AT_LIMIT_SWITCH;
         }
         else{
@@ -85,7 +97,7 @@ public class TeleopArmController extends Command {
         //If Limit Switch Pressed... set to "At Limit Switch"
         //If timer expires... stop everything
         
-        if(limitSwitch.get()){
+        if(Robot.robotArm.limitSwitch.get()){
           Robot.robotArm.homeState = HomeStates.ELEV_AT_LIMIT_SWITCH;
           Robot.robotArm.robotArmMotor.set(0);
         }
@@ -112,7 +124,7 @@ public class TeleopArmController extends Command {
         //When limit switch not pressed...transition to COMPLETE
         //If timer expires... stop everything
 
-        if(!limitSwitch.get()){
+        if(!Robot.robotArm.limitSwitch.get()){
           Robot.robotArm.robotArmMotor.set(0);
           Robot.robotArm.homeState = HomeStates.COMPLETE;
         } 
@@ -126,8 +138,7 @@ public class TeleopArmController extends Command {
       case COMPLETE:
         Robot.robotArm.state = States.DOWN;
         Robot.robotArm.homeState = HomeStates.NOT_STARTED;
-        homerTimer.stop();
-        
+        homerTimer.stop();    
         break;
 
       case FATAL:
@@ -136,6 +147,7 @@ public class TeleopArmController extends Command {
         break;
       default:
         System.out.println("DEFAULT CASE FOR TELEOP ARM CONTROLLER REACHED... IS THIS INTENTIONAL?");
+        break;
 
     }
   }
