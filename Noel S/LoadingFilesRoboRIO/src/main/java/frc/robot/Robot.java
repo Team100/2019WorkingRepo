@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.IterativeRobot;
 
 /**
@@ -33,22 +35,46 @@ public class Robot extends IterativeRobot {
   
   @Override
   public void robotInit() {
+    /* try { 
+      File f = new File("/home/lvuser/Output.txt"); 
+      f.createNewFile(); 
+      FileOutputStream oFile = new FileOutputStream(f, false); 
+  
+      String content = "content"; 
+  
+      oFile.write(content.getBytes()); 
+      oFile.flush(); 
+      oFile.close(); 
+      System.out.println("success"); 
+  } catch (IOException e) { 
+      System.out.println("error: " + e.getMessage()); 
+  }   */
     try {
-      f = new File("C:/Users/Team100/Documents/GitHub/2019WorkingRepo/Noel S/LoadingFilesRoboRIO/src/main/deploy/Output.txt");
+      File f = new File("/home/lvuser/Output.txt");
       if(!f.exists()){
         f.createNewFile();
       }
     fw = new FileWriter(f);
   } catch (IOException e) {
+    DriverStation.reportError(e.toString(), e.getStackTrace());
     e.printStackTrace();
   }
     bw = new BufferedWriter(fw);
+    //System.out.println("I got to line 47");
+
+    try {
+      bw.write("Hello, I'm a text file");
+      bw.close();
+      fw.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public void teleopInit(){
     	
     try {
-    bw.write("Hellow, I'm a text file");
+    bw.write("Hello, I'm a text file");
     bw.close();
     fw.close();
   } catch (IOException e) {
