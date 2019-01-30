@@ -93,12 +93,16 @@ public class FalconPathPlanner
 		this.origPath = doubleArrayCopy(path);
 
 		//default values DO NOT MODIFY;
-		pathAlpha = 0.7;
-		pathBeta = 0.3;
+		pathAlpha = 0.01;
+		pathBeta = 0.08;
 		pathTolerance = 0.0000001;
+		
+		// pathAlpha = 0.7;
+		// pathBeta = 0.3;
+		// pathTolerance = 0.0000001;
 
-		velocityAlpha = 0.1;
-		velocityBeta = 0.3;
+		velocityAlpha = 0.001;
+		velocityBeta = 0.4;
 		velocityTolerance = 0.0000001;
 	}
 

@@ -1,30 +1,22 @@
 public class PathRunner
 {
     public static void main(String args[]){
-        double distance = 20; //feet
-        double angle = 30;
-        double approachAngle = -90;
+        double distance = 15; //feet
+        double angle = -45;
         double endPosX = Math.cos(angle)*distance;
         double endPosY = Math.sin(angle)*distance;
+        double extrusionX = endPosX/3;
+        double extrusionY = endPosY*2/3;
         //create waypoint path
         double[][] waypoints = new double[][]{
             {0.0, 0.0},
-            {endPosX/5, 0.0},
-            // {Math.cos(approachAngle)*(distance/2), -Math.sin(approachAngle)*(distance/2)},
-            {endPosX, endPosY*3/4},
+            {extrusionX, 0.0},
+            {endPosX, 0.0},
+            {endPosX, extrusionY},
             {endPosX, endPosY}
         }; 
-        // double[][] waypoints = new double[][]{
-        //     {0.0, 0.0},
-        //     {endPosX/4, 0.0},
-        //     {1.5, -2.0},
-        //     {2.2, -6.0},
-        //     {2.7, -10.0},
-        //     {endPosX, endPosY-endPosY/4},
-        //     {endPosX, endPosY}
-        // }; 
 
-        double totalTime = 16; //max seconds we want to drive the path
+        double totalTime = 8; //max seconds we want to drive the path
         double timeStep = 0.02; //period of control loop on Rio, seconds
         double robotTrackWidth = 2; //distance between left and right wheels, feet
         
