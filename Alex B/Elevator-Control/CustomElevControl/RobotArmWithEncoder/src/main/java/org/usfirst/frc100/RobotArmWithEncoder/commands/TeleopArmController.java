@@ -7,6 +7,7 @@
 
 package org.usfirst.frc100.RobotArmWithEncoder.commands;
 
+
 import org.usfirst.frc100.RobotArmWithEncoder.Constants;
 import org.usfirst.frc100.RobotArmWithEncoder.Robot;
 import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm;
@@ -47,9 +48,12 @@ public class TeleopArmController extends Command {
         if(Robot.robotArm.robotArmEncoder.get() < Constants.ARM_ENCODER_LOWER_BUFFER){
           Robot.robotArm.robotArmMotor.set(0);
           Robot.robotArm.state = States.DOWN;
+          t.reset();
         }
         else if(t.get()>Constants.ROBOT_ELEVATOR_STATE_CONTROLLER_MAX_TRANSITION_TIME_TOP_BOTTOM){
           Robot.robotArm.state = States.ERROR;
+          System.out.println("ERROR RECIEVED AT FPGA:"+Timer.getFPGATimestamp()+" GOING_DOWN_STATE_MACHINE_TIMER_EXCEEDED");
+          t.reset();
         }
         break;
       case DOWN:
@@ -58,17 +62,23 @@ public class TeleopArmController extends Command {
       case GOING_UP:
         if(t.get() > Constants.ROBOT_ELEVATOR_STATE_CONTROLLER_MAX_TRANSITION_TIME_TOP_BOTTOM){
           Robot.robotArm.state = States.ERROR;
+          System.out.println("ERROR RECIEVED AT FPGA:"+Timer.getFPGATimestamp()+" GOING_UP_STATE_MACHINE_TIMER_EXCEEDED");
+
+          t.reset();
         }
         if(Robot.robotArm.robotArmEncoder.get() > Constants.ARM_ENCODER_MAX_VALUE-Constants.ARM_ENCODER_TOP_BUFFER){
           Robot.robotArm.state = States.UP;
+          t.reset();
         }
         break;
       case UP:
         break;
       case TELEOP:
+        
         break;
       case ERROR:
         cyclesInErrorState += 1;
+        Robot.robotArm.state = States.TELEOP;
         break;
 
     }
@@ -87,7 +97,7 @@ public class TeleopArmController extends Command {
         }
         else{
           Robot.robotArm.homeState = HomeStates.ELEV_LOWERING_TO_LIMIT_SWITCH;
-          Robot.robotArm.robotArmMotor.set(-0.33);
+          Robot.robotArm.robotArmMotor.set(-1*Constants.ARM_MOTOR_HOMING_POWER);
         }
         
         
@@ -101,8 +111,10 @@ public class TeleopArmController extends Command {
           Robot.robotArm.homeState = HomeStates.ELEV_AT_LIMIT_SWITCH;
           Robot.robotArm.robotArmMotor.set(0);
         }
-        else if (homerTimer.get() >= 750){
+        else if (homerTimer.get() >= Constants.HOMING_GOING_DOWN_MAX_DURATION){
           Robot.robotArm.homeState = HomeStates.FATAL;
+          System.out.println("ERROR RECIEVED AT FPGA:"+Timer.getFPGATimestamp()+" HOMING_GOING_DOWN_STATE_MACHINE_TIMER_EXCEEDED");
+
           Robot.robotArm.robotArmMotor.set(0);
           
         }
@@ -115,7 +127,7 @@ public class TeleopArmController extends Command {
         homerTimer.stop();
         homerTimer.reset();
         homerTimer.start();
-        Robot.robotArm.robotArmMotor.set(0.33);
+        Robot.robotArm.robotArmMotor.set(Constants.ARM_MOTOR_HOMING_POWER);
         Robot.robotArm.homeState = HomeStates.ELEV_RAISING_TO_ABOVE_LIMIT_SWITCH;
          
         break;
@@ -128,7 +140,7 @@ public class TeleopArmController extends Command {
           Robot.robotArm.robotArmMotor.set(0);
           Robot.robotArm.homeState = HomeStates.COMPLETE;
         } 
-        else if(homerTimer.get()>750){
+        else if(homerTimer.get()>Constants.HOMING_GOING_UP_MAX_DURATION){
           Robot.robotArm.robotArmMotor.set(0);
           Robot.robotArm.homeState = HomeStates.FATAL;
         }
