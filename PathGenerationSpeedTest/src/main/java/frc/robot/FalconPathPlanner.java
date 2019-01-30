@@ -640,7 +640,7 @@ public class FalconPathPlanner
 			else
 			{
 				smoothPath = inject(smoothPath,inject[i]);
-				smoothPath = smoother(smoothPath, 0.05, 0.3, 0.0000001);//TODO change 0.7 back to 0.1	
+				smoothPath = smoother(smoothPath, 0.1, 0.7, 0.00001);//TODO change 0.7 back to 0.1	
 			}
 		}
 

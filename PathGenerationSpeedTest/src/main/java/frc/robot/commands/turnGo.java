@@ -54,8 +54,8 @@ public class turnGo extends Command {
 
     }
   }
-  angle = 40;
-  distance = 96;
+  angle = 20;
+  distance = 136;
   double relativeAngle = 0;
   if(globalAngle < 90 && globalAngle > 0){
     //This state is leftleft
@@ -78,8 +78,8 @@ public class turnGo extends Command {
     waypoints[1][1] = 0.0;
     waypoints[3][0] = endLocationX;
     waypoints[3][1] = endLocationY;
-    waypoints[2][0] = endLocationX + (extrusion/3);
-    waypoints[2][1] = endLocationY - (extrusion*3);
+    waypoints[2][0] = endLocationX; 
+    waypoints[2][1] = endLocationY - (extrusion/3);
 		fin = false;
 		long start = System.currentTimeMillis();
 
@@ -97,8 +97,8 @@ public class turnGo extends Command {
     for(int i = 0; i < path.smoothLeftVelocity.length; i++){
 			System.out.print(path.smoothLeftVelocity[i][1] + ", ");
 			System.out.print(path.smoothRightVelocity[i][1] + ", ");
-			System.out.print(path.leftPath[i][1] + ", ");
-			System.out.print(path.rightPath[i][1] + ", ");
+			System.out.print(path.smoothPath[i][0] + ", ");
+			System.out.print(path.smoothPath[i][1] + ", ");
       System.out.print(path.smoothLeftVelocity[i][0] + ", ");
 			System.out.println(path.heading[i][1] + ", ");
       pathfinderPath[i][0] = path.smoothLeftVelocity[i][1];
