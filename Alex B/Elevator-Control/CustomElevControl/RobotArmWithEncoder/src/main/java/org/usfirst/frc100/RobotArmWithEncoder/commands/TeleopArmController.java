@@ -15,11 +15,16 @@ import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm.HomeStates;
 import org.usfirst.frc100.RobotArmWithEncoder.subsystems.RobotArm.States;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Joystick.AxisType;
 import edu.wpi.first.wpilibj.command.Command;
 
 public class TeleopArmController extends Command {
   private Timer t;
   private Timer homerTimer;
+  private enum JoystickButtons{
+    GO_UP,GO_DOWN,NONE
+  }
+  private JoystickButtons joy =  JoystickButtons.NONE;
   private int cyclesInErrorState;
   public TeleopArmController() {
     // Use requires() here to declare subsystem dependencies
@@ -36,6 +41,13 @@ public class TeleopArmController extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
+    joy = JoystickButtons.NONE;
+    if(Robot.oi.up.get()){
+      joy = JoystickButtons.GO_UP;
+    }
+    else if (Robot.oi.down.get()){
+      joy = JoystickButtons.GO_DOWN;
+    }
     switch(Robot.robotArm.state){
       case INIT:
         Robot.robotArm.homeState = HomeStates.NOT_STARTED;
@@ -57,7 +69,10 @@ public class TeleopArmController extends Command {
         }
         break;
       case DOWN:
-        
+        if(joy == JoystickButtons.GO_UP){
+          Robot.robotArm.state = States.GOING_UP;
+          Robot.robotArm.robotArmMotor.set(Constants.ELEVATOR_UP_SPEED);
+        }
         break;
       case GOING_UP:
         if(t.get() > Constants.ROBOT_ELEVATOR_STATE_CONTROLLER_MAX_TRANSITION_TIME_TOP_BOTTOM){
@@ -72,8 +87,18 @@ public class TeleopArmController extends Command {
         }
         break;
       case UP:
+        if(joy == JoystickButtons.GO_DOWN){
+          Robot.robotArm.state = States.GOING_DOWN;
+          Robot.robotArm.robotArmMotor.set(Constants.ELEVATOR_DOWN_SPEED);
+        }
         break;
       case TELEOP:
+        if(Robot.robotArm.limitSwitch.get()){
+          Robot.robotArm.robotArmMotor.set(0);
+        }
+        else{
+          Robot.robotArm.robotArmMotor.set(Robot.oi.teleopJoystick.getX());
+        }
         
         break;
       case ERROR:

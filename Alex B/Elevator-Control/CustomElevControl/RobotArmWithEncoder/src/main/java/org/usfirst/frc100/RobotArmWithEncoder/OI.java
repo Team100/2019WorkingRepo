@@ -65,9 +65,7 @@ public class OI {
         teleopJoystick = new Joystick(0);
         
         up = new JoystickButton(teleopJoystick, 4);
-        up.whileHeld(new MoveUp());
         down = new JoystickButton(teleopJoystick, 2);
-        down.whileHeld(new MoveDown());
         home = new JoystickButton(teleopJoystick, 1);
         home.whileHeld(new RobotArmHome());
 

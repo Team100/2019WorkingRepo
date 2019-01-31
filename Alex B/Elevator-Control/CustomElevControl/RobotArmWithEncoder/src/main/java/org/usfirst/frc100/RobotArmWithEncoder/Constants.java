@@ -20,4 +20,10 @@ public class Constants{
     public static double ARM_MOTOR_HOMING_POWER = 0.33;
     public static int HOMING_GOING_DOWN_MAX_DURATION = 750;
     public static int HOMING_GOING_UP_MAX_DURATION = 750;
+
+    /*
+     * ARM MOVEMENT SPEEDS
+     */
+    public static double ELEVATOR_UP_SPEED = 0.5;
+    public static double ELEVATOR_DOWN_SPEED = -0.5;
 }
