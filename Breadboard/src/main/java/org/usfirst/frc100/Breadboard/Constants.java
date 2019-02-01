@@ -50,14 +50,15 @@ public class Constants {
     public static boolean ARCADE_DRIVE_MODE = true;
     //Pathfinding
     public static final long EXECUTION_LOOP_INTERVAL = 50;
-    public static double DT_MASTER_kP = 0.25;
+    public static double DT_MASTER_kP = 1;
     public static double DT_MASTER_kI = 0;
     public static double DT_MASTER_kD = 0;
-    public static double DT_MASTER_kF = 0;
+    public static double DT_MASTER_kF = 0.1;
 	public static final double RAMP_RATE_DRIVETRAIN = 0.25;
 	public static final double LEFT_DRIVETRAIN_MODIFIER = 1;
 	public static final double RIGHT_DRIVETRAIN_MODIFIER = -1;
     public static final double DRIVETRAIN_TICKS_PER_METER = 962.446539102*16/37; //360*4*(1/3)*(1/(0.15875*3.1416));
+    public static final String[] PATHS_STRINGS = {"test"};
 
     /*
      * Elevator

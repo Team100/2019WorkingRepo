@@ -1,5 +1,5 @@
 
-package org.usfirst.frc100.Breadboard;
+package org.usfirst.frc100.Breadboard.utils;
 
 import java.util.LinkedList;
 import java.util.List;

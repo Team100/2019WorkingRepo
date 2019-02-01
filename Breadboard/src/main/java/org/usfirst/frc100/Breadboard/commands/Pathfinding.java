@@ -10,11 +10,13 @@ package org.usfirst.frc100.Breadboard.commands;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.management.RuntimeErrorException;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import org.usfirst.frc100.Breadboard.Constants;
 import org.usfirst.frc100.Breadboard.Robot;
+import org.usfirst.frc100.Breadboard.utils.Paths;
 
 import edu.wpi.first.wpilibj.command.Command;
 
@@ -26,9 +28,13 @@ public class Pathfinding extends Command {
 	private static int lineInPath;
 	private static double leftVelocity;
 	private static double rightVelocity;
+	private String currentMode;
+	private boolean generate = false;
 	Timer timer;
 
 	public Pathfinding() {
+		generate = true;
+
 		/*This sets the PIDF values as defined in the constants file*/
 		Robot.drivetrain.rightMaster.config_kP(0, Constants.DT_MASTER_kP, 10);
 		Robot.drivetrain.rightMaster.config_kI(0, Constants.DT_MASTER_kI, 10); 
@@ -44,12 +50,38 @@ public class Pathfinding extends Command {
 
 	}
 
+	public Pathfinding(String mode) {
+		generate = false;
+		currentMode = mode;
+		boolean modeFound = false;
+		/*This compares the mode that is given to any available mode. Modes can be found in the constants file*/
+		for(int i =  0; i < Constants.PATHS_STRINGS.length; i++) {
+			if(Constants.PATHS_STRINGS[i].equals(mode)){
+				modeFound = true;
+			}
+		}
+		if(!modeFound) {
+			throw new RuntimeErrorException(new Error("Unknown Path:" + mode));
+		}
+		/*This sets the PIDF values as defined in the constants file*/
+		Robot.drivetrain.rightMaster.config_kP(0, Constants.DT_MASTER_kP, 10);
+		Robot.drivetrain.rightMaster.config_kI(0, Constants.DT_MASTER_kI, 10); 
+		Robot.drivetrain.rightMaster.config_kD(0, Constants.DT_MASTER_kD, 10);
+		Robot.drivetrain.rightMaster.config_kF(0, Constants.DT_MASTER_kF, 10);
+
+		Robot.drivetrain.leftMaster.config_kP(0, Constants.DT_MASTER_kP, 10);
+		Robot.drivetrain.leftMaster.config_kI(0, Constants.DT_MASTER_kI, 10); 
+		Robot.drivetrain.leftMaster.config_kD(0, Constants.DT_MASTER_kD, 10);
+    Robot.drivetrain.leftMaster.config_kF(0, Constants.DT_MASTER_kF, 10);
+	}
+
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
     lineInPath = 0;
 		finished = false;
-		path = Robot.drivetrain.generatePath();
+		if (generate) path = Robot.drivetrain.generatePath();
+		else path = Paths.getPath(currentMode);
 		/*That path that is called can be found in the paths file*/
 		lengthOfPath =  path.length;
 		timer = new Timer();

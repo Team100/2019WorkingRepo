@@ -82,7 +82,7 @@ public class OI {
         pivotButton.whenPressed(new TurnRelative(90));
 
         pivotHalfButton = new JoystickButton(dual, 4);
-        pivotHalfButton.whenPressed(new Pathfinding());
+        pivotHalfButton.whenPressed(new Pathfinding("test"));
 
         driveButton = new JoystickButton(leftStick, 1);
 
