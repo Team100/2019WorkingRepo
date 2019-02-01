@@ -60,6 +60,9 @@ public class TeleopArmController extends Command {
       Robot.robotArm.state = States.TELEOP;
       
     }
+    else if(Math.abs(Robot.oi.teleopJoystick.getY())>Constants.ELEVATOR_OI_INTERRUPT_DEADBAND){
+      Robot.robotArm.state = States.TELEOP;
+    }
 
   }
   @Override

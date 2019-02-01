@@ -32,4 +32,9 @@ public class Constants{
      */
     public static int ELEVATOR_DOWN_MODIFIER = 1;
     public static int ELEVATOR_UP_MODIFIER = -1;
+
+    /*
+     * MISC 
+     */
+    public static double ELEVATOR_OI_INTERRUPT_DEADBAND = 0.25;
 }
