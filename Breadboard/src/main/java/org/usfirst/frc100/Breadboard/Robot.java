@@ -126,6 +126,7 @@ public class Robot extends TimedRobot {
         Scheduler.getInstance().run();
         currentHeading = ahrs.getFusedHeading();
         SmartDashboard.putNumber("Heading", currentHeading);
+        SmartDashboard.putString("DrivetrainMode", drivetrain.getCurrentCommandName());
         //if(oi.pivotButton.get()) new TurnRelative(getCurrentHeading()+90);
         if(timer > 0) timer--;
         if(oi.driveButton.get() && timer == 0) {
