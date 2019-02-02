@@ -49,16 +49,17 @@ public class Constants {
     public static double DRIVE_TRAIN_PIVOT_MOTOR_OUTPUT = 0.5;
     public static boolean ARCADE_DRIVE_MODE = true;
     //Pathfinding
-    public static final long EXECUTION_LOOP_INTERVAL = 50;
-    public static double DT_MASTER_kP = 1.0;
+    public static final long EXECUTION_LOOP_INTERVAL = 20;
+    public static double DT_MASTER_kP = 0.0;
     public static double DT_MASTER_kI = 0.0;
     public static double DT_MASTER_kD = 0.0;
-    public static double DT_MASTER_kF = 2.0;
+    public static double DT_MASTER_kF = 5.0;
 	public static final double RAMP_RATE_DRIVETRAIN = 0.25;
 	public static final double LEFT_DRIVETRAIN_MODIFIER = 1.0;
-	public static final double RIGHT_DRIVETRAIN_MODIFIER = -1.0;
-    public static final double DRIVETRAIN_TICKS_PER_METER = 962.446539102*16/37; //360*4*(1/3)*(1/(0.15875*3.1416));
-    public static final String[] PATHS_STRINGS = {"test"};
+    public static final double RIGHT_DRIVETRAIN_MODIFIER = -1.0;
+    public static final double TALON_SRX_UNIT_CONVERSION = 0.1; //Talon likes velocity in terms of 100ms, not 1sec
+    public static final double DRIVETRAIN_TICKS_PER_METER = 962.446539102; //360*4*(1/3)*(1/(0.15875*3.1416))/10;
+    public static final String[] PATHS_STRINGS = {"test", "forward"};
 
     /*
      * Elevator

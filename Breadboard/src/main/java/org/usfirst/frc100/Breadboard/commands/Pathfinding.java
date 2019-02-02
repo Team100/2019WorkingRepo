@@ -81,16 +81,23 @@ public class Pathfinding extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-		/*This sets the PIDF values as defined in the constants file*/
-		Robot.drivetrain.rightMaster.config_kP(0, Constants.DT_MASTER_kP, 10);
-		Robot.drivetrain.rightMaster.config_kI(0, Constants.DT_MASTER_kI, 10); 
-		Robot.drivetrain.rightMaster.config_kD(0, Constants.DT_MASTER_kD, 10);
-		Robot.drivetrain.rightMaster.config_kF(0, Constants.DT_MASTER_kF, 10);
 
-		Robot.drivetrain.leftMaster.config_kP(0, Constants.DT_MASTER_kP, 10);
-		Robot.drivetrain.leftMaster.config_kI(0, Constants.DT_MASTER_kI, 10); 
-		Robot.drivetrain.leftMaster.config_kD(0, Constants.DT_MASTER_kD, 10);
-		Robot.drivetrain.leftMaster.config_kF(0, Constants.DT_MASTER_kF, 10);
+	Robot.drivetrain.leftMaster.setSensorPhase(true);
+	Robot.drivetrain.rightMaster.setSensorPhase(true);
+
+	/*This sets the PIDF values as defined in the constants file*/
+	Robot.drivetrain.rightMaster.config_kP(0, Constants.DT_MASTER_kP, 10);
+	Robot.drivetrain.rightMaster.config_kI(0, Constants.DT_MASTER_kI, 10); 
+	Robot.drivetrain.rightMaster.config_kD(0, Constants.DT_MASTER_kD, 10);
+	Robot.drivetrain.rightMaster.config_kF(0, Constants.DT_MASTER_kF, 10);
+
+	Robot.drivetrain.leftMaster.config_kP(0, Constants.DT_MASTER_kP, 10);
+	Robot.drivetrain.leftMaster.config_kI(0, Constants.DT_MASTER_kI, 10); 
+	Robot.drivetrain.leftMaster.config_kD(0, Constants.DT_MASTER_kD, 10);
+	Robot.drivetrain.leftMaster.config_kF(0, Constants.DT_MASTER_kF, 10);
+
+	Robot.drivetrain.leftMaster.configClosedloopRamp(Constants.RAMP_RATE_DRIVETRAIN, 0);
+	Robot.drivetrain.rightMaster.configClosedloopRamp(Constants.RAMP_RATE_DRIVETRAIN, 0);
 
     lineInPath = 0;
 		finished = false;
@@ -115,27 +122,29 @@ public class Pathfinding extends Command {
 	 * This method is run every x amount of milliseconds and controls the robot during the path.
 	 */
 	public void executePath(){
-		leftVelocity = path[lineInPath][0]/3.28;
-    	rightVelocity = path[lineInPath][1]/3.28;
+		leftVelocity = path[lineInPath][0];
+    	rightVelocity = path[lineInPath][1];
 		
 		// Set the ramp rates for both sides
-		Robot.drivetrain.leftMaster.configClosedloopRamp(Constants.RAMP_RATE_DRIVETRAIN, 0);
-		Robot.drivetrain.rightMaster.configClosedloopRamp(Constants.RAMP_RATE_DRIVETRAIN, 0);
+		// Robot.drivetrain.leftMaster.configClosedloopRamp(Constants.RAMP_RATE_DRIVETRAIN, 0);
+		// Robot.drivetrain.rightMaster.configClosedloopRamp(Constants.RAMP_RATE_DRIVETRAIN, 0);
 		
 		// Set the motors to their desired value
-		Robot.drivetrain.leftMaster.set(ControlMode.Velocity, (leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
-		Robot.drivetrain.rightMaster.set(ControlMode.Velocity, (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
+		Robot.drivetrain.leftMaster.set(ControlMode.Velocity, (leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER * Constants.TALON_SRX_UNIT_CONVERSION);
+		Robot.drivetrain.rightMaster.set(ControlMode.Velocity, (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER * Constants.TALON_SRX_UNIT_CONVERSION);
 		
-		System.out.println(leftVelocity + ", "+ Constants.LEFT_DRIVETRAIN_MODIFIER +", " + Constants.DRIVETRAIN_TICKS_PER_METER + ", " + rightVelocity + ", " + Constants.RIGHT_DRIVETRAIN_MODIFIER + ", " + Constants.DRIVETRAIN_TICKS_PER_METER);
+		// System.out.println(leftVelocity + ", "+ Constants.LEFT_DRIVETRAIN_MODIFIER +", " + Constants.DRIVETRAIN_TICKS_PER_METER + ", " + rightVelocity + ", " + Constants.RIGHT_DRIVETRAIN_MODIFIER + ", " + Constants.DRIVETRAIN_TICKS_PER_METER);
 		SmartDashboard.putNumber("RightCommand", (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
 		SmartDashboard.putNumber("LeftCommand", (leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
-		SmartDashboard.putNumber("RightCommReceived", Robot.drivetrain.rightMaster.getSelectedSensorVelocity(0));
-		SmartDashboard.putNumber("LeftCommReceived", Robot.drivetrain.leftMaster.getSelectedSensorVelocity(0));
+		SmartDashboard.putNumber("RightVelocity", Robot.drivetrain.rightMaster.getSelectedSensorVelocity(0));
+		SmartDashboard.putNumber("LeftVelocity", Robot.drivetrain.leftMaster.getSelectedSensorVelocity(0));
 		SmartDashboard.putNumber("RightErrorAtSRX", Robot.drivetrain.rightMaster.getClosedLoopError());
 		SmartDashboard.putNumber("LeftErrorAtSRX", Robot.drivetrain.leftMaster.getClosedLoopError());
 		SmartDashboard.putString("LeftMode", Robot.drivetrain.leftMaster.getControlMode().toString());
+		SmartDashboard.putNumber("LeftCommandReceived", Robot.drivetrain.leftMaster.getClosedLoopTarget(0));
+		SmartDashboard.putNumber("LeftVoltage", Robot.drivetrain.leftMaster.getMotorOutputVoltage());
 	
-	lineInPath += 1;
+		lineInPath += 1;
 		if(lineInPath >= lengthOfPath) {
 			finished = true;
 			timer.cancel();
