@@ -22,11 +22,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class TeleopArmController extends Command {
   private Timer t;
   private Timer homerTimer;
+  /**
+   * Possible Joystick Buttons
+   */
   private enum JoystickButtons{
     GO_UP,GO_DOWN,NONE,TELEOP
   }
+  /**
+   * The Joystick button pressed
+   */
   private JoystickButtons joy =  JoystickButtons.NONE;
+  /**
+   * The amount of times that the state controller enters an error state
+   */
   private int cyclesInErrorState;
+  /**
+   * Constructor for the Teleop Arm Controller
+   */
   public TeleopArmController() {
     // Use requires() here to declare subsystem dependencies
     requires(Robot.robotArm);
@@ -35,6 +47,9 @@ public class TeleopArmController extends Command {
   }
 
   // Called just before this Command runs the first time
+  /**
+   * Initializes the State Machine controller
+   */
   @Override
   protected void initialize() {
     System.out.println("TeleopArmController INIT");
@@ -44,8 +59,10 @@ public class TeleopArmController extends Command {
     Robot.robotArm.homeState = HomeStates.NOT_STARTED;
   }
 
-  // Called repeatedly when this Command is scheduled to run
 
+  /**
+   * Handles change-state buttons in a universal manner
+   */
   private void generalArmButtonHandler(){
     if(joy == JoystickButtons.GO_UP){
       Robot.robotArm.state = States.GOING_UP;
@@ -65,6 +82,9 @@ public class TeleopArmController extends Command {
     }
 
   }
+  /**
+   * Implements state controller actioins each loop
+   */
   @Override
   protected void execute() {
     SmartDashboard.putString("Robot Arm State", Robot.robotArm.state.toString());
@@ -72,6 +92,7 @@ public class TeleopArmController extends Command {
     SmartDashboard.putBoolean("Upper Switch Triggered", Robot.robotArm.upperLimitSwitch.get());
     SmartDashboard.putNumber("ENC VALUE", Robot.robotArm.robotArmEncoder.get());
     joy = JoystickButtons.NONE;
+    // Handle Joystick input
     if(Robot.oi.up.get()){
       System.out.println("GO UP Pressed");
       joy = JoystickButtons.GO_UP;
