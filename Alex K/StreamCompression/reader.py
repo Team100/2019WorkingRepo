@@ -39,6 +39,8 @@ def control_window(c: socket.socket):
 parser = ArgumentParser(description="Decode gzip compressed video frames")
 parser.add_argument("--host", help="Host to send to", default="localhost")
 parser.add_argument("--port", help="Port to send to", type=int, default=5802)
+parser.add_argument("--upscale-width", help="Upscale the received stream - width", type=int, default=0)
+parser.add_argument("--upscale-height", help="Upscale the received stream - height", type=int, default=0)
 args = parser.parse_args()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -62,10 +64,13 @@ try:
                 buffer.append(data[:data.index(b"rst")])
                 assembled = b''.join(buffer)
 
-                decomp_buffer = decompress(assembled)
+                decompressed_buffer = decompress(assembled)
 
-                frame = np.frombuffer(decomp_buffer, dtype=np.uint8)
+                frame = np.frombuffer(decompressed_buffer, dtype=np.uint8)
                 frame = cv2.imdecode(frame, 1)
+
+                if args.upscale_height != 0 and args.upscale_width != 0:
+                    frame = cv2.resize(frame, (args.upscale_width, args.upscale_height))
 
                 cv2.imshow("Stream", frame)
                 cv2.waitKey(1)
