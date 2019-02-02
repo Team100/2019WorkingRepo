@@ -14,10 +14,10 @@ CONTROL = None
 def control_window(c: socket.socket):
     global RUNNING, CONTROL
 
-    def callback():
+    def callback(_):
         c.send(b"switch")
 
-    def stop():
+    def stop(_):
         global RUNNING
         CONTROL.quit()
         RUNNING = False
@@ -29,6 +29,9 @@ def control_window(c: socket.socket):
 
     tkinter.Button(CONTROL, text="Switch Cameras", command=callback).place(anchor="center", x=175, y=25)
     tkinter.Button(CONTROL, text="Quit", command=stop).place(anchor="center", x=75, y=25)
+
+    CONTROL.bind("s", callback)
+    CONTROL.bind("q", stop)
 
     CONTROL.mainloop()
 
