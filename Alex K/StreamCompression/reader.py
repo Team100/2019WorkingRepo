@@ -64,7 +64,9 @@ try:
 
                 cv2.imshow("Stream", frame)
                 cv2.waitKey(1)
-            except:
+            except EOFError:
+                pass
+            except OSError:
                 pass
 
             buffer.clear()
