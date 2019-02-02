@@ -85,7 +85,7 @@ public class Drivetrain extends Subsystem implements PIDOutput{
         turnPID.setContinuous(true);
         turnPID.setOutputRange(Constants.DT_TURN_MIN_OUTPUT, Constants.DT_TURN_MAX_OUTPUT);
         turnPID.setAbsoluteTolerance(Constants.DT_TURN_ABSOLUTE_TOLERANCE);
-        leftMaster.setSensorPahse(true);
+        leftMaster.setSensorPhase(true);
         rightMaster.setSensorPhase(true);
     }
     
