@@ -17,7 +17,7 @@ def control_window(c: socket.socket):
     def callback(_):
         c.send(b"switch")
 
-    def stop(_):
+    def stop():
         global RUNNING
         CONTROL.quit()
         RUNNING = False
