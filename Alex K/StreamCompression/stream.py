@@ -21,8 +21,8 @@ def worker(r: socket.socket):
 
 
 parser = ArgumentParser(description="Stream gzipped camera frames to driver station")
-parser.add_argument("--host", help="Host to send on", default="localhost")
-parser.add_argument("--port", help="Port to send to", type=int, default=5802)
+parser.add_argument("--host", help="Host for server to run on", default="localhost")
+parser.add_argument("--port", help="Port for server to run on", type=int, default=5802)
 parser.add_argument("--width", help="Width of the stream", type=int, default=320)
 parser.add_argument("--height", help="Height of the stream", type=int, default=240)
 parser.add_argument("--dual", help="Use two cameras", action="store_true")
@@ -39,13 +39,18 @@ if args.dual:
         raise ValueError("Camera 1 is not attached or is in use")
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((args.host, args.port))
+s.bind((args.host, args.port))
+s.listen(1)
 
-t = threading.Thread(target=worker, args=(s,))
-t.start()
+t = None
 
-while True:
-    try:
+try:
+    conn, _ = s.accept()
+
+    t = threading.Thread(target=worker, args=(conn,))
+    t.start()
+
+    while True:
         if args.dual and CURRENT:
             _, frame = camera0.read()
         elif args.dual and not CURRENT:
@@ -59,34 +64,31 @@ while True:
         compressed = gzip.compress(buffer)
 
         for i in range(0, len(compressed), 1024):
-            s.send(compressed[i:i+1024])
+            conn.send(compressed[i:i+1024])
 
-        s.send(b"rst")
+        conn.send(b"rst")
 
-    except KeyboardInterrupt:
-        s.close()
+except KeyboardInterrupt:
+    s.close()
 
-        camera0.release()
-        if args.dual:
-            camera1.release()
+    camera0.release()
+    if args.dual:
+        camera1.release()
 
-        t.join()
-        break
-    except ConnectionResetError:
-        s.close()
+    t.join()
+except ConnectionResetError:
+    s.close()
 
-        camera0.release()
-        if args.dual:
-            camera1.release()
+    camera0.release()
+    if args.dual:
+        camera1.release()
 
-        t.join()
-        break
-    except ConnectionAbortedError:
-        s.close()
+    t.join()
+except ConnectionAbortedError:
+    s.close()
 
-        camera0.release()
-        if args.dual:
-            camera1.release()
+    camera0.release()
+    if args.dual:
+        camera1.release()
 
-        t.join()
-        break
+    t.join()

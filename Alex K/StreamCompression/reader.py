@@ -5,6 +5,7 @@ import numpy as np
 import socket
 import threading
 import tkinter
+import sys
 
 RUNNING = True
 CONTROL = None
@@ -33,24 +34,25 @@ def control_window(c: socket.socket):
 
 
 parser = ArgumentParser(description="Decode gzip compressed video frames")
-parser.add_argument("--host", help="Host for server to run on", default="localhost")
-parser.add_argument("--port", help="Port for server to listen on", type=int, default=5802)
+parser.add_argument("--host", help="Host to send to", default="localhost")
+parser.add_argument("--port", help="Port to send to", type=int, default=5802)
 args = parser.parse_args()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((args.host, args.port))
-s.listen(1)
+try:
+    s.connect((args.host, args.port))
+except ConnectionRefusedError:
+    print("Connection Refused: Please check the camera streamer...")
+    sys.exit(1)
 
 buffer = []
 t = None
 
 try:
-    conn, _ = s.accept()
-
-    t = threading.Thread(target=control_window, args=(conn,))
+    t = threading.Thread(target=control_window, args=(s,))
     t.start()
     while RUNNING:
-        data = conn.recv(1024)
+        data = s.recv(1024)
 
         if b"rst" in data:
             try:
