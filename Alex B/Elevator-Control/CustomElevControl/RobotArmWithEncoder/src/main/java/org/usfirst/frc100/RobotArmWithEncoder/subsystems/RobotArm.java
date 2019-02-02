@@ -75,8 +75,7 @@ public class RobotArm extends PIDSubsystem {
         robotArmEncoder = new Encoder(2, 3, false,EncodingType.k4X);
         addChild("RobotArmEncoder",robotArmEncoder);
         robotArmEncoder.setDistancePerPulse(1.0);
-        /*robotArmEncoder.setPIDSourceType(PIDSourceType.kRate);
-        robotArmEncoder.setIndexSource(4, IndexingType.kResetOnRisingEdge);*/
+        robotArmEncoder.setPIDSourceType(PIDSourceType.kRate);
         
         
         robotArmMotor = new VictorSP(0);
