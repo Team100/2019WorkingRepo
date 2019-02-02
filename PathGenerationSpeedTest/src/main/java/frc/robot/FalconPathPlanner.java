@@ -1,4 +1,3 @@
-
 package frc.robot;
 
 import java.awt.Color;
@@ -83,7 +82,9 @@ public class FalconPathPlanner
 				{15,6},
 				{15, 4}
 		};
+
 		This path goes from {1,1} -> {5,1} -> {9,12} -> {12, 9} -> {15,6} -> {15,4}
+
 		The units of these coordinates are position units assumed by the user (i.e inch, foot, meters) 
 	 * @param path
 	 */
@@ -92,12 +93,12 @@ public class FalconPathPlanner
 		this.origPath = doubleArrayCopy(path);
 
 		//default values DO NOT MODIFY;
-		pathAlpha = 0.005;
-		pathBeta = 0.1;
-		pathTolerance = 0.0000001;
+		pathAlpha         = 0.1;
+		pathBeta          = 0.01;
+		pathTolerance     = 0.00000001;
 
-		velocityAlpha = 0.005;
-		velocityBeta = 0.1;
+		velocityAlpha     = 0.01;
+		velocityBeta      = 0.01;
 		velocityTolerance = 0.0000001;
 	}
 
@@ -640,7 +641,7 @@ public class FalconPathPlanner
 			else
 			{
 				smoothPath = inject(smoothPath,inject[i]);
-				smoothPath = smoother(smoothPath, 0.1, 0.7, 0.00001);//TODO change 0.7 back to 0.1	
+				smoothPath = smoother(smoothPath, 0.01, 0.3, 0.00001);	
 			}
 		}
 
@@ -673,72 +674,4 @@ public class FalconPathPlanner
 	}
 
 	//main program
-	public static void main(String[] args)
-	{
-		long start = System.currentTimeMillis();
-		//System.setProperty("java.awt.headless", "true"); //enable this to true to emulate roboRio environment
-
-
-		//create waypoint path
-		double[][] waypoints = new double[][]{
-				{1, 1},
-				{5, 1},
-				{9, 12},
-				{12, 9},
-				{15, 6},
-				{19, 12}
-		}; 
-
-		double totalTime = 8; //seconds
-		double timeStep = 0.02; //period of control loop on Rio, seconds
-		double robotTrackWidth = 2; //distance between left and right wheels, feet
-
-		final FalconPathPlanner path = new FalconPathPlanner(waypoints);
-		path.calculate(totalTime, timeStep, robotTrackWidth);
-
-		System.out.println("Time in ms: " + (System.currentTimeMillis()-start));
-        System.out.println("Left Velocities: ");
-        for(int i = 0; i < path.smoothLeftVelocity.length; i++){
-            System.out.println(path.smoothCenterVelocity[i][1]);
-        }
-		// if(!GraphicsEnvironment.isHeadless())
-		// {
-
-		// 	FalconLinePlot fig2 = new FalconLinePlot(path.smoothCenterVelocity,null,Color.blue);
-		// 	fig2.yGridOn();
-		// 	fig2.xGridOn();
-		// 	fig2.setYLabel("Velocity (ft/sec)");
-		// 	fig2.setXLabel("time (seconds)");
-		// 	fig2.setTitle("Velocity Profile for Left and Right Wheels \n Left = Cyan, Right = Magenta");
-		// 	fig2.addData(path.smoothRightVelocity, Color.magenta);
-		// 	fig2.addData(path.smoothLeftVelocity, Color.cyan);
-
-		// 	FalconLinePlot fig1 = new FalconLinePlot(path.nodeOnlyPath,Color.blue,Color.green);
-		// 	fig1.yGridOn();
-		// 	fig1.xGridOn();
-		// 	fig1.setYLabel("Y (feet)");
-		// 	fig1.setXLabel("X (feet)");
-		// 	fig1.setTitle("Top Down View of FRC Field (24ft x 27ft) \n shows global position of robot path, along with left and right wheel trajectories");
-
-		// 	//force graph to show 1/2 field dimensions of 24ft x 27 feet
-		// 	fig1.setXTic(0, 27, 1);
-		// 	fig1.setYTic(0, 24, 1);
-		// 	fig1.addData(path.smoothPath, Color.red, Color.blue);
-
-
-		// 	fig1.addData(path.leftPath, Color.magenta);
-		// 	fig1.addData(path.rightPath, Color.magenta);
-
-
-		// 	//generate poof path used in 2014 Einstein
-		// 	path.poofExample();
-
-		// }
-
-
-		//example on printing useful path information
-		//System.out.println(path.numFinalPoints);
-		//System.out.println(path.pathAlpha);
-	}
-
-}	
+}

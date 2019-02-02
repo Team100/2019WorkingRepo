@@ -73,19 +73,19 @@ public class turnGo extends Command {
   endLocationX = Math.cos(relativeAngle) * distance/12;
   endLocationY = Math.sin(relativeAngle) * distance/12;
     extrusion = distance/12/4; 
-    waypoints = new double[4][2];
-    waypoints[1][0] = 0.0;
-    waypoints[1][1] = 0.0;
-    waypoints[3][0] = endLocationX;
-    waypoints[3][1] = endLocationY;
-    waypoints[2][0] = endLocationX; 
-    waypoints[2][1] = endLocationY - (extrusion/3);
+    double[][] waypoints = new double[][]{
+      {0.0, 0.0},
+      {endLocationX/5, 0.0},
+      // {Math.cos(approachAngle)*(distance/2), -Math.sin(approachAngle)*(distance/2)},
+      {endLocationX, endLocationY*3/4},
+      {endLocationX, endLocationY}
+  }; 
 		fin = false;
 		long start = System.currentTimeMillis();
 
 		//create waypoint path
     /*double[][] path = {}*/
-		double totalTime = (((distance/12)/7)+3); //seconds
+		double totalTime = (((distance/12)/11)+3); //seconds
 		double timeStep = 0.02; //period of control loop on Rio, seconds
 		double robotTrackWidth = 2; //distance between left and right wheels, feet
 		final FalconPathPlanner path = new FalconPathPlanner(waypoints);
@@ -99,8 +99,7 @@ public class turnGo extends Command {
 			System.out.print(path.smoothRightVelocity[i][1] + ", ");
 			System.out.print(path.smoothPath[i][0] + ", ");
 			System.out.print(path.smoothPath[i][1] + ", ");
-      System.out.print(path.smoothLeftVelocity[i][0] + ", ");
-			System.out.println(path.heading[i][1] + ", ");
+			System.out.println(path.heading[i][1]);
       pathfinderPath[i][0] = path.smoothLeftVelocity[i][1];
       pathfinderPath[i][1] = path.smoothRightVelocity[i][1];
       pathfinderPath[i][2] = path.heading[i][1];
