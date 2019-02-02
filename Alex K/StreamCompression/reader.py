@@ -82,15 +82,15 @@ try:
 except KeyboardInterrupt:
     cv2.destroyAllWindows()
     s.close()
-    t.join()
     CONTROL.quit()
+    t.join()
 except ConnectionResetError:
     cv2.destroyAllWindows()
     s.close()
-    t.join()
     CONTROL.quit()
+    t.join()
 except ConnectionAbortedError:
     cv2.destroyAllWindows()
     s.close()
-    t.join()
     CONTROL.quit()
+    t.join()
