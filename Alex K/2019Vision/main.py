@@ -84,49 +84,6 @@ def draw(img, corners, imgpts):
     return img
 
 
-def get_outside_corners_single(contour, is_left):
-    y_ave = 0.0
-    for cnr in contour:
-        y_ave += cnr[1]
-    y_ave /= len(contour)
-
-    corners = [None, None]
-    # split the loop on left/right on the outside
-    #  much faster and simpler than trying to figure out how to flip the comparison on every iteration
-    if is_left:
-        for cnr in contour:
-            # larger y (lower in picture) at index 1
-            index = 1 if cnr[1] > y_ave else 0
-            if corners[index] is None or cnr[0] < corners[index][0]:
-                corners[index] = cnr
-    else:
-        for cnr in contour:
-            # larger y (lower in picture) at index 1
-            index = 1 if cnr[1] > y_ave else 0
-            if corners[index] is None or cnr[0] > corners[index][0]:
-                corners[index] = cnr
-    return corners
-
-
-def compute_output_values(rvec, tvec):
-    x = tvec[0][0]
-    z = tvec[2][0]
-    # distance in the horizontal plane between camera and target
-    distance = math.sqrt(x ** 2 + z ** 2)
-    # horizontal angle between camera center line and target
-    angle1 = math.atan2(x, z) * RAD2DEG
-    rot, _ = cv2.Rodrigues(rvec)
-    rot_inv = rot.transpose()
-    pzero_world = np.matmul(rot_inv, -tvec)
-    angle2 = math.atan2(pzero_world[0][0], pzero_world[2][0]) * RAD2DEG
-    if angle2 < 0:
-        angle2 = 180+angle2
-    # angle2 = 90 - abs(angle2 * RAD2DEG) - abs(angle1 * RAD2DEG)
-    # if angle1 < 0:
-    #    angle2 = 90 - angle2
-    return distance, angle1, angle2
-
-
 try:
     while True:
         # Get frame
@@ -143,9 +100,8 @@ try:
         json_representation = []
 
         # Compute centers, angle to cube & distance
-        print(len(targets))
         for i, target in enumerate(targets):
-            """# m1 = cv2.moments(target)
+            # m1 = cv2.moments(target)
 
             # Get center x and y
             cx1 = target.x  # int(m1["m10"] / m1["m00"])
@@ -344,6 +300,7 @@ try:
                 # ##
             except:
                 aop = 0
+            print(att, dtt, aop)
 
             if config.display.debug:
                 cv2.putText(frame, "Angle of Plane: {0}".format(aop), (16, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
@@ -361,32 +318,7 @@ try:
                 "plane": aop,
                 "bounding": bounding_box.tolist(),
                 "timestamp": time()
-            })"""
-            if i % 2 == 0:
-                continue
-            cnt_left = np.squeeze(targets[i - 1].cnt).tolist()
-            cnt_right = np.squeeze(target.cnt).tolist()
-            left = get_outside_corners_single(cnt_left, True)
-            right = get_outside_corners_single(cnt_right, False)
-            image_corners = np.float32(np.array((left[1], left[0], right[0], right[1])))
-            camera_matrix = np.array(
-                [[197.40349481540636, 0, frame.shape[1] / 2],
-                 [0, 197.3173815257199, frame.shape[0] / 2],
-                 [0, 0, 1]], dtype="double"
-            )
-            retval, rvec, tvec = cv2.solvePnP(outside_target_coords, image_corners,
-                                              camera_matrix, np.zeros((4, 1)))
-
-            print(compute_output_values(rvec, tvec))
-            bounding_box = cv2.boxPoints(target.rect)
-            bounding_box = np.int0(bounding_box)
-
-            # Calculate tilt of retroreflective strip
-            points1 = np.asarray(bounding_box).tolist()  # type: list
-
-            # Draw rotated bounding box
-            if config.display.bounding:
-                cv2.drawContours(frame, [bounding_box], 0, (0, 0, 255), 2)
+            })
 
         # Post to NetworkTables
         if config.network_tables:

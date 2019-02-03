@@ -4,13 +4,12 @@ import math
 
 
 class Target:
-    def __init__(self, pos, size, angle, poly, cnt):
+    def __init__(self, pos, size, angle, poly):
         (self.x, self.y) = pos  # center point position (pixels)
         (self.w, self.h) = size  # width/height (pixels)
         self.angle = angle  # angle (degrees)
         self.rect = (pos, size, angle)
         self.poly = poly
-        self.cnt = cnt
 
 
 class TargetPair:
@@ -58,7 +57,7 @@ def process(frame, config):
         if w * h < 200:
             continue
 
-        targets.append(Target(pos, size, angle, poly, c))
+        targets.append(Target(pos, size, angle, poly))
 
     yError = 30
     targetPairs = []
