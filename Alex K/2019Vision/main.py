@@ -11,6 +11,36 @@ from time import sleep as wait, time
 from watchdog.observers import Observer
 from watcher import FileWatcher
 
+# real world dimensions of the switch target
+# These are the full dimensions around both strips
+
+TARGET_STRIP_WIDTH = 2.0  # inches
+TARGET_STRIP_LENGTH = 5.5  # inches
+TARGET_STRIP_CORNER_OFFSET = 4.0  # inches
+TARGET_STRIP_ROT = math.radians(14.5)
+
+cos_a = math.cos(TARGET_STRIP_ROT)
+sin_a = math.sin(TARGET_STRIP_ROT)
+
+pt = [TARGET_STRIP_CORNER_OFFSET, 0.0, 0.0]
+right_strip = [tuple(pt), ]  # this makes a copy, so we are safe
+pt[0] += TARGET_STRIP_WIDTH * cos_a
+pt[1] += TARGET_STRIP_WIDTH * sin_a
+right_strip.append(tuple(pt))
+pt[0] += TARGET_STRIP_LENGTH * sin_a
+pt[1] -= TARGET_STRIP_LENGTH * cos_a
+right_strip.append(tuple(pt))
+pt[0] -= TARGET_STRIP_WIDTH * cos_a
+pt[1] -= TARGET_STRIP_WIDTH * sin_a
+right_strip.append(tuple(pt))
+
+# left strip is mirror of right strip
+left_strip = [(-p[0], p[1], p[2]) for p in right_strip]
+
+all_target_coords = np.concatenate([right_strip, left_strip])
+outside_target_coords = np.float32(np.array([left_strip[2], left_strip[1],
+                                             right_strip[1], right_strip[2]]))
+
 
 # Update the configuration
 def update_config(_):
@@ -45,31 +75,88 @@ if config.network_tables:
 # Start connection
 camera = cv2.VideoCapture(config.camera_port)
 
+
+def draw(img, corners, imgpts):
+    corner = tuple(corners[0].ravel())
+    img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255, 0, 0), 5)
+    img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0, 255, 0), 5)
+    img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
+    return img
+
+
+def get_outside_corners_single(contour, is_left):
+    y_ave = 0.0
+    for cnr in contour:
+        y_ave += cnr[1]
+    y_ave /= len(contour)
+
+    corners = [None, None]
+    # split the loop on left/right on the outside
+    #  much faster and simpler than trying to figure out how to flip the comparison on every iteration
+    if is_left:
+        for cnr in contour:
+            # larger y (lower in picture) at index 1
+            index = 1 if cnr[1] > y_ave else 0
+            if corners[index] is None or cnr[0] < corners[index][0]:
+                corners[index] = cnr
+    else:
+        for cnr in contour:
+            # larger y (lower in picture) at index 1
+            index = 1 if cnr[1] > y_ave else 0
+            if corners[index] is None or cnr[0] > corners[index][0]:
+                corners[index] = cnr
+    return corners
+
+
+def compute_output_values(rvec, tvec):
+    x = tvec[0][0]
+    z = tvec[2][0]
+    # distance in the horizontal plane between camera and target
+    distance = math.sqrt(x ** 2 + z ** 2)
+    # horizontal angle between camera center line and target
+    angle1 = math.atan2(x, z) * RAD2DEG
+    rot, _ = cv2.Rodrigues(rvec)
+    rot_inv = rot.transpose()
+    pzero_world = np.matmul(rot_inv, -tvec)
+    angle2 = math.atan2(pzero_world[0][0], pzero_world[2][0]) * RAD2DEG
+    if angle2 < 0:
+        angle2 = 180+angle2
+    # angle2 = 90 - abs(angle2 * RAD2DEG) - abs(angle1 * RAD2DEG)
+    # if angle1 < 0:
+    #    angle2 = 90 - angle2
+    return distance, angle1, angle2
+
+
 try:
     while True:
         # Get frame
         _, frame = camera.read()
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YUV)
 
         # Check for cubes
+        # try:
         targets = pipeline.process(frame, config)
+        # except:
+        #    break
 
         facing = []
         json_representation = []
 
         # Compute centers, angle to cube & distance
+        print(len(targets))
         for i, target in enumerate(targets):
-            m1 = cv2.moments(target)
+            """# m1 = cv2.moments(target)
 
             # Get center x and y
-            cx1 = int(m1["m10"] / m1["m00"])
-            cy1 = int(m1["m01"] / m1["m00"])
+            cx1 = target.x  # int(m1["m10"] / m1["m00"])
+            cy1 = target.y  # int(m1["m01"] / m1["m00"])
 
             # Get bounding box
-            x1, y1, w1, h1 = cv2.boundingRect(target)
+            x1, y1, w1, h1 = cv2.boundingRect(target.poly)
 
             # Calculate rotated bounding box
-            rect = cv2.minAreaRect(target)
-            bounding_box = cv2.boxPoints(rect)
+            # rect = cv2.minAreaRect(target)
+            bounding_box = cv2.boxPoints(target.rect)
             bounding_box = np.int0(bounding_box)
 
             # Calculate tilt of retroreflective strip
@@ -100,11 +187,11 @@ try:
             if i % 2 == 0:
                 continue
 
-            x2, y2, w2, h2 = cv2.boundingRect(targets[i - 1])
+            x2, y2, w2, h2 = cv2.boundingRect(targets[i - 1].poly)
 
-            m2 = cv2.moments(targets[i - 1])
-            cx2 = int(m2["m10"] / m2["m00"])
-            cy2 = int(m2["m01"] / m2["m00"])
+            # m2 = cv2.moments(targets[i - 1])
+            cx2 = targets[i - 1].x  # int(m2["m10"] / m2["m00"])
+            cy2 = targets[i - 1].y  # int(m2["m01"] / m2["m00"])
 
             cx = int((cx1 + cx2) / 2)
             cy = int((cy1 + cy2) / 2)
@@ -113,8 +200,8 @@ try:
                 cv2.circle(frame, (cx, cy), 2, (255, 0, 0), -1)
 
             # Calculate rotated bounding box
-            rect = cv2.minAreaRect(targets[i - 1])
-            box = cv2.boxPoints(rect)
+            # rect = cv2.minAreaRect(targets[i - 1])
+            box = cv2.boxPoints(targets[i - 1].rect)
             box = np.int0(box)
 
             # Calculate tilt of retroreflective strip
@@ -180,8 +267,10 @@ try:
                     (nx1, ny1) = points1[0]
                     (nx2, ny2) = points2[0]
 
-                    na1 = 90 - abs(math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)
-                    na2 = 90 - abs(math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)
+                    na1 = 90 - abs(
+                        math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)
+                    na2 = 90 - abs(
+                        math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)
 
                     cv2.putText(frame, "new angle -1: {0}".format(90 - abs(
                         math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)),
@@ -198,8 +287,10 @@ try:
                     (nx1, ny1) = points1[0]
                     (nx2, ny2) = points2[0]
 
-                    na1 = 90 - abs(math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)
-                    na2 = 90 - abs(math.atan((points2[0][1] - points2[3][1]) / (points2[0][0] - points2[3][0])) * RAD2DEG)
+                    na1 = 90 - abs(
+                        math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)
+                    na2 = 90 - abs(
+                        math.atan((points2[0][1] - points2[3][1]) / (points2[0][0] - points2[3][0])) * RAD2DEG)
 
                     cv2.putText(frame, "new angle 1: {0}".format(90 - abs(
                         math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)),
@@ -207,8 +298,8 @@ try:
                                 (255, 255, 255), 1)
                     cv2.putText(frame, "new angle -1: {0}".format(90 -
                                                                   abs(math.atan((points2[0][1] - points2[3][1]) / (
-                                                                              points2[0][0] - points2[3][
-                                                                          0])) * RAD2DEG)), (16, 380),
+                                                                          points2[0][0] - points2[3][
+                                                                      0])) * RAD2DEG)), (16, 380),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                 (255, 255, 255), 1)
 
@@ -252,7 +343,7 @@ try:
                 # ## End calculating angle of plane
                 # ##
             except:
-                aop = -1
+                aop = 0
 
             if config.display.debug:
                 cv2.putText(frame, "Angle of Plane: {0}".format(aop), (16, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
@@ -270,7 +361,32 @@ try:
                 "plane": aop,
                 "bounding": bounding_box.tolist(),
                 "timestamp": time()
-            })
+            })"""
+            if i % 2 == 0:
+                continue
+            cnt_left = np.squeeze(targets[i - 1].cnt).tolist()
+            cnt_right = np.squeeze(target.cnt).tolist()
+            left = get_outside_corners_single(cnt_left, True)
+            right = get_outside_corners_single(cnt_right, False)
+            image_corners = np.float32(np.array((left[1], left[0], right[0], right[1])))
+            camera_matrix = np.array(
+                [[197.40349481540636, 0, frame.shape[1] / 2],
+                 [0, 197.3173815257199, frame.shape[0] / 2],
+                 [0, 0, 1]], dtype="double"
+            )
+            retval, rvec, tvec = cv2.solvePnP(outside_target_coords, image_corners,
+                                              camera_matrix, np.zeros((4, 1)))
+
+            print(compute_output_values(rvec, tvec))
+            bounding_box = cv2.boxPoints(target.rect)
+            bounding_box = np.int0(bounding_box)
+
+            # Calculate tilt of retroreflective strip
+            points1 = np.asarray(bounding_box).tolist()  # type: list
+
+            # Draw rotated bounding box
+            if config.display.bounding:
+                cv2.drawContours(frame, [bounding_box], 0, (0, 0, 255), 2)
 
         # Post to NetworkTables
         if config.network_tables:
@@ -279,6 +395,7 @@ try:
         # Check if should display
         if config.display.window:
             # Display stream
+            # frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR)
             cv2.imshow("Video Stream", frame)
 
             # Stop on 'q' press
