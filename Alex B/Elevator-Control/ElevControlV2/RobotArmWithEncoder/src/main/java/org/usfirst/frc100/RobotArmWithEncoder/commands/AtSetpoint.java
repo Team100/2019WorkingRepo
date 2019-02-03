@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AtSetpoint extends Command {
+  
   public AtSetpoint() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
@@ -31,17 +32,10 @@ public class AtSetpoint extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
+    Robot.robotArm.armButtonHandler();
+    
     SmartDashboard.putNumber("ArmEnc",Robot.robotArm.robotArmEncoder.get());
-    if(Robot.robotArm.state == States.HOMING){
-      new HomingInit().start();
-    }
-    else if(Robot.oi.down.get()){
-
-      new MoveToSetpoint(Constants.ARM_ENCODER_LOWER_BUFFER).start();
-    }
-    else if(Robot.oi.up.get()){
-      new MoveToSetpoint(Constants.ARM_ENCODER_MAX_VALUE-Constants.ARM_ENCODER_TOP_BUFFER).start();
-    }
+    
   }
 
   // Make this return true when this Command no longer needs to run execute()

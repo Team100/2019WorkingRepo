@@ -11,6 +11,8 @@
 
 package org.usfirst.frc100.RobotArmWithEncoder.commands;
 import edu.wpi.first.wpilibj.command.Command;
+
+import org.usfirst.frc100.RobotArmWithEncoder.Constants;
 import org.usfirst.frc100.RobotArmWithEncoder.Robot;
 
 /**
@@ -44,6 +46,22 @@ public class TeleopArmDrive extends Command {
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
+        Robot.robotArm.armButtonHandler();
+        if(Robot.robotArm.lowerLimitSwitch.get() && Robot.oi.teleopJoystick.getY() > 0){
+            Robot.robotArm.robotArmMotor.set(0);
+          }
+          else if(Robot.robotArm.upperLimitSwitch.get() && Robot.oi.teleopJoystick.getY() < 0){
+            Robot.robotArm.robotArmMotor.set(0);
+          }
+          else if(Robot.robotArm.robotArmEncoder.get() < Constants.ARM_ENCODER_LOWER_BUFFER && Robot.oi.teleopJoystick.getY() > 0){
+            Robot.robotArm.robotArmMotor.set(0);
+          }
+          else if(Robot.robotArm.robotArmEncoder.get()>Constants.ARM_ENCODER_MAX_VALUE-Constants.ARM_ENCODER_TOP_BUFFER && Robot.oi.teleopJoystick.getY() < 0){
+            Robot.robotArm.robotArmMotor.set(0);
+          }
+          else{
+            Robot.robotArm.robotArmMotor.set(Robot.oi.teleopJoystick.getY());
+          }
         
     }
 

@@ -7,6 +7,7 @@
 
 package org.usfirst.frc100.RobotArmWithEncoder.commands;
 
+
 import org.usfirst.frc100.RobotArmWithEncoder.Constants;
 import org.usfirst.frc100.RobotArmWithEncoder.Robot;
 
@@ -31,6 +32,7 @@ public class MoveToSetpoint extends Command {
   protected void initialize() {
     Robot.robotArm.setpoint = setpoint;
     Robot.robotArm.updateSetpoint();
+    Robot.robotArm.t.reset();
 
   }
 
@@ -38,7 +40,10 @@ public class MoveToSetpoint extends Command {
   @Override
   protected void execute() {
     SmartDashboard.putNumber("ArmEnc",Robot.robotArm.robotArmEncoder.get());
-
+    SmartDashboard.putNumber("Setpoint",Robot.robotArm.setpoint);
+    if(Robot.robotArm.t.get() > Constants.ELEVATOR_MAX_TRAVEL_TIME){
+      new TeleopArmDrive().start();
+    }
     if(Math.abs(Robot.robotArm.setpoint-Robot.robotArm.robotArmEncoder.get())<Constants.ELEVATOR_SETPOINT_ACCEPTABLE_VARIATION){
       finished = true;
     }

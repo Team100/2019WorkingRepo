@@ -4,7 +4,7 @@ public class Constants{
     /*
      * ARM ENCODER BUFFERS
      */
-    public static int ARM_ENCODER_LOWER_BUFFER = 100;
+    public static int ARM_ENCODER_LOWER_BUFFER = 500;
     public static int ARM_ENCODER_MAX_VALUE = 55000;
     public static int ARM_ENCODER_TOP_BUFFER = 1000;
 
@@ -42,9 +42,13 @@ public class Constants{
 
     //                  NEW VERSION
 
+    public static double ELEVATOR_MAX_TRAVEL_TIME = 10.0;
     public static int ELEVATOR_SETPOINT_ACCEPTABLE_VARIATION = 1000;
 
-    public static double ELEVATOR_P = 0.0005;
+    public static double OI_ELEVATOR_CONTROL_SETPOINT_MULTIPLIER = -50;
+
+
+    public static double ELEVATOR_P = 0.00055;
     public static double ELEVATOR_I = 0;
     public static double ELEVATOR_D = 0;
     public static double ELEVATOR_F = 1;
