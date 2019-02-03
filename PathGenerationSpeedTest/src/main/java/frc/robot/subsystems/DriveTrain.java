@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems;
 
+import com.analog.adis16448.frc.ADIS16448_IMU;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
@@ -24,7 +25,13 @@ public class DriveTrain extends Subsystem {
   public static DifferentialDrive driveTrainDifferentialDrive1;
   public static WPI_VictorSPX driveTrainRightFollower;
   public static WPI_VictorSPX driveTrainLeftFollower;
-  
+
+  public static double boundHalfDegrees(double angle_degrees) {
+    while (angle_degrees >= 180.0) angle_degrees -= 360.0;
+    while (angle_degrees < -180.0) angle_degrees += 360.0;
+    return angle_degrees;
+}
+
   @Override
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.

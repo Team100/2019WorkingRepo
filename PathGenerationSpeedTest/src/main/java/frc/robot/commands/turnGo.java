@@ -25,7 +25,6 @@ public class turnGo extends Command {
   double endLocationX;
   double endLocationY;
   double[][] waypoints;
-  public static final ADIS16448_IMU imu = new ADIS16448_IMU();
 
   public turnGo(){
 

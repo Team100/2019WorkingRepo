@@ -27,6 +27,7 @@ public class PathFinder extends Command {
 	private static double leftVelocity;
 	private static double rightVelocity;
 	private static double angle;	
+	private static double globalAngle;
 	//private PathfindingV2Issue4 runner = new PathfindingV2Issue4();
 	Timer timer;
 	public PathFinder() {
@@ -93,10 +94,12 @@ public class PathFinder extends Command {
 		leftVelocity = path[lineInPath][0];
 		rightVelocity = path[lineInPath][1];
 		angle = path[lineInPath][2];
-		
+		globalAngle = Robot.ahrs.getFusedHeading();
+		double angleDifference = DriveTrain.boundHalfDegrees(angle - globalAngle);
+		double turn = 0.8 * (-1.0/80.0) * angleDifference; //magic numbers are straight from Screensteps so they might need editing (https://wpilib.screenstepslive.com/s/currentCS/m/84338/l/1021631-integrating-path-following-into-a-robot-program)
 		// Set the motors to their desired value
-		DriveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, (leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
-		DriveTrain.driveTrainRightMaster.set(ControlMode.Velocity, (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
+		DriveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, ((leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER) + turn);
+		DriveTrain.driveTrainRightMaster.set(ControlMode.Velocity, ((rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER) - turn);
 
 		lineInPath += 1;
 		if(lineInPath >= lengthOfPath) {
