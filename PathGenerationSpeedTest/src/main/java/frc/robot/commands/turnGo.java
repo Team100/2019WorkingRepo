@@ -7,11 +7,7 @@
 
 package frc.robot.commands;
 
-import com.analog.adis16448.frc.ADIS16448_IMU;
-
-import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import frc.robot.FalconPathPlanner;
 
 import frc.robot.*;
@@ -33,7 +29,6 @@ public class turnGo extends Command {
 	// Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    String state = "";
     double globalAngle = Robot.ahrs.getFusedHeading();
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("camera");

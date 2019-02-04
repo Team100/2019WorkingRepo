@@ -6,6 +6,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "CodeLens (Launch) - PathRunner",
+      "request": "launch",
+      "mainClass": "PathRunner",
+      "projectName": "PathGenerationSpeedTest"
+    },
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - PathfinderDebugging",
+      "request": "launch",
+      "mainClass": "frc.robot.PathfinderDebugging",
+      "projectName": "PathGenerationSpeedTest"
+    },
+    {
+      "type": "java",
       "name": "CodeLens (Launch) - FalconPathPlanner",
       "request": "launch",
       "mainClass": "frc.robot.FalconPathPlanner",

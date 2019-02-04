@@ -1,10 +1,49 @@
 package frc.robot.commands;
+
+import com.ctre.phoenix.motorcontrol.InvertType;
+
 /**
  * All constants made after and including the 3 of November
+ * 
  * @author Team100
  *
  */
 public class Constants {
+	//drivetrain
+	public static double DRIVE_TRAIN_MAX_MOTOR_OUTPUT = 0.8;
+
+
+	public static boolean DRIVE_TRAIN_LEFT_MASTER_INVERT = false;
+	
+
+	public static InvertType DRIVE_TRAIN_LEFT_FOLLOWER_INVERT = InvertType.FollowMaster;
+	
+
+	public static boolean DRIVE_TRAIN_RIGHT_MASTER_INVERT = false;
+	
+
+    public static InvertType DRIVE_TRAIN_RIGHT_FOLLOWER_INVERT = InvertType.FollowMaster;
+
+	/**
+	 * Left master CAN ID
+	 */
+	public static final int DRIVE_TRAIN_LEFT_MASTER_CANID = 2;
+
+	/**
+	 * Right master CAN ID
+	 */
+	public static final int DRIVE_TRAIN_RIGHT_MASTER_CANID = 1;
+
+	/**
+	 * Left follower CAN ID
+	 */
+	public static final int DRIVE_TRAIN_LEFT_FOLLOWER_CANID = 4;
+
+	/**
+	 * right follower CAN ID
+	 */
+	public static final int DRIVE_TRAIN_RIGHT_FOLLOWER_CANID = 3;
+
 
 	// For Pathfinding
 	
@@ -48,39 +87,39 @@ public class Constants {
 	/**
 	 * P value for the drivetrain
 	 */
-	public static final double DRIVETRAIN_P = 0.0027;
+	public static final double DRIVETRAIN_P = 0.75;
 	
 	
 	/**
 	 * I value for the drivetrain
 	 */
-	public static final double DRIVETRAIN_I = 0.001;
+	public static final double DRIVETRAIN_I = 0.008;
 	
 	
 	/**
 	 * D value for the drivetrain
 	 */
-	public static final double DRIVETRAIN_D = 0;
+	public static final double DRIVETRAIN_D = 0.0;
 	
 	
 	/**
 	 * F value for the drivetrain
 	 */
-	public static final double DRIVETRAIN_F = 0.39;
+	public static final double DRIVETRAIN_F = 0.25321782178;
 	
 	
 	/**
 	 * The modifier for the left side of the drivetrain. 
 	 * Can be set to 1 or negative 1
 	 */
-	public static final int LEFT_DRIVETRAIN_MODIFIER = 1;
+	public static final int LEFT_DRIVETRAIN_MODIFIER = -1;
 	
 	
 	/**
 	 * The modifier for the right side of the drivetrain.
 	 * Can be set to 1 or negative 1
 	 */
-	public static final int RIGHT_DRIVETRAIN_MODIFIER = -1;
+	public static final int RIGHT_DRIVETRAIN_MODIFIER = 1;
 	
 	
 	/**
@@ -102,7 +141,7 @@ public class Constants {
 	/**
 	 * The encoder ticks per meter as defined from a formula based on the other constants
 	 */
-	public static final double DRIVETRAIN_TICKS_PER_METER = (ENCODER_PULSES_PER_REVOLUTION)*(ENCODER_TICKS_PER_PULSE)*(DRIVETRAIN_ENCODER_TO_WHEEL_RATIO) * (1/(WHEEL_DIAMETER_IN_METERS * PI))/HUNDRED_MILLISECONDS_IN_SECONDS;
+	public static final double DRIVETRAIN_TICKS_PER_METER = (ENCODER_PULSES_PER_REVOLUTION)*(ENCODER_TICKS_PER_PULSE)*(DRIVETRAIN_ENCODER_TO_WHEEL_RATIO) * (1/(WHEEL_DIAMETER_IN_METERS * PI))/(HUNDRED_MILLISECONDS_IN_SECONDS);
 	
 	
 	/**

@@ -94,15 +94,15 @@ public class FalconPathPlanner
 
 		//default values DO NOT MODIFY;
 		pathAlpha = 0.01;
-		pathBeta = 0.08;
+		pathBeta = 0.8;
 		pathTolerance = 0.0000001;
 		
 		// pathAlpha = 0.7;
 		// pathBeta = 0.3;
 		// pathTolerance = 0.0000001;
 
-		velocityAlpha = 0.001;
-		velocityBeta = 0.4;
+		velocityAlpha = 0.01;
+		velocityBeta = 0.3;
 		velocityTolerance = 0.0000001;
 	}
 
@@ -645,7 +645,7 @@ public class FalconPathPlanner
 			else
 			{
 				smoothPath = inject(smoothPath,inject[i]);
-				smoothPath = smoother(smoothPath, 0.1, 0.3, 0.0000001);	
+				smoothPath = smoother(smoothPath, 0.9, 0.005, 0.00001);	//TODO
 			}
 		}
 

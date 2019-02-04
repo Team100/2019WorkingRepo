@@ -1,8 +1,9 @@
+import FalconPathPlanner;
 public class PathRunner
 {
     public static void main(String args[]){
-        double distance = 15; //feet
-        double angle = -45;
+        double distance = 10; //feet
+        double angle = -25;
         double endPosX = Math.cos(angle)*distance;
         double endPosY = Math.sin(angle)*distance;
         double extrusionX = endPosX*2/5;
@@ -16,7 +17,7 @@ public class PathRunner
             {endPosX, endPosY}
         }; 
 
-        double totalTime = 12; //max seconds we want to drive the path
+        double totalTime = distance/7 + 2; //max seconds we want to drive the path
         double timeStep = 0.02; //period of control loop on Rio, seconds
         double robotTrackWidth = 2; //distance between left and right wheels, feet
         
@@ -32,7 +33,6 @@ public class PathRunner
             output[i][1] = rightVel[i][1];
             output[i][2] = smoothPath[i][0];
             output[i][3] = smoothPath[i][1];
-            
             out += (output[i][0] + "," + output[i][1] + "," + output[i][2] + "," + output[i][3] + "\n");
         }
         System.out.println(out);
