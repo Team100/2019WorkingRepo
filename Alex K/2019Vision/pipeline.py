@@ -1,57 +1,90 @@
 import cv2
+import numpy as np
+import math
+
+
+class Target:
+    def __init__(self, pos, size, angle, poly):
+        (self.x, self.y) = pos  # center point position (pixels)
+        (self.w, self.h) = size  # width/height (pixels)
+        self.angle = angle  # angle (degrees)
+        self.rect = (pos, size, angle)
+        self.poly = poly
+
+
+class TargetPair:
+    def __init__(self, target1, target2):
+        self.target1 = target1
+        self.target2 = target2
+
+
+class ShapeDetector:
+    def __init__(self):
+        pass
+
+    def detect(self, c):
+        peri = cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, peri * 0.005, True)
+        return (cv2.minAreaRect(approx), approx)
 
 
 def process(frame, config):
-    # Apply blurring to image
-    blur_radius = int(2 * round(config.blur.radius) + 1)
-    blurred = cv2.medianBlur(frame, blur_radius)
+    gray = np.int16(frame.copy())
 
-    # Filter image by HSV
-    hsv_filtered = cv2.inRange(cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV),
-                               (config.hsv.hue[0], config.hsv.saturation[0], config.hsv.value[0]),
-                               (config.hsv.hue[1], config.hsv.saturation[1], config.hsv.value[1]))
+    gray = gray[:, :, 1] - gray[:, :, 2]
+    thresh = gray < 50
+    gray[thresh] = 0
+    thresh = gray > 80
+    gray[thresh] = 255
+    gray = np.uint8(gray)
 
-    # Calculate contours of image
-    contours, _ = cv2.findContours(hsv_filtered, cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cv2.findContours(gray.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+    sd = ShapeDetector()
 
-    # Filter and calculate convex hulls of contours
-    filtered_hulled = []
-    for contour in contours:
-        x, y, w, h = cv2.boundingRect(contour)
+    targets = []
 
-        # Check width
-        if w < config.contours.min_width or w > config.contours.max_width:
+    # loop over the contours
+    if cnts is None:
+        return []
+    for c in cnts:
+        rectangle = sd.detect(c)
+        if rectangle == False:
             continue
 
-        # Check height
-        if h < config.contours.min_height or h > config.contours.max_height:
+        ((pos, size, angle), poly) = rectangle
+        (w, h) = size
+
+        if w * h < 200:
             continue
 
-        # Check area
-        area = cv2.contourArea(contour)
-        if area < config.contours.min_area:
-            continue
+        targets.append(Target(pos, size, angle, poly))
 
-        # Check perimeter
-        if cv2.arcLength(contour, True) < config.contours.min_perimeter:
-            continue
+    yError = 30
+    targetPairs = []
+    for i in range(len(targets)):
+        for j in range(i + 1, len(targets)):
+            if abs(targets[i].y - targets[j].y) < yError:
+                targetPairs.append(TargetPair(targets[i], targets[j]))
 
-        hull = cv2.convexHull(contour)
-
-        # Check solidity
-        solid = 100 * area / cv2.contourArea(hull)
-        if solid < config.contours.solidity[0] or solid > config.contours.solidity[1]:
-            continue
-
-        # Check number of vertices
-        if len(contour) < config.contours.min_vertices or len(contour) > config.contours.max_vertices:
-            continue
-
-        # Check ratio of width to height
-        ratio = float(w) / h
-        if ratio < config.contours.min_ratio or ratio > config.contours.max_ratio:
-            continue
-
-        filtered_hulled.append(hull)
-
-    return filtered_hulled
+    angleError = 30
+    correctTargetPairs = []
+    for i in targetPairs:
+        if i.target1.x < i.target2.x:
+            if i.target1.angle > -80 - angleError and i.target1.angle < -80 + angleError:
+                if i.target2.angle > -10 - angleError and i.target2.angle < -10 + angleError:
+                    avgWidth = (i.target1.w + i.target2.w) / 2
+                    ratio = abs(i.target1.x - i.target2.x) / avgWidth
+                    if ratio < 3.5:
+                        correctTargetPairs.append(i)
+        else:
+            if i.target2.angle > -80 - angleError and i.target2.angle < -80 + angleError:
+                if i.target1.angle > -10 - angleError and i.target1.angle < -10 + angleError:
+                    avgWidth = (i.target1.w + i.target2.w) / 2
+                    ratio = abs(i.target1.x - i.target2.x) / avgWidth
+                    if ratio < 3.5:
+                        correctTargetPairs.append(i)
+    targets = []
+    for i in correctTargetPairs:
+        targets.append(i.target1)
+        targets.append(i.target2)
+    return targets
