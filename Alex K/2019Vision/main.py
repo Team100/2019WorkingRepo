@@ -252,12 +252,10 @@ try:
                         math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)),
                                 (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                 (255, 255, 255), 1)
-                    cv2.putText(frame, "new angle -1: {0}".format(90 -
-                                                                  abs(math.atan((points2[0][1] - points2[3][1]) / (
-                                                                          points2[0][0] - points2[3][
-                                                                      0])) * RAD2DEG)), (16, 380),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (255, 255, 255), 1)
+                    cv2.putText(frame, "new angle -1: {0}".format(90 - abs(math.atan((points2[0][1] - points2[3][1]) /
+                                                                                     (points2[0][0] - points2[3][0])) *
+                                                                           RAD2DEG)), (16, 380),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
