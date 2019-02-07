@@ -1,17 +1,14 @@
 #include <SPI.h>
 #include <Adafruit_DotStar.h>
 
-
 #define NUMPIXELS 60
 
-
 // Create the srtip
-
 
 Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BRG);
 
 //---------------------------------------------------------------------------------------//
-int ledState = LOW;     // ledState used to set the LED
+int ledState = LOW;
 bool doblinkR = false;
 bool doblinkG = false;
 bool doblinkB = false;
@@ -31,13 +28,13 @@ uint32_t color = 0x35FF00; //orange
 
 void noDos() {
   doblinkR = false;
-        doblinkG = false;
-        doblinkB = false;
-        doblinkY = false;
-        dochaseR = false;
-        dochaseG = false;
-        dochaseB = false;
-        dochaseY = false;
+  doblinkG = false;
+  doblinkB = false;
+  doblinkY = false;
+  dochaseR = false;
+  dochaseG = false;
+  dochaseB = false;
+  dochaseY = false;
 }
 
 void simpleOn(uint32_t color, int tail, int head) {
@@ -52,7 +49,6 @@ void setup() {
   strip.begin(); //initializes the strip
   strip.show(); //turn off LEDs within NONPIXELS
 }
-
 
 void loop() {
   int tail = 0;
