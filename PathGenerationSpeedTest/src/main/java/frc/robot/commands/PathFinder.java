@@ -63,7 +63,7 @@ public class PathFinder extends Command {
 	}
 	public PathFinder(String _mode){
 		requires(Robot.driveTrain);
-		path = Paths.forward();
+		path = Paths.getPath("test");
 		
 		/*This sets the PIDF values as defined in the constants file*/
 		DriveTrain.driveTrainRightMaster.config_kP(0, Constants.DRIVETRAIN_P, 10);
@@ -78,7 +78,8 @@ public class PathFinder extends Command {
 	}
 	/**
 	 *Called just before this Command runs the first time
-	 * This will find the path (function called from the Paths.java file and set a start time)
+	 * This-
+	 *  will find the path (function called from the Paths.java file and set a start time)
 	 */
 	@Override
 	protected void initialize() {
@@ -109,7 +110,7 @@ public class PathFinder extends Command {
 		// Get the velocities and angle from the Array
 		leftVelocity = path[lineInPath][0];
 		rightVelocity = path[lineInPath][1];
-		//angle = path[lineInPath][2];
+		angle = path[lineInPath][2];
 		System.out.println(Robot.driveTrain.driveTrainRightMaster.getClosedLoopTarget());
 		SmartDashboard.putNumber("RightCommand", (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
 		SmartDashboard.putNumber("LeftCommand", (leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
@@ -124,19 +125,16 @@ public class PathFinder extends Command {
 		SmartDashboard.putNumber("LeftCommandReceived", Robot.driveTrain.driveTrainLeftMaster.getClosedLoopTarget(0));
 		SmartDashboard.putNumber("LeftVoltage", Robot.driveTrain.driveTrainLeftMaster.getMotorOutputVoltage());
 		globalAngle = Robot.ahrs.getFusedHeading();
-		// double angleDifference = DriveTrain.boundHalfDegrees(angle - globalAngle);
-		// double turn = 0.8 * (-1.0/80.0) * angleDifference; //magic numbers are straight from Screensteps so they might need editing (https://wpilib.screenstepslive.com/s/currentCS/m/84338/l/1021631-integrating-path-following-into-a-robot-program)
+		double angleDifference = DriveTrain.boundHalfDegrees(angle - globalAngle);
+		//double turn = 0.8 * (-1.0/80.0) * angleDifference; //magic numbers are straight from Screensteps so they might need editing (https://wpilib.screenstepslive.com/s/currentCS/m/84338/l/1021631-integrating-path-following-into-a-robot-program)
 		// Set the motors to their desired value
 		DriveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, ((leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER));// + turn);
-		DriveTrain.driveTrainRightMaster.set(ControlMode.Velocity, ((rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER));//- turn);
-
+		DriveTrain.driveTrainRightMaster.set(ControlMode.Velocity, ((rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER));// - turn);
 		lineInPath += 1;
 		if(lineInPath >= lengthOfPath) {
 			finished = true;
 			timer.cancel();
 		}
-
-		
 	}
 	
 	// Called repeatedly when this Command is scheduled to run

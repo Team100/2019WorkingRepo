@@ -94,15 +94,15 @@ public class FalconPathPlanner
 
 		//default values DO NOT MODIFY;
 		pathAlpha = 0.01;
-		pathBeta = 0.8;
+		pathBeta = 0.08;
 		pathTolerance = 0.0000001;
 		
 		// pathAlpha = 0.7;
 		// pathBeta = 0.3;
 		// pathTolerance = 0.0000001;
 
-		velocityAlpha = 0.01;
-		velocityBeta = 0.3;
+		velocityAlpha = 0.001;
+		velocityBeta = 0.99;
 		velocityTolerance = 0.0000001;
 	}
 
