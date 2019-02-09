@@ -63,7 +63,7 @@ public class PathFinder extends Command {
 	}
 	public PathFinder(String _mode){
 		requires(Robot.driveTrain);
-		path = Paths.getPath("test");
+		path = Paths.getPath(_mode);
 		
 		/*This sets the PIDF values as defined in the constants file*/
 		DriveTrain.driveTrainRightMaster.config_kP(0, Constants.DRIVETRAIN_P, 10);
@@ -86,7 +86,7 @@ public class PathFinder extends Command {
 		Robot.driveTrain.driveTrainShifter.set(true);
 		Robot.driveTrain.driveTrainLeftMaster.setSensorPhase(false);
 		Robot.driveTrain.driveTrainRightMaster.setSensorPhase(false);
-	
+		//path = Paths.getPath("test");	
 		lineInPath = 0;
 		finished = false;
 		DriveTrain.driveTrainLeftMaster.configClosedloopRamp(Constants.RAMP_RATE_DRIVETRAIN, 0);
@@ -108,8 +108,8 @@ public class PathFinder extends Command {
 	 */
 	public void executePath(){
 		// Get the velocities and angle from the Array
-		leftVelocity = path[lineInPath][0];
-		rightVelocity = path[lineInPath][1];
+		leftVelocity = path[lineInPath][1];
+		rightVelocity = path[lineInPath][0];
 		angle = path[lineInPath][2];
 		System.out.println(Robot.driveTrain.driveTrainRightMaster.getClosedLoopTarget());
 		SmartDashboard.putNumber("RightCommand", (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
