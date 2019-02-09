@@ -18,12 +18,14 @@ int mode = 0;
 int blinkState = LOW;
 // Generally, you should use "unsigned long" for variables that hold time
 // The value will quickly become too large for an int to store
+unsigned long currentMillis = 0;
 unsigned long previousMillis = 0;        // will store last time LED was updated
 
 // constants won't change:
 const long interval = 500;
 //---------------------------------------------------------------------------------------//
 uint32_t color = 0x35FF00; //orange
+uint32_t secondcolor = 0x000000;
 
 void simpleOn(uint32_t color, int tail, int head) {
   for (int i = tail; i < head; i++) {
@@ -42,6 +44,9 @@ void loop() {
   int tail = 0;
   int head = 60;
   if (Serial.available() > 0) {
+    //String firstByte = Serial.read(); //fix this
+    //String colorByte = firstByte.substring(0, 1);
+    //int colorByte = Serial.read();
     int colorByte = Serial.read();
     switch (colorByte) {
       case 'R':
@@ -84,68 +89,80 @@ void loop() {
         mode = MODE_BLINKING;
         color = 0xFFFF00;
         break;
-      case '5':
+      case '1':
         mode = MODE_CHASING;
         color = 0x00FF00;
         break;
-      case '6':
+      case '2':
         mode = MODE_CHASING;
         color = 0xFF0000;
         break;
-      case '7':
+      case '3':
         mode = MODE_CHASING;
         color = 0x0000FF;
         break;
-      case '8':
+      case '4':
         mode = MODE_CHASING;
         color = 0xFFFF00;
         break;
     }
-        strip.show();
-    }
-    switch (mode) {
-      case MODE_OFF:
-        simpleOn(0x000000, tail, head);
-        break;
-      case MODE_SOLID:
-        simpleOn(color, tail, head);
-        break;
-      case MODE_BLINKING:
-        unsigned long currentMillis = millis();
-        Serial.println(currentMillis);
-        if (currentMillis - previousMillis >= interval) {
-          previousMillis = currentMillis;
-          if (blinkState == LOW) {
-            blinkState = HIGH;
-            simpleOn(color, tail, head);
-          } else {
-            blinkState = LOW;
-            simpleOn(0x000000, tail, head);
-          }
+    strip.show();
+  }
+  Serial.println(mode);
+  switch (mode) {
+    case MODE_OFF:
+      simpleOn(0x000000, tail, head);
+      break;
+    case MODE_SOLID:
+      simpleOn(color, tail, head);
+      break;
+    case MODE_BLINKING:
+      currentMillis = millis();
+      Serial.println(currentMillis);
+      if (currentMillis - previousMillis >= interval) {
+        previousMillis = currentMillis;
+        if (blinkState == LOW) {
+          blinkState = HIGH;
+          simpleOn(color, tail, head);
+        } else {
+          blinkState = LOW;
+          simpleOn(0x000000, tail, head);
         }
-    break;
-  case MODE_CHASING:
-    currentMillis = millis();
-    Serial.println(currentMillis);
-    if (currentMillis - previousMillis >= interval) {
-      previousMillis = currentMillis;
+      }
+      break;
+    case MODE_CHASING:
+      //Serial.println("chase");
+      currentMillis = millis();
+      //Serial.println(currentMillis);
+      if (currentMillis - previousMillis >= interval) {
+        previousMillis = currentMillis;
         for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0x00FF00);
+          strip.setPixelColor(i, color);
           strip.show();
           delay(10);
-          color = 0x000000;
         }
         for (int i = tail; i < head; i++) {
           strip.setPixelColor(i, 0x000000);
           strip.show();
           delay(10);
-          color = 0x000000;
         }
-    }
-    simpleOn(color, tail, head);
-    break;
-  case MODE_ALTERNATING:
-    simpleOn(color, tail, head);
-    simpleOn(color, tail, head);
+        previousMillis = millis();
+      }
+      break;
+    case MODE_ALTERNATING:
+      currentMillis = millis();
+      Serial.println(currentMillis);
+      if (currentMillis - previousMillis >= interval) {
+        previousMillis = currentMillis;
+        if (blinkState == LOW) {
+          blinkState = HIGH;
+          simpleOn(color, tail, head);
+        } else {
+          blinkState = LOW;
+          simpleOn(secondcolor, tail, head);
+        }
+      }
+      break;
+      strip.show();
   }
 }

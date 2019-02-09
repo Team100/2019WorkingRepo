@@ -59,7 +59,7 @@ void loop() {
       case 'R':
         Serial.println('R');
         noDos();
-        color = 0x00FF00; //red 
+        color = 0x00FF00; //red
         break;
       case 'G':
         Serial.println('G');
@@ -195,18 +195,18 @@ void loop() {
     Serial.println(currentMillis);
     if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
-        for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0x00FF00);
-          strip.show();
-          delay(10);
-          color = 0x000000;
-        }
-        for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0x000000);
-          strip.show();
-          delay(10);
-          color = 0x000000;
-        }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0x00FF00);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0x000000);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
     }
     simpleOn(color, tail, head);
   }
@@ -216,18 +216,18 @@ void loop() {
     Serial.println(currentMillis);
     if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
-        for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0xFF0000);
-          strip.show();
-          delay(10);
-          color = 0x000000;
-        }
-        for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0x000000);
-          strip.show();
-          delay(10);
-          color = 0x000000;
-        }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0xFF0000);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0x000000);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
     }
     simpleOn(color, tail, head);
   }
@@ -237,18 +237,18 @@ void loop() {
     Serial.println(currentMillis);
     if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
-        for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0x0000FF);
-          strip.show();
-          delay(10);
-          color = 0x000000;
-        }
-        for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0x000000);
-          strip.show();
-          delay(10);
-          color = 0x000000;
-        }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0x0000FF);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0x000000);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
     }
     simpleOn(color, tail, head);
   }
@@ -258,22 +258,22 @@ void loop() {
     Serial.println(currentMillis);
     if (currentMillis - previousMillis >= interval) {
       previousMillis = currentMillis;
-        for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0xFFFF00);
-          strip.show();
-          delay(10);
-          color = 0x000000;
-        }
-        for (int i = tail; i < head; i++) {
-          strip.setPixelColor(i, 0x000000);
-          strip.show();
-          delay(10);
-          color = 0x000000;
-        }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0xFFFF00);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0x000000);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
     }
     simpleOn(color, tail, head);
   }
-  if(!doblinkR && !doblinkG && !doblinkB && !doblinkY && !dochaseR && !dochaseG && !dochaseB && !dochaseY){
+  if (!doblinkR && !doblinkG && !doblinkB && !doblinkY && !dochaseR && !dochaseG && !dochaseB && !dochaseY) {
     Serial.println("Solid Color");
     simpleOn(color, tail, head);
   }
