@@ -83,6 +83,7 @@ public class PathFinder extends Command {
 	 */
 	@Override
 	protected void initialize() {
+		path = Paths.test3M();
 		Robot.driveTrain.driveTrainShifter.set(true);
 		Robot.driveTrain.driveTrainLeftMaster.setSensorPhase(false);
 		Robot.driveTrain.driveTrainRightMaster.setSensorPhase(false);
@@ -108,8 +109,8 @@ public class PathFinder extends Command {
 	 */
 	public void executePath(){
 		// Get the velocities and angle from the Array
-		leftVelocity = path[lineInPath][1];
-		rightVelocity = path[lineInPath][0];
+		leftVelocity = path[lineInPath][0];
+		rightVelocity = path[lineInPath][1];
 		angle = path[lineInPath][2];
 		System.out.println(Robot.driveTrain.driveTrainRightMaster.getClosedLoopTarget());
 		SmartDashboard.putNumber("RightCommand", (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
@@ -124,8 +125,12 @@ public class PathFinder extends Command {
 		SmartDashboard.putString("LeftMode", Robot.driveTrain.driveTrainLeftMaster.getControlMode().toString());
 		SmartDashboard.putNumber("LeftCommandReceived", Robot.driveTrain.driveTrainLeftMaster.getClosedLoopTarget(0));
 		SmartDashboard.putNumber("LeftVoltage", Robot.driveTrain.driveTrainLeftMaster.getMotorOutputVoltage());
+
+		SmartDashboard.putNumber("Heading", Robot.ahrs.getFusedHeading());
+		SmartDashboard.putNumber("Heading Error", Robot.ahrs.getFusedHeading() - Math.toDegrees(angle));
+
 		globalAngle = Robot.ahrs.getFusedHeading();
-		double angleDifference = DriveTrain.boundHalfDegrees(angle - globalAngle);
+		//double angleDifference = DriveTrain.boundHalfDegrees(angle - globalAngle);
 		//double turn = 0.8 * (-1.0/80.0) * angleDifference; //magic numbers are straight from Screensteps so they might need editing (https://wpilib.screenstepslive.com/s/currentCS/m/84338/l/1021631-integrating-path-following-into-a-robot-program)
 		// Set the motors to their desired value
 		DriveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, ((leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER));// + turn);

@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-   ahrs = new AHRS(Port.kMXP);
+   ahrs = new AHRS(Port.kOnboard);
     m_oi = new OI();
     // chooser.addOption("My Auto", new MyAutoCommand());
     SmartDashboard.putData("Auto mode", m_chooser);
@@ -65,7 +65,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void disabledInit() {
-    ahrs.reset();
   }
 
   @Override
