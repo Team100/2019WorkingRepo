@@ -16,6 +16,7 @@ Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BRG);
 //---------------------------------------------------------------------------------------//
 int mode = 0;
 int blinkState = LOW;
+int altState = LOW;
 // Generally, you should use "unsigned long" for variables that hold time
 // The value will quickly become too large for an int to store
 unsigned long currentMillis = 0;
@@ -25,7 +26,7 @@ unsigned long previousMillis = 0;        // will store last time LED was updated
 const long interval = 500;
 //---------------------------------------------------------------------------------------//
 uint32_t color = 0x35FF00; //orange
-uint32_t secondcolor = 0x000000;
+uint32_t altColor = 0x000000;
 
 void simpleOn(uint32_t color, int tail, int head) {
   for (int i = tail; i < head; i++) {
@@ -46,7 +47,6 @@ void loop() {
   if (Serial.available() > 0) {
     //String firstByte = Serial.read(); //fix this
     //String colorByte = firstByte.substring(0, 1);
-    //int colorByte = Serial.read();
     int colorByte = Serial.read();
     switch (colorByte) {
       case 'R':
@@ -105,6 +105,22 @@ void loop() {
         mode = MODE_CHASING;
         color = 0xFFFF00;
         break;
+      case '5':
+        mode = MODE_ALTERNATING;
+        color = 0x00FF00;
+        break;
+      case '6':
+        mode = MODE_ALTERNATING;
+        color = 0xFF0000;
+        break;
+      case '7':
+        mode = MODE_ALTERNATING;
+        color = 0x0000FF;
+        break;
+      case '8':
+        mode = MODE_ALTERNATING;
+        color = 0xFFFF00;
+        break;
     }
     strip.show();
   }
@@ -118,22 +134,19 @@ void loop() {
       break;
     case MODE_BLINKING:
       currentMillis = millis();
-      Serial.println(currentMillis);
       if (currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
         if (blinkState == LOW) {
           blinkState = HIGH;
-          simpleOn(color, tail, head);
+          simpleOn(color,   tail, head);
         } else {
           blinkState = LOW;
-          simpleOn(0x000000, tail, head);
+          simpleOn(0x000000,   tail, head);
         }
       }
       break;
     case MODE_CHASING:
-      //Serial.println("chase");
       currentMillis = millis();
-      //Serial.println(currentMillis);
       if (currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
         for (int i = tail; i < head; i++) {
@@ -151,16 +164,16 @@ void loop() {
       break;
     case MODE_ALTERNATING:
       currentMillis = millis();
-      Serial.println(currentMillis);
       if (currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
-        if (blinkState == LOW) {
-          blinkState = HIGH;
+        if (altState == LOW) {
+          altState = HIGH;
           simpleOn(color, tail, head);
         } else {
-          blinkState = LOW;
-          simpleOn(secondcolor, tail, head);
+          altState = LOW;
+          simpleOn(0xFFFFFF, tail, head);
         }
+        previousMillis = millis();
       }
       break;
       strip.show();
