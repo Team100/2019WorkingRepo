@@ -16,12 +16,24 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 public class LEDLights extends Subsystem {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
+  public final static char BEGINNING_OF_MESSAGE = ':';
+  public final static char END_OF_MESSAGE = '\n';
+  
   public enum LED_Mode {
-    OFF,
-    SOLID,
-    BLINKING,
-    CHASING,
-    ALTERNATING
+    OFF ('O'),
+    SOLID ('S'),
+    BLINKING ('B'),
+    CHASING ('C'),
+    ALTERNATING ('A');
+
+    private char mModeCode;
+    LED_Mode(char kModeCode){
+      mModeCode = kModeCode;
+    }
+
+    public char getModeCode () {
+      return mModeCode;
+    }
   } 
 
   public enum LED_ColorID {
@@ -44,38 +56,46 @@ public class LEDLights extends Subsystem {
   }
 
   public void setColor(LED_ColorID slot, int red, int blue, int green) {
-    port.writeString(":C1000000\n");
+    writeStringToArduino(":C1000000\n");
 
   }
 
   public void setMode(LED_Mode desiredMode) {
-    String s = ":M";
+    
     switch (desiredMode) {
       case OFF:
-        s = s.concat("O\n");
-        break;
-      case SOLID:
-        s= s.concat("S\n");
-        break;
+      case SOLID:  
       case BLINKING:
-        s= s.concat("B\n");
-        break;
       case CHASING:
-        s= s.concat("C\n");
-        break;
       case ALTERNATING:
-        s= s.concat("A\n");
+        String s = ":M";
+        //s.concat(Character.toString(desiredMode.getModeCode());
+        s.concat(Character.toString(END_OF_MESSAGE));
+        writeStringToArduino(s);
         break;
       default:
-        s= s.concat("\n");
+        
         break;
     }
-    port.writeString(s);
+
   }
 
   public void setBlinkTime(LED_BlinkTimerID timerID, int msTime) {
-    port.writeString(":T0100\n");
-    port.writeString(":T1100\n");
+    String s = "";
+    switch (timerID) {
+      case BLINK_ON_TIME:
+        break;
+      case BLINK_OFF_TIME:
+        break;
+      default:
+        break;
+    }
+    writeStringToArduino(":T0100\n");
+    writeStringToArduino(":T1100\n");
 
+  }
+
+  private void writeStringToArduino(String s) {
+    port.writeString(s);
   }
 }
