@@ -7,6 +7,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import frc.robot.commands.CallWriteStringToArduino;
+
 /**
  * This class is the glue that binds the controls on the physical operator
  * interface to the commands and command groups that allow control of the robot.
@@ -39,4 +43,13 @@ public class OI {
   // Start the command when the button is released and let it run the command
   // until it is finished as determined by it's isFinished method.
   // button.whenReleased(new ExampleCommand());
+
+  public Joystick joy;
+  public JoystickButton button1;
+
+  public OI(){
+    joy = new Joystick(0);
+    button1 = new JoystickButton(joy, 1);
+    button1.whenPressed(new CallWriteStringToArduino());
+  }
 }
