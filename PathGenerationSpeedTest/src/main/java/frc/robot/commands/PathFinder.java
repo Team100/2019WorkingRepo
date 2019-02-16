@@ -19,6 +19,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
  *
  */
 public class PathFinder extends Command {
+	private double lastAngle;
+	private double initAngle;
 	private boolean finished;
 	private static double[][] path;
 	private int lengthOfPath;
@@ -76,6 +78,12 @@ public class PathFinder extends Command {
 		DriveTrain.driveTrainLeftMaster.config_kD(0, Constants.DRIVETRAIN_D, 10);
 		DriveTrain.driveTrainLeftMaster.config_kF(0, Constants.DRIVETRAIN_F, 10);
 	}
+	public static double rollOver(double ang, double initAng, double lastAngle, double currentAngle){
+		if(lastAngle > 300 && currentAngle < 100){
+			ang = ang-360;
+		}
+		return ang + initAng;
+	}
 	/**
 	 *Called just before this Command runs the first time
 	 * This-
@@ -83,7 +91,9 @@ public class PathFinder extends Command {
 	 */
 	@Override
 	protected void initialize() {
-		path = Paths.test3M();
+		path = Paths.turnRight10mil();
+		Robot.ahrs.resetDisplacement();
+		initAngle = Robot.ahrs.getAngle();
 		Robot.driveTrain.driveTrainShifter.set(true);
 		Robot.driveTrain.driveTrainLeftMaster.setSensorPhase(false);
 		Robot.driveTrain.driveTrainRightMaster.setSensorPhase(false);
@@ -109,10 +119,10 @@ public class PathFinder extends Command {
 	 */
 	public void executePath(){
 		// Get the velocities and angle from the Array
-		leftVelocity = path[lineInPath][0];
-		rightVelocity = path[lineInPath][1];
-		angle = path[lineInPath][2];
-		System.out.println(Robot.driveTrain.driveTrainRightMaster.getClosedLoopTarget());
+		leftVelocity = path[lineInPath][1];
+		rightVelocity = path[lineInPath][0];
+		angle = rollOver(path[lineInPath][2], initAngle, lastAngle, Robot.ahrs.getAngle());
+		lastAngle = Robot.ahrs.getAngle(); 
 		SmartDashboard.putNumber("RightCommand", (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
 		SmartDashboard.putNumber("LeftCommand", (leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
 		SmartDashboard.putNumber("Right Position", Robot.driveTrain.driveTrainRightMaster.getSelectedSensorPosition());
@@ -125,16 +135,18 @@ public class PathFinder extends Command {
 		SmartDashboard.putString("LeftMode", Robot.driveTrain.driveTrainLeftMaster.getControlMode().toString());
 		SmartDashboard.putNumber("LeftCommandReceived", Robot.driveTrain.driveTrainLeftMaster.getClosedLoopTarget(0));
 		SmartDashboard.putNumber("LeftVoltage", Robot.driveTrain.driveTrainLeftMaster.getMotorOutputVoltage());
-
+		
 		SmartDashboard.putNumber("Heading", Robot.ahrs.getFusedHeading());
-		SmartDashboard.putNumber("Heading Error", Robot.ahrs.getFusedHeading() - Math.toDegrees(angle));
-
-		globalAngle = Robot.ahrs.getFusedHeading();
-		//double angleDifference = DriveTrain.boundHalfDegrees(angle - globalAngle);
-		//double turn = 0.8 * (-1.0/80.0) * angleDifference; //magic numbers are straight from Screensteps so they might need editing (https://wpilib.screenstepslive.com/s/currentCS/m/84338/l/1021631-integrating-path-following-into-a-robot-program)
+		SmartDashboard.putNumber("Heading Error", Robot.driveTrain.boundHalfDegrees(Robot.ahrs.getFusedHeading() - Math.toDegrees(angle)));
+		globalAngle = Robot.ahrs.getAngle();
+		double angleDifference = DriveTrain.boundHalfDegrees(angle - globalAngle);
+		double turn = -10.0 * (1/80.0) * angleDifference; //magic numbers are straight from Screensteps so they might need editing (https://wpilib.screenstepslive.com/s/currentCS/m/84338/l/1021631-integrating-path-following-into-a-robot-program)
 		// Set the motors to their desired value
-		DriveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, ((leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER));// + turn);
-		DriveTrain.driveTrainRightMaster.set(ControlMode.Velocity, ((rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER));// - turn);
+		System.out.println("current: " + Robot.ahrs.getFusedHeading());
+		System.out.println("desiredAngle: " + (path[lineInPath][2]));
+
+		DriveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, ((leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER) + turn);
+		DriveTrain.driveTrainRightMaster.set(ControlMode.Velocity, ((rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER) - turn);
 		lineInPath += 1;
 		if(lineInPath >= lengthOfPath) {
 			finished = true;

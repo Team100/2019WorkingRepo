@@ -87,7 +87,7 @@ public class Constants {
 	/**
 	 * P value for the drivetrain
 	 */
-	public static final double DRIVETRAIN_P = 0.8;
+	public static final double DRIVETRAIN_P = 0.6;//0.6
 	
 	
 	/**
@@ -99,13 +99,13 @@ public class Constants {
 	/**
 	 * D value for the drivetrain
 	 */
-	public static final double DRIVETRAIN_D = 0;
+	public static final double DRIVETRAIN_D = 0.0;
 	
 	
 	/**
 	 * F value for the drivetrain
 	 */
-	public static final double DRIVETRAIN_F = 0.35;
+	public static final double DRIVETRAIN_F = 0.35;//.35
 	
 	
 	/**
@@ -130,7 +130,7 @@ public class Constants {
 	/**
 	 * The interval for each loop of an execution of the Pathfinding processor
 	 */
-	public static final int EXECUTION_LOOP_INTERVAL = 20;
+	public static final int EXECUTION_LOOP_INTERVAL = 10;
 	
 	/**
 	 * Convert one second to 100 ms

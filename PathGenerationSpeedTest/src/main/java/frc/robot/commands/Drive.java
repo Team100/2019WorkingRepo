@@ -42,10 +42,14 @@ public class Drive extends Command {
       // SmartDashboard.putString("LeftMode", Robot.driveTrain.driveTrainLeftMaster.getControlMode().toString());
       // SmartDashboard.putNumber("LeftCommandReceived", Robot.driveTrain.driveTrainLeftMaster.getClosedLoopTarget(0));
       // SmartDashboard.putNumber("LeftVoltage", Robot.driveTrain.driveTrainLeftMaster.getMotorOutputVoltage());
-      SmartDashboard.putNumber("Heading", Robot.ahrs.getAngle());
-  
+    //  SmartDashboard.putNumber("Heading", Robot.ahrs.getAngle());
+      //
+      System.out.println(Robot.ahrs.getAngle());
     }
-    Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(OI.leftJoystick.getY(),- OI.rightJoystick.getX());
+  //  System.out.println("Angle" + Robot.ahrs.getAngle());
+    
+
+    Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(OI.leftJoystick.getY(),- OI.leftJoystick.getZ());
     i++;
   }
 

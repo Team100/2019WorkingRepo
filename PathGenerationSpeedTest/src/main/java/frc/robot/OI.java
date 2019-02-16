@@ -36,9 +36,9 @@ public class OI {
       leftJoystick = new Joystick(1);
       
       rightJoystick = new Joystick(0);
-      shiftOff = new JoystickButton(rightJoystick, 2);
+      shiftOff = new JoystickButton(leftJoystick, 2);
       shiftOff.whenPressed(new Shift());
-      turnToGoButton = new JoystickButton(rightJoystick, 1);
+      turnToGoButton = new JoystickButton(leftJoystick, 1);
       turnToGoButton.whenPressed(new PathFinder("forward"));
 
       // SmartDashboard Buttons

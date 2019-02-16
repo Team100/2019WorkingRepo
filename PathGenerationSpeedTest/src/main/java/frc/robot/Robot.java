@@ -126,6 +126,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
+    SmartDashboard.putNumber("PosX", ahrs.getDisplacementX());
+    SmartDashboard.putNumber("PosY", ahrs.getDisplacementY());
     SmartDashboard.putNumber("Heading", ahrs.getFusedHeading());
   }
 
