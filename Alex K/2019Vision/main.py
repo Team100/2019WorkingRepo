@@ -11,36 +11,6 @@ from time import sleep as wait, time
 from watchdog.observers import Observer
 from watcher import FileWatcher
 
-# real world dimensions of the switch target
-# These are the full dimensions around both strips
-
-TARGET_STRIP_WIDTH = 2.0  # inches
-TARGET_STRIP_LENGTH = 5.5  # inches
-TARGET_STRIP_CORNER_OFFSET = 4.0  # inches
-TARGET_STRIP_ROT = math.radians(14.5)
-
-cos_a = math.cos(TARGET_STRIP_ROT)
-sin_a = math.sin(TARGET_STRIP_ROT)
-
-pt = [TARGET_STRIP_CORNER_OFFSET, 0.0, 0.0]
-right_strip = [tuple(pt), ]  # this makes a copy, so we are safe
-pt[0] += TARGET_STRIP_WIDTH * cos_a
-pt[1] += TARGET_STRIP_WIDTH * sin_a
-right_strip.append(tuple(pt))
-pt[0] += TARGET_STRIP_LENGTH * sin_a
-pt[1] -= TARGET_STRIP_LENGTH * cos_a
-right_strip.append(tuple(pt))
-pt[0] -= TARGET_STRIP_WIDTH * cos_a
-pt[1] -= TARGET_STRIP_WIDTH * sin_a
-right_strip.append(tuple(pt))
-
-# left strip is mirror of right strip
-left_strip = [(-p[0], p[1], p[2]) for p in right_strip]
-
-all_target_coords = np.concatenate([right_strip, left_strip])
-outside_target_coords = np.float32(np.array([left_strip[2], left_strip[1],
-                                             right_strip[1], right_strip[2]]))
-
 
 # Update the configuration
 def update_config(_):
@@ -104,8 +74,8 @@ try:
             # m1 = cv2.moments(target)
 
             # Get center x and y
-            cx1 = target.x  # int(m1["m10"] / m1["m00"])
-            cy1 = target.y  # int(m1["m01"] / m1["m00"])
+            cx1 = int(target.x)  # int(m1["m10"] / m1["m00"])
+            cy1 = int(target.y)  # int(m1["m01"] / m1["m00"])
 
             # Get bounding box
             x1, y1, w1, h1 = cv2.boundingRect(target.poly)
@@ -146,8 +116,8 @@ try:
             x2, y2, w2, h2 = cv2.boundingRect(targets[i - 1].poly)
 
             # m2 = cv2.moments(targets[i - 1])
-            cx2 = targets[i - 1].x  # int(m2["m10"] / m2["m00"])
-            cy2 = targets[i - 1].y  # int(m2["m01"] / m2["m00"])
+            cx2 = int(targets[i - 1].x)  # int(m2["m10"] / m2["m00"])
+            cy2 = int(targets[i - 1].y)  # int(m2["m01"] / m2["m00"])
 
             cx = int((cx1 + cx2) / 2)
             cy = int((cy1 + cy2) / 2)
@@ -185,114 +155,59 @@ try:
                 # ##
                 # ##  Begin calculating angle of plane
                 # ##
-                if facing[i] == -1:
-                    (nx1, ny1) = points1[2]
-                    (nx2, ny2) = points2[2]
-                else:
-                    (nx1, ny1) = points1[2]
-                    (nx2, ny2) = points2[2]
+                # TODO: convert constants to config
+                (nx1, ny1) = points1[2]
+                (nx2, ny2) = points2[2]
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
                 my = ny1
                 v1 = (nx1 - nx2)
                 v2 = (ny1 - ny2)
-                v3 = 0
+
                 if slope != 0:
                     my = (slope * (319.5 + slope * 239.5) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
 
                 # Display debugging parallel lines
                 if config.display.debug:
-                    cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
                     cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
 
                 my -= 239.5
                 norm_theta = my / 6 / 57.3
 
-                om1 = 0
                 om2 = math.cos(norm_theta)
                 om3 = math.sin(norm_theta)
 
-                n11 = v2 * om3 - v3 * om2
-                n12 = v3 * om1 - v1 * om3
-                n13 = v1 * om2 - v2 * om1
+                n11 = v2 * om3
+                n12 = -v1 * om3
+                n13 = v1 * om2
 
-                if facing[i] == -1:
-                    inner1 = max(max(points1[0][0], points1[1][0]), max(points1[2][0], points1[3][0]))
-                    inner2 = min(min(points2[0][0], points2[1][0]), min(points2[2][0], points2[3][0]))
-                    (nx1, ny1) = points1[0]
-                    (nx2, ny2) = points2[0]
-
-                    na1 = 90 - abs(
-                        math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)
-                    na2 = 90 - abs(
-                        math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)
-
-                    cv2.putText(frame, "new angle -1: {0}".format(90 - abs(
-                        math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)),
-                                (16, 380), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (255, 255, 255), 1)
-                    cv2.putText(frame, "new angle 1: {0}".format(
-                        90 - abs(
-                            math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)),
-                                (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (255, 255, 255), 1)
-                else:
-                    inner1 = min(min(points1[0][0], points1[1][0]), min(points1[2][0], points1[3][0]))
-                    inner2 = max(max(points2[0][0], points2[1][0]), max(points2[2][0], points2[3][0]))
-                    (nx1, ny1) = points1[0]
-                    (nx2, ny2) = points2[0]
-
-                    na1 = 90 - abs(
-                        math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)
-                    na2 = 90 - abs(
-                        math.atan((points2[0][1] - points2[3][1]) / (points2[0][0] - points2[3][0])) * RAD2DEG)
-
-                    cv2.putText(frame, "new angle 1: {0}".format(90 - abs(
-                        math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)),
-                                (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (255, 255, 255), 1)
-                    cv2.putText(frame, "new angle -1: {0}".format(90 -
-                                                                  abs(math.atan((points2[0][1] - points2[3][1]) / (
-                                                                          points2[0][0] - points2[3][
-                                                                      0])) * RAD2DEG)), (16, 380),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (255, 255, 255), 1)
+                (nx1, ny1) = points1[0]
+                (nx2, ny2) = points2[0]
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
                 my = ny1
                 v1 = (nx1 - nx2)
                 v2 = (ny1 - ny2)
-                v3 = 0
                 if slope != 0:
                     my = (slope * (319.5 + slope * 239.5) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
 
                 if config.display.debug:
-                    cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
                     cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
 
                 my -= 239.5
                 norm_theta = my / 6 / 57.3
 
-                om1 = 0
                 om2 = math.cos(norm_theta)
                 om3 = math.sin(norm_theta)
 
-                n21 = v2 * om3 - v3 * om2
-                n22 = v3 * om1 - v1 * om3
-                n23 = v1 * om2 - v2 * om1
+                n21 = v2 * om3
+                n22 = -v1 * om3
+                n23 = v1 * om2
 
                 ab1 = n12 * n23 - n13 * n22
                 ab2 = n13 * n21 - n11 * n23
-
-                inner1 -= 50
-                inner2 -= 50
-                width = inner1 - inner2
-                if width > 0:
-                    width += 10
-                else:
-                    width *= -1
 
                 aop = (90 - abs(math.atan(ab1 / (ab2 + 0.000001)) / 3.1415 * 180)) * 2 * 4 / 3
                 # ##

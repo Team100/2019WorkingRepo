@@ -32,9 +32,9 @@ def process(frame, config):
     gray = np.int16(frame.copy())
 
     gray = gray[:, :, 1] - gray[:, :, 2]
-    thresh = gray < 50
+    thresh = gray < config.contours.threshold
     gray[thresh] = 0
-    thresh = gray > 80
+    thresh = gray > config.contours.threshold
     gray[thresh] = 255
     gray = np.uint8(gray)
 
@@ -54,34 +54,34 @@ def process(frame, config):
         ((pos, size, angle), poly) = rectangle
         (w, h) = size
 
-        if w * h < 200:
+        if w * h < config.contours.min_area:
             continue
 
         targets.append(Target(pos, size, angle, poly))
 
-    yError = 30
+    yError = config.contours.y_error
     targetPairs = []
     for i in range(len(targets)):
         for j in range(i + 1, len(targets)):
             if abs(targets[i].y - targets[j].y) < yError:
                 targetPairs.append(TargetPair(targets[i], targets[j]))
 
-    angleError = 30
+    angleError = config.contours.angle_error
     correctTargetPairs = []
     for i in targetPairs:
         if i.target1.x < i.target2.x:
-            if i.target1.angle > -80 - angleError and i.target1.angle < -80 + angleError:
-                if i.target2.angle > -10 - angleError and i.target2.angle < -10 + angleError:
+            if i.target1.angle > config.contours.mid_angle_1 - angleError and i.target1.angle < config.contours.mid_angle_1 + angleError:
+                if i.target2.angle > config.contours.mid_angle_2 - angleError and i.target2.angle < config.contours.mid_angle_2 + angleError:
                     avgWidth = (i.target1.w + i.target2.w) / 2
                     ratio = abs(i.target1.x - i.target2.x) / avgWidth
-                    if ratio < 3.5:
+                    if ratio < config.contours.max_ratio:
                         correctTargetPairs.append(i)
         else:
-            if i.target2.angle > -80 - angleError and i.target2.angle < -80 + angleError:
-                if i.target1.angle > -10 - angleError and i.target1.angle < -10 + angleError:
+            if i.target2.angle > config.contours.mid_angle_1 - angleError and i.target2.angle < config.contours.mid_angle_1 + angleError:
+                if i.target1.angle > config.contours.mid_angle_2 - angleError and i.target1.angle < config.contours.mid_angle_2 + angleError:
                     avgWidth = (i.target1.w + i.target2.w) / 2
                     ratio = abs(i.target1.x - i.target2.x) / avgWidth
-                    if ratio < 3.5:
+                    if ratio < config.contours.max_ratio:
                         correctTargetPairs.append(i)
     targets = []
     for i in correctTargetPairs:
