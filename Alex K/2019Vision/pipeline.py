@@ -29,16 +29,19 @@ class ShapeDetector:
 
 
 def process(frame, config):
-    gray = np.int16(frame.copy())
+    grey = np.int16(frame.copy())
 
-    gray = gray[:, :, 1] - gray[:, :, 2]
-    thresh = gray < config.contours.threshold
-    gray[thresh] = 0
-    thresh = gray > config.contours.threshold
-    gray[thresh] = 255
-    gray = np.uint8(gray)
+    grey = grey[:, :, 1] - grey[:, :, 2]
+    thresh = grey < config.filtering.grey_threshold
+    grey[thresh] = 0
+    thresh = grey > config.filtering.grey_threshold
+    grey[thresh] = 255
+    grey = np.uint8(grey)
 
-    cnts = cv2.findContours(gray.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+    if config.opencv_version == 4:
+        cnts = cv2.findContours(grey.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+    else:
+        cnts = cv2.findContours(grey.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
     sd = ShapeDetector()
 
     targets = []
@@ -54,37 +57,39 @@ def process(frame, config):
         ((pos, size, angle), poly) = rectangle
         (w, h) = size
 
-        if w * h < config.contours.min_area:
+        if w * h < config.filtering.area:
             continue
 
         targets.append(Target(pos, size, angle, poly))
-
-    yError = config.contours.y_error
-    targetPairs = []
+        
+    target_pairs = []
     for i in range(len(targets)):
         for j in range(i + 1, len(targets)):
-            if abs(targets[i].y - targets[j].y) < yError:
-                targetPairs.append(TargetPair(targets[i], targets[j]))
+            if abs(targets[i].y - targets[j].y) < config.error.y:
+                target_pairs.append(TargetPair(targets[i], targets[j]))
 
-    angleError = config.contours.angle_error
-    correctTargetPairs = []
-    for i in targetPairs:
+    correct_target_pairs = []
+    for i in target_pairs:
         if i.target1.x < i.target2.x:
-            if i.target1.angle > config.contours.mid_angle_1 - angleError and i.target1.angle < config.contours.mid_angle_1 + angleError:
-                if i.target2.angle > config.contours.mid_angle_2 - angleError and i.target2.angle < config.contours.mid_angle_2 + angleError:
-                    avgWidth = (i.target1.w + i.target2.w) / 2
-                    ratio = abs(i.target1.x - i.target2.x) / avgWidth
-                    if ratio < config.contours.max_ratio:
-                        correctTargetPairs.append(i)
+            if i.target1.angle > config.filtering.relative_angle.left - config.error.angle \
+                    and i.target1.angle < config.filtering.relative_angle.left + config.error.angle:
+                if i.target2.angle > config.filtering.relative_angle.right - config.error.angle \
+                        and i.target2.angle < config.filtering.relative_angle.right + config.error.angle:
+                    avg_width = (i.target1.w + i.target2.w) / 2
+                    ratio = abs(i.target1.x - i.target2.x) / avg_width
+                    if ratio < config.filtering.width_height_ratio:
+                        correct_target_pairs.append(i)
         else:
-            if i.target2.angle > config.contours.mid_angle_1 - angleError and i.target2.angle < config.contours.mid_angle_1 + angleError:
-                if i.target1.angle > config.contours.mid_angle_2 - angleError and i.target1.angle < config.contours.mid_angle_2 + angleError:
-                    avgWidth = (i.target1.w + i.target2.w) / 2
-                    ratio = abs(i.target1.x - i.target2.x) / avgWidth
-                    if ratio < config.contours.max_ratio:
-                        correctTargetPairs.append(i)
+            if i.target2.angle > config.filtering.relative_angle.left - config.error.angle \
+                    and i.target2.angle < config.filtering.relative_angle.left + config.error.angle:
+                if i.target1.angle > config.filtering.relative_angle.right - config.error.angle \
+                        and i.target1.angle < config.filtering.relative_angle.right + config.error.angle:
+                    avg_width = (i.target1.w + i.target2.w) / 2
+                    ratio = abs(i.target1.x - i.target2.x) / avg_width
+                    if ratio < config.filtering.width_height_ratio:
+                        correct_target_pairs.append(i)
     targets = []
-    for i in correctTargetPairs:
+    for i in correct_target_pairs:
         targets.append(i.target1)
         targets.append(i.target2)
     return targets

@@ -1,53 +1,31 @@
 {
-  "blur": {
-    "radius": 4.504504504504511
-  },
-  "camera": {
-    "height": 2
-  },
-  "camera_port": 1,
-  "contours": {
-    "external_contours": true,
-    "max_height": 1000,
-    "max_vertices": 1000000,
-    "max_width": 1000,
-    "min_area": 200.0,
-    "y_error": 30,
-    "mid_angle_1": -80,
-    "mid_angle_2": -10,
-    "max_ratio": 3.5,
-    "angle_error": 15,
-    "threshold": 80,
-    "min_height": 0,
-    "min_perimeter": 1.0,
-    "min_ratio": 0,
-    "min_vertices": 0,
-    "min_width": 0,
-    "solidity": [
-      0,
-      100
-    ]
-  },
+  "camera_port": 0,
   "display": {
     "bounding": true,
-    "debug": true,
+    "debug": false,
     "window": true
   },
-  "horizontal_degrees_per_pixel": 0.1962,
-  "hsv": {
-    "hue": [
-      137.2,
-      173.8
-    ],
-    "saturation": [
-      169.2,
-      255.0
-    ],
-    "value": [
-      106.3,
-      255.0
-    ]
+  "image_center": {
+    "x": 319.5,
+    "y": 239.5
   },
-  "image_center": 319.5,
+  "error": {
+    "y": 30,
+    "angle": 30
+  },
+  "degrees_per_pixel": {
+    "vertical": 0.07145,
+    "horizontal": 0.09531
+  },
+  "filtering": {
+    "area": 200,
+    "relative_angle": {
+      "left": -80,
+      "right": -10
+    },
+    "width_height_ratio": 3.5,
+    "grey_threshold": 80
+  },
+  "opencv_version": 4,
   "network_tables": "127.0.0.1"
 }
