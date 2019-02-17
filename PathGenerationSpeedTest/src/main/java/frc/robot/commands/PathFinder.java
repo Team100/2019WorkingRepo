@@ -78,6 +78,14 @@ public class PathFinder extends Command {
 		DriveTrain.driveTrainLeftMaster.config_kD(0, Constants.DRIVETRAIN_D, 10);
 		DriveTrain.driveTrainLeftMaster.config_kF(0, Constants.DRIVETRAIN_F, 10);
 	}
+	/**
+	 * doesnt work
+	 * @param ang
+	 * @param initAng
+	 * @param lastAngle
+	 * @param currentAngle
+	 * @return newAngle
+	 */
 	public static double rollOver(double ang, double initAng, double lastAngle, double currentAngle){
 		if(lastAngle > 300 && currentAngle < 100){
 			ang = ang-360;
@@ -91,9 +99,9 @@ public class PathFinder extends Command {
 	 */
 	@Override
 	protected void initialize() {
-		path = Paths.turnRight10mil();
-		Robot.ahrs.resetDisplacement();
-		initAngle = Robot.ahrs.getAngle();
+		path = Paths.forward();
+		Robot.driveTrain.ahrs.resetDisplacement();
+		initAngle = Robot.driveTrain.ahrs.getAngle();
 		Robot.driveTrain.driveTrainShifter.set(true);
 		Robot.driveTrain.driveTrainLeftMaster.setSensorPhase(false);
 		Robot.driveTrain.driveTrainRightMaster.setSensorPhase(false);
@@ -121,8 +129,8 @@ public class PathFinder extends Command {
 		// Get the velocities and angle from the Array
 		leftVelocity = path[lineInPath][1];
 		rightVelocity = path[lineInPath][0];
-		angle = rollOver(path[lineInPath][2], initAngle, lastAngle, Robot.ahrs.getAngle());
-		lastAngle = Robot.ahrs.getAngle(); 
+		angle = path[lineInPath][2];
+		lastAngle = Robot.driveTrain.ahrs.getAngle(); 
 		SmartDashboard.putNumber("RightCommand", (rightVelocity * Constants.RIGHT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
 		SmartDashboard.putNumber("LeftCommand", (leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER);
 		SmartDashboard.putNumber("Right Position", Robot.driveTrain.driveTrainRightMaster.getSelectedSensorPosition());
@@ -136,13 +144,15 @@ public class PathFinder extends Command {
 		SmartDashboard.putNumber("LeftCommandReceived", Robot.driveTrain.driveTrainLeftMaster.getClosedLoopTarget(0));
 		SmartDashboard.putNumber("LeftVoltage", Robot.driveTrain.driveTrainLeftMaster.getMotorOutputVoltage());
 		
-		SmartDashboard.putNumber("Heading", Robot.ahrs.getFusedHeading());
-		SmartDashboard.putNumber("Heading Error", Robot.driveTrain.boundHalfDegrees(Robot.ahrs.getFusedHeading() - Math.toDegrees(angle)));
-		globalAngle = Robot.ahrs.getAngle();
-		double angleDifference = DriveTrain.boundHalfDegrees(angle - globalAngle);
-		double turn = -10.0 * (1/80.0) * angleDifference; //magic numbers are straight from Screensteps so they might need editing (https://wpilib.screenstepslive.com/s/currentCS/m/84338/l/1021631-integrating-path-following-into-a-robot-program)
+		SmartDashboard.putNumber("Heading", Robot.driveTrain.ahrs.getFusedHeading());
+		SmartDashboard.putNumber("Heading Error Bound", Robot.driveTrain.boundHalfDegrees((angle * (180/Constants.PI))- Robot.driveTrain.ahrs.getAngle()));
+		SmartDashboard.putNumber("heading error not bound", (angle*(180/Constants.PI)) - Robot.driveTrain.ahrs.getAngle());
+		globalAngle = Robot.driveTrain.ahrs.getAngle();
+		double angleDifference = DriveTrain.boundHalfDegrees((angle*(180/Constants.PI)) - globalAngle) - initAngle
+		;
+		double turn = 0.0 * (1/80.0) * angleDifference; //magic numbers are straight from Screensteps so they might need editing (https://wpilib.screenstepslive.com/s/currentCS/m/84338/l/1021631-integrating-path-following-into-a-robot-program)
 		// Set the motors to their desired value
-		System.out.println("current: " + Robot.ahrs.getFusedHeading());
+		System.out.println("current: " + Robot.driveTrain.ahrs.getFusedHeading());
 		System.out.println("desiredAngle: " + (path[lineInPath][2]));
 
 		DriveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, ((leftVelocity * Constants.LEFT_DRIVETRAIN_MODIFIER) * Constants.DRIVETRAIN_TICKS_PER_METER) + turn);

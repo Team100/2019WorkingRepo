@@ -29,7 +29,7 @@ public class turnGo extends Command {
 	// Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    double globalAngle = Robot.ahrs.getFusedHeading();
+    double globalAngle = Robot.driveTrain.ahrs.getFusedHeading();
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("camera");
     String cameraData = table.getEntry("data").getString(null);

@@ -25,7 +25,6 @@ import com.kauailabs.navx.frc.*;
  * project.
  */
 public class Robot extends TimedRobot {
-  public static AHRS ahrs;
 // public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
   public static DriveTrain driveTrain = new DriveTrain();
 
@@ -40,10 +39,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-   ahrs = new AHRS(Port.kOnboard);
     m_oi = new OI();
     // chooser.addOption("My Auto", new MyAutoCommand());
     SmartDashboard.putData("Auto mode", m_chooser);
+
   }
 
   /**
@@ -70,7 +69,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     Scheduler.getInstance().run();
-    SmartDashboard.putNumber("Heading", ahrs.getFusedHeading());
   }
 
   /**
@@ -126,9 +124,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
-    SmartDashboard.putNumber("PosX", ahrs.getDisplacementX());
-    SmartDashboard.putNumber("PosY", ahrs.getDisplacementY());
-    SmartDashboard.putNumber("Heading", ahrs.getFusedHeading());
   }
 
   /**
