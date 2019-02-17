@@ -24,7 +24,7 @@ class ShapeDetector:
 
     def detect(self, c):
         peri = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, peri * 0.005, True)
+        approx = cv2.approxPolyDP(c, peri * 0.002, True)
         return cv2.minAreaRect(approx), approx
 
 

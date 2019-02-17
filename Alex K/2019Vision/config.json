@@ -1,8 +1,8 @@
 {
-  "camera_port": 0,
+  "camera_port": 2,
   "display": {
     "bounding": true,
-    "debug": false,
+    "debug": true,
     "window": true
   },
   "image_center": {

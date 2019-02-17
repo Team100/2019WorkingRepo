@@ -12,7 +12,7 @@ from watchdog.observers import Observer
 from watcher import FileWatcher
 
 # Target size
-TARGET_SIZE = 5 + 5/8
+TARGET_SIZE = 5 + 5 / 8
 
 
 # Update the configuration
@@ -63,6 +63,7 @@ try:
     while True:
         # Get frame
         _, frame = camera.read()
+        frame = cv2.resize(frame, (640, 480))
 
         # Check for cubes
         targets = pipeline.process(frame, config)
@@ -102,7 +103,8 @@ try:
                     facing.append(-1)
 
             if config.display.debug:
-                cv2.putText(frame, str(facing[i]), (cx1, cy1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                cv2.putText(frame, str(facing[i]), (int(cx1), int(cy1)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
+                            1)
                 cv2.putText(frame, "1", tuple(points1[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
                 cv2.putText(frame, "2", tuple(points1[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
                 cv2.putText(frame, "3", tuple(points1[2]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
@@ -133,30 +135,26 @@ try:
             att = round((cx - config.image_center.x) * config.degrees_per_pixel.horizontal, 4)
 
             # Get distance
-            rad_height1t = (config.image_center.y - y1) / config.degrees_per_pixel.vertical
-            rad_height1b = (config.image_center.y - y1 - h1) / config.degrees_per_pixel.vertical
-            rad_height2t = (config.image_center.y - y2) / config.degrees_per_pixel.vertical
-            rad_height2b = (config.image_center.y - y2 - h2) / config.degrees_per_pixel.vertical
+            rad_height1t = (config.image_center.y - y1) * config.degrees_per_pixel.vertical
+            rad_height1b = (config.image_center.y - y1 - h1) * config.degrees_per_pixel.vertical
+            rad_height2t = (config.image_center.y - y2) * config.degrees_per_pixel.vertical
+            rad_height2b = (config.image_center.y - y2 - h2) * config.degrees_per_pixel.vertical
 
             dt1 = TARGET_SIZE * (rad_height1t / (rad_height1t - rad_height1b))
             dt2 = TARGET_SIZE * (rad_height2t / (rad_height2t - rad_height2b))
 
-            d1 = dt1 / math.tan(rad_height1t)
-            d2 = dt2 / math.tan(rad_height2t)
+            d1 = dt1 / math.tan(rad_height1t / RAD2DEG)
+            d2 = abs(dt2 / math.tan(rad_height2t / RAD2DEG))
 
-            dtt = round(((d1 + d2) / 2) / 20.25 * 39 / 62.1 * 60, 4)
+            dtt = round(((d1 + d2) / 2), 4)
 
             # Fix division by zero errors
             try:
                 # ##
                 # ##  Begin calculating angle of plane
                 # ##
-                if facing[i] == -1:
-                    (nx1, ny1) = points1[2]
-                    (nx2, ny2) = points2[2]
-                else:
-                    (nx1, ny1) = points1[2]
-                    (nx2, ny2) = points2[2]
+                (nx1, ny1) = points1[2]
+                (nx2, ny2) = points2[2]
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
@@ -165,8 +163,7 @@ try:
                 v2 = (ny1 - ny2)
                 v3 = 0
                 if slope != 0:
-                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1))\
-                         / (slope * slope + 1) - 2
+                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
 
                 # Display debugging parallel lines
                 if config.display.debug:
@@ -174,55 +171,18 @@ try:
                     cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
 
                 my -= config.image_center.y
-                norm_theta = my / config.degrees_per_pixel.vertical
+                norm_theta = my * config.degrees_per_pixel.vertical
 
                 om1 = 0
-                om2 = math.cos(norm_theta)
-                om3 = math.sin(norm_theta)
+                om2 = math.cos(norm_theta / RAD2DEG)
+                om3 = math.sin(norm_theta / RAD2DEG)
 
                 n11 = v2 * om3 - v3 * om2
                 n12 = v3 * om1 - v1 * om3
                 n13 = v1 * om2 - v2 * om1
 
-                if facing[i] == -1:
-                    inner1 = max(max(points1[0][0], points1[1][0]), max(points1[2][0], points1[3][0]))
-                    inner2 = min(min(points2[0][0], points2[1][0]), min(points2[2][0], points2[3][0]))
-                    (nx1, ny1) = points1[0]
-                    (nx2, ny2) = points2[0]
-
-                    na1 = 90 - abs(
-                        math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)
-                    na2 = 90 - abs(
-                        math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)
-
-                    cv2.putText(frame, "new angle -1: {0}".format(90 - abs(
-                        math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)),
-                                (16, 380), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (255, 255, 255), 1)
-                    cv2.putText(frame, "new angle 1: {0}".format(
-                        90 - abs(
-                            math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)),
-                                (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (255, 255, 255), 1)
-                else:
-                    inner1 = min(min(points1[0][0], points1[1][0]), min(points1[2][0], points1[3][0]))
-                    inner2 = max(max(points2[0][0], points2[1][0]), max(points2[2][0], points2[3][0]))
-                    (nx1, ny1) = points1[0]
-                    (nx2, ny2) = points2[0]
-
-                    na1 = 90 - abs(
-                        math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)
-                    na2 = 90 - abs(
-                        math.atan((points2[0][1] - points2[3][1]) / (points2[0][0] - points2[3][0])) * RAD2DEG)
-
-                    cv2.putText(frame, "new angle 1: {0}".format(90 - abs(
-                        math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)),
-                                (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (255, 255, 255), 1)
-                    cv2.putText(frame, "new angle -1: {0}".format(90 - abs(math.atan((points2[0][1] - points2[3][1]) /
-                                                                                     (points2[0][0] - points2[3][0])) *
-                                                                           RAD2DEG)), (16, 380),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                (nx1, ny1) = points1[0]
+                (nx2, ny2) = points2[0]
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
@@ -231,19 +191,18 @@ try:
                 v2 = (ny1 - ny2)
                 v3 = 0
                 if slope != 0:
-                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1))\
-                         / (slope * slope + 1) - 2
+                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
 
                 if config.display.debug:
                     cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
                     cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
 
                 my -= config.image_center.y
-                norm_theta = my / config.degrees_per_pixel.vertical
+                norm_theta = my * config.degrees_per_pixel.vertical
 
                 om1 = 0
-                om2 = math.cos(norm_theta)
-                om3 = math.sin(norm_theta)
+                om2 = math.cos(norm_theta / RAD2DEG)
+                om3 = math.sin(norm_theta / RAD2DEG)
 
                 n21 = v2 * om3 - v3 * om2
                 n22 = v3 * om1 - v1 * om3
@@ -252,20 +211,14 @@ try:
                 ab1 = n12 * n23 - n13 * n22
                 ab2 = n13 * n21 - n11 * n23
 
-                inner1 -= 50
-                inner2 -= 50
-                width = inner1 - inner2
-                if width > 0:
-                    width += 10
-                else:
-                    width *= -1
-
-                aop = (90 - abs(math.atan(ab1 / (ab2 + 0.000001)) / 3.1415 * 180)) * 2 * 4 / 3
+                aop = (90 - abs(math.atan(ab1 / (ab2 + 0.000001)) * RAD2DEG))
                 # ##
                 # ## End calculating angle of plane
                 # ##
             except:
                 aop = 0
+
+            # print(dtt, att, aop)
 
             if config.display.debug:
                 cv2.putText(frame, "Angle of Plane: {0}".format(aop), (16, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
