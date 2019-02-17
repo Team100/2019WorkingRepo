@@ -185,6 +185,50 @@ try:
                 (nx1, ny1) = points1[0]
                 (nx2, ny2) = points2[0]
 
+                n11 = v2 * om3 - v3 * om2
+                n12 = v3 * om1 - v1 * om3
+                n13 = v1 * om2 - v2 * om1
+
+                if facing[i] == -1:
+                    inner1 = max(max(points1[0][0], points1[1][0]), max(points1[2][0], points1[3][0]))
+                    inner2 = min(min(points2[0][0], points2[1][0]), min(points2[2][0], points2[3][0]))
+                    (nx1, ny1) = points1[0]
+                    (nx2, ny2) = points2[0]
+
+                    na1 = 90 - abs(
+                        math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)
+                    na2 = 90 - abs(
+                        math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)
+
+                    cv2.putText(frame, "new angle -1: {0}".format(90 - abs(
+                        math.atan((points1[0][1] - points1[3][1]) / (points1[0][0] - points1[3][0])) * RAD2DEG)),
+                                (16, 380), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                (255, 255, 255), 1)
+                    cv2.putText(frame, "new angle 1: {0}".format(
+                        90 - abs(
+                            math.atan((points2[0][1] - points2[1][1]) / (points2[0][0] - points2[1][0])) * RAD2DEG)),
+                                (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                (255, 255, 255), 1)
+                else:
+                    inner1 = min(min(points1[0][0], points1[1][0]), min(points1[2][0], points1[3][0]))
+                    inner2 = max(max(points2[0][0], points2[1][0]), max(points2[2][0], points2[3][0]))
+                    (nx1, ny1) = points1[0]
+                    (nx2, ny2) = points2[0]
+
+                    na1 = 90 - abs(
+                        math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)
+                    na2 = 90 - abs(
+                        math.atan((points2[0][1] - points2[3][1]) / (points2[0][0] - points2[3][0])) * RAD2DEG)
+
+                    cv2.putText(frame, "new angle 1: {0}".format(90 - abs(
+                        math.atan((points1[0][1] - points1[1][1]) / (points1[0][0] - points1[1][0])) * RAD2DEG)),
+                                (16, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                (255, 255, 255), 1)
+                    cv2.putText(frame, "new angle -1: {0}".format(90 - abs(math.atan((points2[0][1] - points2[3][1]) /
+                                                                                     (points2[0][0] - points2[3][0])) *
+                                                                           RAD2DEG)), (16, 380),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
                 my = ny1

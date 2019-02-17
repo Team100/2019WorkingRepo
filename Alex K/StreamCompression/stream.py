@@ -92,3 +92,12 @@ except ConnectionAbortedError:
         camera1.release()
 
     t.join()
+
+except BrokenPipeError:
+    s.close()
+
+    camera0.release()
+    if args.dual:
+        camera1.release()
+
+    t.join()
