@@ -50,6 +50,6 @@ public class OI {
   public OI(){
     joy = new Joystick(0);
     button1 = new JoystickButton(joy, 1);
-    button1.whenPressed(new CallWriteStringToArduino());
+    button1.whenPressed(new CallWriteStringToArduino("'X' button pressed on controller.\t"));
   }
 }

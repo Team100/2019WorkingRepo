@@ -12,10 +12,14 @@ import frc.robot.subsystems.LEDLights;
 
 
 public class CallWriteStringToArduino extends Command {
+
   public static LEDLights m_leds = new LEDLights();
-  public CallWriteStringToArduino() {
+  public String s;
+
+  public CallWriteStringToArduino(String a) {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
+    s = a;
   }
 
   // Called just before this Command runs the first time
@@ -26,13 +30,13 @@ public class CallWriteStringToArduino extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    m_leds.callWriteStringToArduino();
+    m_leds.callWriteStringToArduino(s);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return false;
+    return true;
   }
 
   // Called once after isFinished returns true

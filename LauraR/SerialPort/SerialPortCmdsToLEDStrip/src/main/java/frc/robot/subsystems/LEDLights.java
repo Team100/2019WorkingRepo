@@ -60,8 +60,8 @@ public class LEDLights extends Subsystem {
 
   }
 
-  public void callWriteStringToArduino() {
-    writeStringToArduino("hello");
+  public void callWriteStringToArduino(String s) {
+    writeStringToArduino(s);
 
   }
 
