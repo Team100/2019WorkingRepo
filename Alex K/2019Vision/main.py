@@ -10,10 +10,11 @@ import pipeline
 from time import sleep as wait, time
 from watchdog.observers import Observer
 from watcher import FileWatcher
+from os import system as execute
+from sys import platform as os_platform
 
 # Target size
 TARGET_SIZE = 5 + 5 / 8
-
 
 # Update the configuration
 def update_config(_):
@@ -23,7 +24,6 @@ def update_config(_):
         config = parse_json(open("config.json"), object_hook=lambda d: namedtuple("Config", d.keys())(*d.values()))
     except JSONDecodeError:
         config = temp_cfg
-
 
 # For conversions
 RAD2DEG = 180 / math.pi
@@ -58,12 +58,18 @@ def draw(img, corners, imgpts):
     img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
     return img
 
-
 try:
     while True:
         # Get frame
         _, frame = camera.read()
-        frame = cv2.resize(frame, (640, 480))
+
+        frame = cv2.resize(frame, (int(1280 / 2), int(720 / 2)))
+        #rows, cols = frame.shape[:2]
+
+        #src_points = np.float32([[247, 150], [364, 159], [248, 212], [362, 223]])
+        #dst_points = np.float32([[248, 155], [364, 155], [248, 221], [364, 221]])
+        #projective_matrix = cv2.getPerspectiveTransform(src_points, dst_points)
+        #frame = cv2.warpPerspective(frame, projective_matrix, (cols, rows))
 
         # Check for cubes
         targets = pipeline.process(frame, config)
@@ -146,7 +152,7 @@ try:
             d1 = dt1 / math.tan(rad_height1t / RAD2DEG)
             d2 = abs(dt2 / math.tan(rad_height2t / RAD2DEG))
 
-            dtt = round(((d1 + d2) / 2), 4)
+            dtt = round(((d1 + d2) / 2) * config.conversion_factors.distance, 4)
 
             # Fix division by zero errors
             try:
@@ -163,7 +169,8 @@ try:
                 v2 = (ny1 - ny2)
                 v3 = 0
                 if slope != 0:
-                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
+                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
+                                slope * slope + 1) - 2
 
                 # Display debugging parallel lines
                 if config.display.debug:
@@ -191,7 +198,8 @@ try:
                 v2 = (ny1 - ny2)
                 v3 = 0
                 if slope != 0:
-                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (slope * slope + 1) - 2
+                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
+                                slope * slope + 1) - 2
 
                 if config.display.debug:
                     cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
@@ -211,7 +219,7 @@ try:
                 ab1 = n12 * n23 - n13 * n22
                 ab2 = n13 * n21 - n11 * n23
 
-                aop = (90 - abs(math.atan(ab1 / (ab2 + 0.000001)) * RAD2DEG))
+                aop = (90 - abs(math.atan(ab1 / (ab2 + 0.000001)) * RAD2DEG)) * config.conversion_factors.angle
                 # ##
                 # ## End calculating angle of plane
                 # ##
@@ -221,11 +229,11 @@ try:
             # print(dtt, att, aop)
 
             if config.display.debug:
-                cv2.putText(frame, "Angle of Plane: {0}".format(aop), (16, 420), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                cv2.putText(frame, "Angle of Plane: {0}".format(aop), (16, 310), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (255, 255, 255), 1)
-                cv2.putText(frame, "Angle: {0}".format(att), (16, 440), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                cv2.putText(frame, "Angle: {0}".format(att), (16, 330), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (255, 255, 255), 1)
-                cv2.putText(frame, "Distance: {0}".format(dtt), (16, 460), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                cv2.putText(frame, "Distance: {0}".format(dtt), (16, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (255, 255, 255), 1)
 
             # Add to respective lists
@@ -247,6 +255,13 @@ try:
             # Display stream
             # frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR)
             cv2.imshow("Video Stream", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('e'):
+                # Set exposure if MacOS
+                if os_platform == "darwin":
+                    execute(
+                        "uvcc --vendor 0x45e --product 0x779 set autoExposureMode 1 && uvcc --vendor 0x45e --product 0x779 "
+                        "set absoluteExposureTime 5")
 
             # Stop on 'q' press
             if cv2.waitKey(1) & 0xFF == ord('q'):

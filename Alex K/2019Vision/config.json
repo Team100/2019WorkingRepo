@@ -1,31 +1,39 @@
 {
   "camera_port": 2,
+  "camera_position_offset": {
+    "height": 11,
+    "side": 8
+  },
+  "conversion_factors": {
+    "angle": 4.375,
+    "distance": 0.75
+  },
+  "degrees_per_pixel": {
+    "horizontal": 0.09531,
+    "vertical": 0.07145
+  },
   "display": {
     "bounding": true,
     "debug": true,
     "window": true
   },
-  "image_center": {
-    "x": 319.5,
-    "y": 239.5
-  },
   "error": {
-    "y": 30,
-    "angle": 30
-  },
-  "degrees_per_pixel": {
-    "vertical": 0.07145,
-    "horizontal": 0.09531
+    "angle": 30,
+    "y": 30
   },
   "filtering": {
     "area": 200,
+    "grey_threshold": 80,
     "relative_angle": {
       "left": -80,
       "right": -10
     },
-    "width_height_ratio": 3.5,
-    "grey_threshold": 80
+    "width_height_ratio": 3.5
   },
-  "opencv_version": 4,
-  "network_tables": "127.0.0.1"
+  "image_center": {
+    "x": 319.5,
+    "y": 239.5
+  },
+  "network_tables": "127.0.0.1",
+  "opencv_version": 4
 }
