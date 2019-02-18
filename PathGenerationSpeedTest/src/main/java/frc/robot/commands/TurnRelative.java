@@ -28,7 +28,11 @@ public class TurnRelative extends Command {
 
 }
 
-  public double normalize(double input){
+  public TurnRelative() {
+    requires(Robot.driveTrain);
+  }
+
+public double normalize(double input){
     while(input > 180) input -= 360;
     while(input < -180) input += 360;
     return input;
@@ -37,9 +41,9 @@ public class TurnRelative extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    if(targetAngle == -1000){
-        end();
-    }
+    //double targetAngleA = normalize(Robot.driveTrain.getVisionAngle());
+    //this.targetAngle = targetAngleA;
+    //degreeTolerance = Constants.DT_TURN_ABSOLUTE_TOLERANCE;
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -48,7 +52,7 @@ public class TurnRelative extends Command {
     if(first){
       System.out.println("INIT_RELATIVE");
       targetHeading = targetAngle;
-      targetHeading += Robot.driveTrain.ahrs.getFusedHeading();
+      targetHeading += Robot.driveTrain.ahrs.getAngle();
       targetHeading = normalize(targetHeading);
       Robot.driveTrain.turnPID.setSetpoint(targetHeading);
       Robot.driveTrain.turnPID.enable();

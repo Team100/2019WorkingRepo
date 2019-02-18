@@ -42,7 +42,7 @@ public class OI {
       turnToGoButton = new JoystickButton(leftJoystick, 1);
       turnToGoButton.whenPressed(new PathFinder("forward"));
       turnToGoButton = new JoystickButton(leftJoystick, 3);
-      turnToGoButton.whenPressed(new TurnRelative(Robot.driveTrain.getVisionAngle()));
+      turnToGoButton.whenPressed(new TurnRelative(10));
 
       // SmartDashboard Buttons
 

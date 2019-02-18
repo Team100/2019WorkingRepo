@@ -94,22 +94,25 @@ public class DriveTrain extends Subsystem implements PIDOutput{
     driveTrainRightMaster.set(ControlMode.PercentOutput, 0);
   }
   public void turn(double leftPower, double rightPower){
-    driveTrainLeftMaster.set(ControlMode.PercentOutput, leftPower);
-    driveTrainRightMaster.set(ControlMode.PercentOutput, rightPower);
+    driveTrainLeftMaster.set(ControlMode.PercentOutput, rightPower);
+    driveTrainRightMaster.set(ControlMode.PercentOutput, leftPower);
   }
   public void pidTurn(){
     turn(turnPID.get(), turnPID.get());
   }
   public double getVisionAngle() {
-    int angle;
+    double angle;
     try{
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("camera");
     String cameraData = table.getEntry("data").getString(null);
-    angle = Integer.parseInt(cameraData.substring(cameraData.indexOf("angle:") + 5, cameraData.indexOf("angle:") + 8));
-    }catch(Error e){
-      angle=-1000;
+    //if(){}
+    angle = Double.parseDouble(cameraData.substring(cameraData.indexOf("angle\":") + 7, cameraData.indexOf("angle\":") + 11));   
+  }catch(Exception e){
+      angle=0;
     }
+    System.out.println("Angle: " + angle);
+
     return angle;
   }
 }
