@@ -5,7 +5,6 @@ from json import dumps as stringify_json, load as parse_json, JSONDecodeError
 import logging
 from networktables import NetworkTables
 import numpy as np
-from numpy.linalg import inv
 import math
 import pipeline
 from time import sleep as wait, time
@@ -62,22 +61,19 @@ def draw(img, corners, imgpts):
     return img
 
 
-H = np.array([[4.20276920e-01, -1.21607399e-01, 1.57926592e+02],
-              [-7.00612396e-02, 4.39178974e-01, 1.09431532e+02],
-              [-1.93983680e-04, -3.30646946e-04, 1.00000000e+00]], dtype=np.double)
+H = np.array([[5.00514201e-01, -9.13498146e-02, 1.63918922e+02],
+              [-6.02599046e-02, 5.19652703e-01, 1.05971366e+02],
+              [-1.48083400e-04, -2.88541810e-04, 1.00000000e+00]], dtype=np.double)
 
 H = cv2.UMat(H)
 
-H2 = np.array([[4.20276920e-01, -1.21607399e-01, 1.57926592e+02],
-              [-7.00612396e-02, 4.39178974e-01, 1.09431532e+02],
-              [-1.93983680e-04, -3.30646946e-04, 1.00000000e+00]], dtype=np.double)
+H2 = np.array([[5.00514201e-01, -9.13498146e-02, 1.63918922e+02],
+              [-6.02599046e-02, 5.19652703e-01, 1.05971366e+02],
+              [-1.48083400e-04, -2.88541810e-04, 1.00000000e+00]], dtype=np.double)
 
-HI = np.array([[2.68590669e+00, 3.82356262e-01, -4.62660511e+02],
-              [2.75774368e-01, 2.54346644e+00, -3.20287690e+02],
-              [6.11895730e-04, 9.07524936e-04, 1.00000000e+00]], dtype=np.double)
-
-#HI = cv2.UMat(HI)
-prev5 = []
+HI = np.array([[2.20421542e+00, 1.80786366e-01, -3.88363174e+02],
+               [1.83879137e-01, 2.09554202e+00, -2.56953105e+02],
+               [3.92678880e-04, 6.35626237e-04, 1.00000000e+00]], dtype=np.double)
 
 try:
     while True:
@@ -88,11 +84,11 @@ try:
 
         #frame = cv2.warpPerspective(frame, H, (w, h)).get()
 
-        frame = cv2.resize(frame, (int(1280 / 2), int(720 / 2)))
         h, w = frame.shape[:2]
 
         # Check for target
         targets = pipeline.process(frame, config)
+        frame = cv2.resize(frame, (int(1280 / 2), int(720 / 2)))
 
         facing = []
         json_representation = []
@@ -236,6 +232,10 @@ try:
                 # ##
                 (nx1, ny1) = targets[i].top
                 (nx2, ny2) = targets[i - 1].top
+                nx1 /= 2
+                ny1 /= 2
+                nx2 /= 2
+                ny2 /= 2
 
                 #pts1 = np.array([[nx1, ny1]], dtype='float32')
                 #pts1 = np.array([pts1])
@@ -282,6 +282,11 @@ try:
 
                 (nx1, ny1) = targets[i].bottom
                 (nx2, ny2) = targets[i - 1].bottom
+
+                nx1 /= 2
+                ny1 /= 2
+                nx2 /= 2
+                ny2 /= 2
 
                 #pts1 = np.array([[nx1, ny1]], dtype='float32')
                 #pts1 = np.array([pts1])

@@ -1,8 +1,8 @@
 {
-  "camera_port": 2,
+  "camera_port": 1,
   "camera_position_offset": {
     "height": 15.5,
-    "side": 11.5
+    "side": 0
   },
   "conversion_factors": {
     "angle": 4.375,

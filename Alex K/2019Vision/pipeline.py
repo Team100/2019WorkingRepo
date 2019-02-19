@@ -4,12 +4,17 @@ import math
 
 
 class Target:
-    def __init__(self, pos, size, angle, poly, extr):
+    def __init__(self, pos, size, angle, poly, extr, cnt):
         (self.x, self.y) = pos  # center point position (pixels)
+        self.x /= 2
+        self.y /= 2
         (self.w, self.h) = size  # width/height (pixels)
+        self.w /= 2
+        self.h /= 2
         self.angle = angle  # angle (degrees)
-        self.rect = (pos, size, angle)
+        self.rect = ((self.x, self.y), (self.w, self.h), angle)
         self.poly = poly
+        self.cnt = cnt
         (self.top, self.bottom) = extr
 
 
@@ -25,7 +30,7 @@ class ShapeDetector:
 
     def detect(self, c):
         peri = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, peri * 0.002, True)
+        approx = cv2.approxPolyDP(c, peri * 0.005, True)
         return cv2.minAreaRect(approx), approx
 
 
@@ -73,7 +78,7 @@ def process(frame, config):
                 min = (i[0][0], i[0][1])
             if temp > max[1]:
                 max = (i[0][0], i[0][1])
-        targets.append(Target(pos, size, angle, poly, (min, max)))
+        targets.append(Target(pos, size, angle, poly, (min, max), c))
 
     target_pairs = []
     for i in range(len(targets)):
