@@ -4,12 +4,13 @@ import math
 
 
 class Target:
-    def __init__(self, pos, size, angle, poly):
+    def __init__(self, pos, size, angle, poly, extr):
         (self.x, self.y) = pos  # center point position (pixels)
         (self.w, self.h) = size  # width/height (pixels)
         self.angle = angle  # angle (degrees)
         self.rect = (pos, size, angle)
         self.poly = poly
+        (self.top, self.bottom) = extr
 
 
 class TargetPair:
@@ -44,6 +45,10 @@ def process(frame, config):
         cnts = cv2.findContours(grey.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
     sd = ShapeDetector()
 
+    cv2.drawContours(frame, cnts, -1, (255, 255, 255), 2)
+
+    #cv2.imshow("test", grey)
+
     targets = []
 
     # loop over the contours
@@ -59,13 +64,21 @@ def process(frame, config):
 
         if w * h < config.filtering.area:
             continue
+        min = (0, 10000)
+        max = (0, 0)
 
-        targets.append(Target(pos, size, angle, poly))
-        
+        for i in poly:
+            temp = i[0][1]
+            if temp < min[1]:
+                min = (i[0][0], i[0][1])
+            if temp > max[1]:
+                max = (i[0][0], i[0][1])
+        targets.append(Target(pos, size, angle, poly, (min, max)))
+
     target_pairs = []
     for i in range(len(targets)):
         for j in range(i + 1, len(targets)):
-            if abs(targets[i].y - targets[j].y) < config.error.y:
+            if abs(targets[i].y - targets[j].y) < config.error.y * (targets[i].h + targets[j].h) / 2:
                 target_pairs.append(TargetPair(targets[i], targets[j]))
 
     correct_target_pairs = []

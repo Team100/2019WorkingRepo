@@ -5,6 +5,7 @@ from json import dumps as stringify_json, load as parse_json, JSONDecodeError
 import logging
 from networktables import NetworkTables
 import numpy as np
+from numpy.linalg import inv
 import math
 import pipeline
 from time import sleep as wait, time
@@ -61,11 +62,22 @@ def draw(img, corners, imgpts):
     return img
 
 
-H = np.array([[9.02525110e-01, -3.39452390e-01, 2.46514889e+02],
-              [5.91719571e-02, 7.14623845e-01, 3.58367271e-01],
-              [1.34820945e-04, -3.59186209e-04, 1.00000000e+00]], dtype=np.double)
+H = np.array([[4.20276920e-01, -1.21607399e-01, 1.57926592e+02],
+              [-7.00612396e-02, 4.39178974e-01, 1.09431532e+02],
+              [-1.93983680e-04, -3.30646946e-04, 1.00000000e+00]], dtype=np.double)
 
 H = cv2.UMat(H)
+
+H2 = np.array([[4.20276920e-01, -1.21607399e-01, 1.57926592e+02],
+              [-7.00612396e-02, 4.39178974e-01, 1.09431532e+02],
+              [-1.93983680e-04, -3.30646946e-04, 1.00000000e+00]], dtype=np.double)
+
+HI = np.array([[2.68590669e+00, 3.82356262e-01, -4.62660511e+02],
+              [2.75774368e-01, 2.54346644e+00, -3.20287690e+02],
+              [6.11895730e-04, 9.07524936e-04, 1.00000000e+00]], dtype=np.double)
+
+#HI = cv2.UMat(HI)
+prev5 = []
 
 try:
     while True:
@@ -74,7 +86,7 @@ try:
         # 46, 11
         h, w = frame.shape[:2]
 
-        frame = cv2.warpPerspective(frame, H, (w, h)).get()
+        #frame = cv2.warpPerspective(frame, H, (w, h)).get()
 
         frame = cv2.resize(frame, (int(1280 / 2), int(720 / 2)))
         h, w = frame.shape[:2]
@@ -146,9 +158,64 @@ try:
             points2 = np.asarray(box).tolist()  # type: list
 
             # Get angle
+            pts1 = np.array([[cx, cy]], dtype='float32')
+            pts1 = np.array([pts1])
+
+            invtranpoints = cv2.perspectiveTransform(pts1, H2)
+
+            cx = invtranpoints[0][0][0]
+            cy = invtranpoints[0][0][1]
             att = round((cx - config.image_center.x) * config.degrees_per_pixel.horizontal, 4)
 
             # Get distance
+            pts1 = np.array([[x1, y1]], dtype='float32')
+            pts1 = np.array([pts1])
+
+            invtranpoints = cv2.perspectiveTransform(pts1, H2)
+            x1 = invtranpoints[0][0][0]
+            y1 = invtranpoints[0][0][1]
+
+            pts2 = np.array([[x2, y2]], dtype='float32')
+            pts2 = np.array([pts2])
+
+            invtranpoints = cv2.perspectiveTransform(pts2, H2)
+            x2 = invtranpoints[0][0][0]
+            y2 = invtranpoints[0][0][1]
+
+            pts1 = np.array([[points1[0][0], points1[0][1]]], dtype='float32')
+            pts1 = np.array([pts1])
+
+            invtranpoints = cv2.perspectiveTransform(pts1, H2)
+            tx1 = invtranpoints[0][0][0]
+            ty1 = invtranpoints[0][0][1]
+
+            pts2 = np.array([[points1[2][0], points1[2][1]]], dtype='float32')
+            pts2 = np.array([pts2])
+
+            invtranpoints = cv2.perspectiveTransform(pts2, H2)
+            tx2 = invtranpoints[0][0][0]
+            ty2 = invtranpoints[0][0][1]
+
+            h1 = (tx1 - tx2) ** 2 + (ty1 - ty2) ** 2
+            h1 = math.sqrt(h1 - 4)
+
+            pts1 = np.array([[points2[0][0], points2[0][1]]], dtype='float32')
+            pts1 = np.array([pts1])
+
+            invtranpoints = cv2.perspectiveTransform(pts1, H2)
+            tx1 = invtranpoints[0][0][0]
+            ty1 = invtranpoints[0][0][1]
+
+            pts2 = np.array([[points2[2][0], points2[2][1]]], dtype='float32')
+            pts2 = np.array([pts2])
+
+            invtranpoints = cv2.perspectiveTransform(pts2, H2)
+            tx2 = invtranpoints[0][0][0]
+            ty2 = invtranpoints[0][0][1]
+
+            h2 = (tx1 - tx2) ** 2 + (ty1 - ty2) ** 2
+            h2 = math.sqrt(h2 - 4)
+
             rad_height1t = (config.image_center.y - y1) * config.degrees_per_pixel.vertical
             rad_height1b = (config.image_center.y - y1 - h1) * config.degrees_per_pixel.vertical
             rad_height2t = (config.image_center.y - y2) * config.degrees_per_pixel.vertical
@@ -167,8 +234,24 @@ try:
                 # ##
                 # ##  Begin calculating angle of plane
                 # ##
-                (nx1, ny1) = points1[2]
-                (nx2, ny2) = points2[2]
+                (nx1, ny1) = targets[i].top
+                (nx2, ny2) = targets[i - 1].top
+
+                #pts1 = np.array([[nx1, ny1]], dtype='float32')
+                #pts1 = np.array([pts1])
+#
+                ##print(pts1, HI)
+#
+                #invtranpoints = cv2.perspectiveTransform(pts1, HI)
+                #nx1 = invtranpoints[0][0][0]
+                #ny1 = invtranpoints[0][0][1]
+#
+                #pts2 = np.array([[nx2, ny2]], dtype='float32')
+                #pts2 = np.array([pts2])
+#
+                #invtranpoints = cv2.perspectiveTransform(pts2, HI)
+                #nx2 = invtranpoints[0][0][0]
+                #ny2 = invtranpoints[0][0][1]
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
@@ -176,6 +259,7 @@ try:
                 v1 = (nx1 - nx2)
                 v2 = (ny1 - ny2)
                 v3 = 0
+
                 if slope != 0:
                     my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
                             slope * slope + 1) - 2
@@ -196,8 +280,24 @@ try:
                 n12 = v3 * om1 - v1 * om3
                 n13 = v1 * om2 - v2 * om1
 
-                (nx1, ny1) = points1[0]
-                (nx2, ny2) = points2[0]
+                (nx1, ny1) = targets[i].bottom
+                (nx2, ny2) = targets[i - 1].bottom
+
+                #pts1 = np.array([[nx1, ny1]], dtype='float32')
+                #pts1 = np.array([pts1])
+#
+                ## print(pts1, HI)
+#
+                #invtranpoints = cv2.perspectiveTransform(pts1, HI)
+                #nx1 = invtranpoints[0][0][0]
+                #ny1 = invtranpoints[0][0][1]
+#
+                #pts2 = np.array([[nx2, ny2]], dtype='float32')
+                #pts2 = np.array([pts2])
+#
+                #invtranpoints = cv2.perspectiveTransform(pts2, HI)
+                #nx2 = invtranpoints[0][0][0]
+                #ny2 = invtranpoints[0][0][1]
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
@@ -227,7 +327,10 @@ try:
                 ab1 = n12 * n23 - n13 * n22
                 ab2 = n13 * n21 - n11 * n23
 
-                aop = (90 - abs(math.atan(ab1 / (ab2 + 0.000001)) * RAD2DEG)) * config.conversion_factors.angle
+                temp_angle = math.atan(ab1 / (ab2 + 0.000001)) * RAD2DEG
+
+                aop = (90 - abs(temp_angle)) * config.conversion_factors.angle * math.copysign(1, temp_angle)
+
                 # ##
                 # ## End calculating angle of plane
                 # ##
@@ -236,21 +339,22 @@ try:
 
             dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.height ** 2)
 
-            x_1 = dtt*math.cos(att / RAD2DEG)
-            y_1 = dtt*math.sin(att / RAD2DEG)
+            x_1 = dtt * math.cos(att / RAD2DEG)
+            y_1 = dtt * math.sin(att / RAD2DEG)
 
             x_1 += config.camera_position_offset.side
 
             att = math.atan2(y_1, x_1) * RAD2DEG
-            dtt = math.sqrt(x_1 ** 2 + y_1 ** 2)
+            dtt = math.sqrt(x_1 ** 2 + y_1 ** 2) + abs(att) / 10
             # print(dtt, att, aop)
 
             if config.display.debug:
-                cv2.putText(frame, "Angle of Plane: {0}".format(aop), (16, 310), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                cv2.putText(frame, "Angle of Plane: {0}".format(round(aop, 4)), (16, 310), cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5,
                             (255, 255, 255), 1)
-                cv2.putText(frame, "Angle: {0}".format(att), (16, 330), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                cv2.putText(frame, "Angle: {0}".format(round(att, 4)), (16, 330), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (255, 255, 255), 1)
-                cv2.putText(frame, "Distance: {0}".format(dtt), (16, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                cv2.putText(frame, "Distance: {0}".format(round(dtt, 4)), (16, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (255, 255, 255), 1)
 
             # Add to respective lists
@@ -264,8 +368,8 @@ try:
             })
 
         # Post to NetworkTables
-        if config.network_tables:
-            table.putString("data", stringify_json(json_representation))
+        #if config.network_tables:
+        #   table.putString("data", stringify_json(json_representation))
 
         # Check if should display
         if config.display.window:
