@@ -16,6 +16,7 @@ from sys import platform as os_platform
 # Target size
 TARGET_SIZE = 5 + 5 / 8
 
+
 # Update the configuration
 def update_config(_):
     global config
@@ -24,6 +25,7 @@ def update_config(_):
         config = parse_json(open("config.json"), object_hook=lambda d: namedtuple("Config", d.keys())(*d.values()))
     except JSONDecodeError:
         config = temp_cfg
+
 
 # For conversions
 RAD2DEG = 180 / math.pi
@@ -58,20 +60,26 @@ def draw(img, corners, imgpts):
     img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
     return img
 
+
+H = np.array([[9.02525110e-01, -3.39452390e-01, 2.46514889e+02],
+              [5.91719571e-02, 7.14623845e-01, 3.58367271e-01],
+              [1.34820945e-04, -3.59186209e-04, 1.00000000e+00]], dtype=np.double)
+
+H = cv2.UMat(H)
+
 try:
     while True:
         # Get frame
         _, frame = camera.read()
+        # 46, 11
+        h, w = frame.shape[:2]
+
+        frame = cv2.warpPerspective(frame, H, (w, h)).get()
 
         frame = cv2.resize(frame, (int(1280 / 2), int(720 / 2)))
-        #rows, cols = frame.shape[:2]
+        h, w = frame.shape[:2]
 
-        #src_points = np.float32([[247, 150], [364, 159], [248, 212], [362, 223]])
-        #dst_points = np.float32([[248, 155], [364, 155], [248, 221], [364, 221]])
-        #projective_matrix = cv2.getPerspectiveTransform(src_points, dst_points)
-        #frame = cv2.warpPerspective(frame, projective_matrix, (cols, rows))
-
-        # Check for cubes
+        # Check for target
         targets = pipeline.process(frame, config)
 
         facing = []
@@ -170,7 +178,7 @@ try:
                 v3 = 0
                 if slope != 0:
                     my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
-                                slope * slope + 1) - 2
+                            slope * slope + 1) - 2
 
                 # Display debugging parallel lines
                 if config.display.debug:
@@ -199,7 +207,7 @@ try:
                 v3 = 0
                 if slope != 0:
                     my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
-                                slope * slope + 1) - 2
+                            slope * slope + 1) - 2
 
                 if config.display.debug:
                     cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
@@ -226,6 +234,15 @@ try:
             except:
                 aop = 0
 
+            dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.height ** 2)
+
+            x_1 = dtt*math.cos(att / RAD2DEG)
+            y_1 = dtt*math.sin(att / RAD2DEG)
+
+            x_1 += config.camera_position_offset.side
+
+            att = math.atan2(y_1, x_1) * RAD2DEG
+            dtt = math.sqrt(x_1 ** 2 + y_1 ** 2)
             # print(dtt, att, aop)
 
             if config.display.debug:

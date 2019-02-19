@@ -1,12 +1,12 @@
 {
   "camera_port": 2,
   "camera_position_offset": {
-    "height": 11,
+    "height": 18,
     "side": 8
   },
   "conversion_factors": {
     "angle": 4.375,
-    "distance": 0.75
+    "distance": 0.5
   },
   "degrees_per_pixel": {
     "horizontal": 0.09531,
@@ -19,7 +19,7 @@
   },
   "error": {
     "angle": 30,
-    "y": 30
+    "y": 50
   },
   "filtering": {
     "area": 200,
