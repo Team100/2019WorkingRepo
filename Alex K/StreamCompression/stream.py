@@ -26,15 +26,17 @@ parser.add_argument("--port", help="Port for server to run on", type=int, defaul
 parser.add_argument("--width", help="Width of the stream", type=int, default=320)
 parser.add_argument("--height", help="Height of the stream", type=int, default=240)
 parser.add_argument("--dual", help="Use two cameras", action="store_true")
+parser.add_argument("--camera1", help="Port the first camera is on", type=int, default=0)
+parser.add_argument("--camera2", help="Port the second camera is on", type=int, default=1)
 args = parser.parse_args()
 
-camera0 = cv2.VideoCapture(0)
+camera0 = cv2.VideoCapture(args.camera1)
 if not camera0.isOpened():
     raise ValueError("Camera 0 is not attached or is in use")
 
 camera1 = None
 if args.dual:
-    camera1 = cv2.VideoCapture(1)
+    camera1 = cv2.VideoCapture(args.camera2)
     if not camera1.isOpened():
         raise ValueError("Camera 1 is not attached or is in use")
 
