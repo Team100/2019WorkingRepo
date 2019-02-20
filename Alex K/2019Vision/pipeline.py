@@ -6,13 +6,9 @@ import math
 class Target:
     def __init__(self, pos, size, angle, poly, extr, cnt):
         (self.x, self.y) = pos  # center point position (pixels)
-        self.x /= 2
-        self.y /= 2
         (self.w, self.h) = size  # width/height (pixels)
-        self.w /= 2
-        self.h /= 2
         self.angle = angle  # angle (degrees)
-        self.rect = ((self.x, self.y), (self.w, self.h), angle)
+        self.rect = (pos, size, angle)
         self.poly = poly
         self.cnt = cnt
         (self.top, self.bottom) = extr
