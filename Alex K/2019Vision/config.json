@@ -5,8 +5,8 @@
     "side": -11
   },
   "conversion_factors": {
-    "angle": 0.04375,
-    "distance": 0.5
+    "angle": 0.323,
+    "distance": 0.4862
   },
   "degrees_per_pixel": {
     "horizontal": 0.09531,

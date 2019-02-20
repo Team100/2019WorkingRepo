@@ -343,7 +343,7 @@ try:
             x_1 += config.camera_position_offset.side
 
             att = math.atan2(y_1, x_1) * RAD2DEG
-            dtt = math.sqrt(x_1 ** 2 + y_1 ** 2)
+            dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.side ** 2 - 2 * dtt)
 
             avgaop = 0
             for i in last3:
@@ -352,7 +352,9 @@ try:
             aop = avgaop / 4
             if len(last3) > 3:
                 last3.pop(0)
-            aop *= config.conversion_factors.angle * math.sqrt(dtt)
+            aop *= math.sqrt(dtt)
+            aop += 23.5
+            aop *= config.conversion_factors.angle
 
             # print(dtt, att, aop)
 
