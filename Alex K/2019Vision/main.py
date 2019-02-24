@@ -68,8 +68,8 @@ H = np.array([[5.00514201e-01, -9.13498146e-02, 1.63918922e+02],
 H = cv2.UMat(H)
 
 H2 = np.array([[5.00514201e-01, -9.13498146e-02, 1.63918922e+02],
-              [-6.02599046e-02, 5.19652703e-01, 1.05971366e+02],
-              [-1.48083400e-04, -2.88541810e-04, 1.00000000e+00]], dtype=np.double)
+               [-6.02599046e-02, 5.19652703e-01, 1.05971366e+02],
+               [-1.48083400e-04, -2.88541810e-04, 1.00000000e+00]], dtype=np.double)
 
 HI = np.array([[2.20421542e+00, 1.80786366e-01, -3.88363174e+02],
                [1.83879137e-01, 2.09554202e+00, -2.56953105e+02],
@@ -84,7 +84,7 @@ try:
         # 46, 11
         h, w = frame.shape[:2]
 
-        #frame = cv2.warpPerspective(frame, H, (w, h)).get()
+        # frame = cv2.warpPerspective(frame, H, (w, h)).get()
 
         # Check for target
         targets = pipeline.process(frame, config)
@@ -235,21 +235,21 @@ try:
                 (nx1, ny1) = targets[i].top
                 (nx2, ny2) = targets[i - 1].top
 
-                #pts1 = np.array([[nx1, ny1]], dtype='float32')
-                #pts1 = np.array([pts1])
-#
+                # pts1 = np.array([[nx1, ny1]], dtype='float32')
+                # pts1 = np.array([pts1])
+                #
                 ##print(pts1, HI)
-#
-                #invtranpoints = cv2.perspectiveTransform(pts1, HI)
-                #nx1 = invtranpoints[0][0][0]
-                #ny1 = invtranpoints[0][0][1]
-#
-                #pts2 = np.array([[nx2, ny2]], dtype='float32')
-                #pts2 = np.array([pts2])
-#
-                #invtranpoints = cv2.perspectiveTransform(pts2, HI)
-                #nx2 = invtranpoints[0][0][0]
-                #ny2 = invtranpoints[0][0][1]
+                #
+                # invtranpoints = cv2.perspectiveTransform(pts1, HI)
+                # nx1 = invtranpoints[0][0][0]
+                # ny1 = invtranpoints[0][0][1]
+                #
+                # pts2 = np.array([[nx2, ny2]], dtype='float32')
+                # pts2 = np.array([pts2])
+                #
+                # invtranpoints = cv2.perspectiveTransform(pts2, HI)
+                # nx2 = invtranpoints[0][0][0]
+                # ny2 = invtranpoints[0][0][1]
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
@@ -281,21 +281,21 @@ try:
                 (nx1, ny1) = targets[i].bottom
                 (nx2, ny2) = targets[i - 1].bottom
 
-                #pts1 = np.array([[nx1, ny1]], dtype='float32')
-                #pts1 = np.array([pts1])
-#
+                # pts1 = np.array([[nx1, ny1]], dtype='float32')
+                # pts1 = np.array([pts1])
+                #
                 ## print(pts1, HI)
-#
-                #invtranpoints = cv2.perspectiveTransform(pts1, HI)
-                #nx1 = invtranpoints[0][0][0]
-                #ny1 = invtranpoints[0][0][1]
-#
-                #pts2 = np.array([[nx2, ny2]], dtype='float32')
-                #pts2 = np.array([pts2])
-#
-                #invtranpoints = cv2.perspectiveTransform(pts2, HI)
-                #nx2 = invtranpoints[0][0][0]
-                #ny2 = invtranpoints[0][0][1]
+                #
+                # invtranpoints = cv2.perspectiveTransform(pts1, HI)
+                # nx1 = invtranpoints[0][0][0]
+                # ny1 = invtranpoints[0][0][1]
+                #
+                # pts2 = np.array([[nx2, ny2]], dtype='float32')
+                # pts2 = np.array([pts2])
+                #
+                # invtranpoints = cv2.perspectiveTransform(pts2, HI)
+                # nx2 = invtranpoints[0][0][0]
+                # ny2 = invtranpoints[0][0][1]
 
                 slope = (ny1 - ny2) / (nx1 - nx2)
 
@@ -334,8 +334,8 @@ try:
                 # ##
             except:
                 aop = 0
-
-            dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.height ** 2)
+            if dtt > abs(config.camera_position_offset.height):
+                dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.height ** 2)
 
             x_1 = dtt * math.cos(att / RAD2DEG)
             y_1 = dtt * math.sin(att / RAD2DEG)
@@ -343,7 +343,8 @@ try:
             x_1 += config.camera_position_offset.side
 
             att = math.atan2(y_1, x_1) * RAD2DEG
-            dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.side ** 2 - 2 * dtt)
+            if dtt > abs(config.camera_position_offset.side):
+                dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.side ** 2)
 
             avgaop = 0
             for i in last3:
@@ -378,7 +379,7 @@ try:
             })
 
         # Post to NetworkTables
-        #if config.network_tables:
+        # if config.network_tables:
         #   table.putString("data", stringify_json(json_representation))
 
         # Check if should display
@@ -390,9 +391,13 @@ try:
             if cv2.waitKey(1) & 0xFF == ord('e'):
                 # Set exposure if MacOS
                 if os_platform == "darwin":
+                    # execute(
+                    #    "uvcc --vendor 0x45e --product 0x779 set autoExposureMode 1 && uvcc --vendor 0x45e --product 0x779 "
+                    #    "set absoluteExposureTime 5")
                     execute(
-                        "uvcc --vendor 0x45e --product 0x779 set autoExposureMode 1 && uvcc --vendor 0x45e --product 0x779 "
-                        "set absoluteExposureTime 5")
+                        "uvcc --vendor 0x46d --product 0x843 set autoExposurePriority 1 && "
+                        "uvcc --vendor 0x46d --product 0x843 set autoExposureMode 1 && "
+                        "uvcc --vendor 0x46d --product 0x843 set absoluteExposureTime 10")
 
             # Stop on 'q' press
             if cv2.waitKey(1) & 0xFF == ord('q'):
