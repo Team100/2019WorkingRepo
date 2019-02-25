@@ -14,7 +14,7 @@
   },
   "display": {
     "bounding": true,
-    "debug": true,
+    "debug": false,
     "window": true
   },
   "error": {

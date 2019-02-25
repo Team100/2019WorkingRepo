@@ -12,6 +12,7 @@ from watchdog.observers import Observer
 from watcher import FileWatcher
 from os import system as execute
 from sys import platform as os_platform
+import time
 
 # Target size
 TARGET_SIZE = 5 + 5 / 8
@@ -77,8 +78,12 @@ HI = np.array([[2.20421542e+00, 1.80786366e-01, -3.88363174e+02],
 
 last3 = []
 
+lower = np.array([60, 53, 48])
+upper = np.array([81, 255, 255])
+
 try:
     while True:
+        time1 = time.time()
         # Get frame
         _, frame = camera.read()
         # 46, 11
@@ -87,9 +92,10 @@ try:
         # frame = cv2.warpPerspective(frame, H, (w, h)).get()
 
         # Check for target
-        targets = pipeline.process(frame, config)
+
 
         frame = cv2.resize(frame, (int(1280 / 2), int(720 / 2)))
+        targets = pipeline.process(frame, config, lower, upper)
         h, w = frame.shape[:2]
 
         facing = []
@@ -375,12 +381,14 @@ try:
                 "distance": dtt,
                 "plane": aop,
                 "bounding": bounding_box.tolist(),
-                "timestamp": time()
+                "timestamp": 0
             })
 
         # Post to NetworkTables
         # if config.network_tables:
         #   table.putString("data", stringify_json(json_representation))
+
+        print(1/(time.time()-time1))
 
         # Check if should display
         if config.display.window:

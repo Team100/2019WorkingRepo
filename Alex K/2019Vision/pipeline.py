@@ -34,25 +34,31 @@ class ShapeDetector:
         return cv2.minAreaRect(approx), approx
 
 
-def process(frame, config):
-    grey = np.int16(frame.copy())
+def process(frame, config, lower, upper):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    # grey = np.int16(frame.copy())
+    #
+    # grey = grey[:, :, 1] - grey[:, :, 2]
+    # thresh = grey < config.filtering.grey_threshold
+    # grey[thresh] = 0
+    # thresh = grey > config.filtering.grey_threshold
+    # grey[thresh] = 255
+    # grey = np.uint8(grey)
 
-    grey = grey[:, :, 1] - grey[:, :, 2]
-    thresh = grey < config.filtering.grey_threshold
-    grey[thresh] = 0
-    thresh = grey > config.filtering.grey_threshold
-    grey[thresh] = 255
-    grey = np.uint8(grey)
+    mask = cv2.inRange(hsv, lower, upper)
+
+
+    cv2.imshow("test", mask)
+
+
 
     if config.opencv_version == 4:
-        cnts = cv2.findContours(grey.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+        cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
     else:
-        cnts = cv2.findContours(grey.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
+        cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
     sd = ShapeDetector()
 
     cv2.drawContours(frame, cnts, -1, (255, 255, 255), 2)
-
-    #cv2.imshow("test", grey)
 
     targets = []
 
