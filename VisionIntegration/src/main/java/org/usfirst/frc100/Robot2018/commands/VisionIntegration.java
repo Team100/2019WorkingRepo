@@ -35,7 +35,14 @@ public class VisionIntegration extends Command {
     NetworkTableEntry data = Robot.cameraData.getEntry("data");
     VisionTarget[] targets = gson.fromJson(data.getString("[]"), VisionTarget[].class);
 
-    double[] petersArray = getRelativeWheelSpeed();
+    if (targets.length == 0) {
+      return;
+    }
+
+    // TODO: get robot orientation
+    double orientation = 0;
+
+    double[] petersArray = getRelativeWheelSpeed(orientation, targets[0].getAngle(), targets[0].getDistance());
     Robot.driveTrain.leftMaster.set(ControlMode.Velocity, petersArray[0]);
     Robot.driveTrain.rightMaster.set(ControlMode.Velocity, petersArray[1]);
   }
