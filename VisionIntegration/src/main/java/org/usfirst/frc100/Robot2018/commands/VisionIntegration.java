@@ -39,10 +39,7 @@ public class VisionIntegration extends Command {
       return;
     }
 
-    // TODO: get robot orientation
-    double orientation = 0;
-
-    double[] petersArray = getRelativeWheelSpeed(orientation, targets[0].getAngle(), targets[0].getDistance());
+    double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance());
     Robot.driveTrain.leftMaster.set(ControlMode.Velocity, petersArray[0]);
     Robot.driveTrain.rightMaster.set(ControlMode.Velocity, petersArray[1]);
   }
