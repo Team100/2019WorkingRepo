@@ -7,6 +7,9 @@
 
 package org.usfirst.frc100.Robot2018.commands;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.google.gson.Gson;
 
@@ -39,7 +42,14 @@ public class VisionIntegration extends Command {
       return;
     }
 
-    double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance());
+    Double[] previous = Robot.previousEncoderGyro.get(targets[0].getTimestamp());
+    if (previous == null) {
+      return;
+    }
+
+    // TODO: figure out left vs right encoder value to pass in
+    double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance(), previous[0], previous[1]);
+
     Robot.driveTrain.leftMaster.set(ControlMode.Velocity, petersArray[0]);
     Robot.driveTrain.rightMaster.set(ControlMode.Velocity, petersArray[1]);
   }
@@ -67,9 +77,11 @@ public class VisionIntegration extends Command {
    * @param a1 orientation
    * @param o1 angle
    * @param d distance
+   * @param g gyro
+   * @param e encoder
    * @return
    */
-  private double[] getRelativeWheelSpeed(double a1, double o1, double d) {
+  private double[] getRelativeWheelSpeed(double a1, double o1, double d, double g, double e) {
     a1 *= Math.PI/180;
     o1 *= Math.PI/180;
     double s = 0.1;
@@ -77,7 +89,17 @@ public class VisionIntegration extends Command {
     double x = d * Math.cos(o1) - s * Math.cos(a1);
     double y = d * Math.sin(o1) - s * Math.sin(a1);
 
+    a1 += g;
+    
+    x = d * Math.cos(o1);
+    y = d * Math.sin(o1);
+
+    x -= d * Math.cos(g);
+    y -= d * Math.sin(g);
+
     d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    o1 = Math.atan(y/x);
+
 //peter wuz here
     // Coefficients for polynomial
     double a = Math.pow(1/Math.cos(o1), 2) * ( Math.tan(a1) - 2 * Math.tan(o1) ) / Math.pow(d, 2);
