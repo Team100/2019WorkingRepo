@@ -1,8 +1,8 @@
 package org.usfirst.frc100.Robot2018.commands;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+//import org.json.simple.JSONObject;
+//import org.json.simple.parser.JSONParser;
+//import org.json.simple.parser.ParseException;
 
 
 import edu.wpi.first.wpilibj.command.Command;
@@ -20,15 +20,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class ParseJSONFile extends Command {
 
 	public String a;
-	JSONObject myParsedData;
+	//JSONObject myParsedData;
     public ParseJSONFile(String s) {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
     	SmartDashboard.putBoolean("RunningParseJSON", true);
     	//System.out.println("===================================================================================================");
     	String myJSONData = "{\"name\":\"test\",\"value\":\"ABC\"}";// Put the JSON data into this string
-    	JSONParser parser = new JSONParser();
-    	myParsedData = new JSONObject();
+    	//JSONParser parser = new JSONParser();
+    	//myParsedData = new JSONObject();
         a = s;
         /**
          * Tests if data is valid otherwise throws nil object
@@ -42,22 +42,23 @@ public class ParseJSONFile extends Command {
         }
         */
        
-        try {myParsedData = (JSONObject) parser.parse(myJSONData);}catch(ParseException e){ e.printStackTrace(); myParsedData = null;}
+        //try {myParsedData = (JSONObject) parser.parse(myJSONData);}catch(ParseException e){ e.printStackTrace(); myParsedData = null;}
         
 
         /**
          * Gets value for index "name"
          */
-        String myStringData = myParsedData.toString();
+        //String myStringData = myParsedData.toString();
         ////System.out.println(myStringData); //  Change 'name' to ideal 
-        myParsedData.get("test");
-        SmartDashboard.putString("JSONResult", myStringData);
+        //myParsedData.get("test");
+        //SmartDashboard.putString("JSONResult", myStringData);
         SmartDashboard.putBoolean("RunningParseJSON", false);
         
     }
     
     public String Data(){
-    	return  myParsedData.get(a).toString();
+        return "";
+    	//return  myParsedData.get(a).toString();
     }
     
    
