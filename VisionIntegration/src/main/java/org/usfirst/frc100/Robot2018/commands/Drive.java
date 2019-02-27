@@ -53,11 +53,16 @@ public class Drive extends Command {
     	//RobotMap.driveTrainDifferentialDrive1.arcadeDrive(OI.operator.getRawAxis(1), -OI.operator.getRawAxis(4));
         Robot.driveTrain.getJoy();
 
+        /*
         Robot.previousEncoderGyro.put(System.currentTimeMillis(), new Double[]{
-            Robot.driveTrain.navxAngle, 
-            (double)Robot.driveTrain.rightMaster.getSelectedSensorPosition(), 
-            (double)Robot.driveTrain.leftMaster.getSelectedSensorPosition()
-        });  	
+            Robot.driveTrain.navxAngle,
+            (Robot.driveTrain.rightMaster.getSelectedSensorPosition() + Robot.driveTrain.leftMaster.getSelectedSensorPosition())/2.0
+        });
+
+        if (Robot.previousEncoderGyro.size() > 25) {
+            
+        }
+        */
     }
 
     // Make this return true when this Command no longer needs to run execute()

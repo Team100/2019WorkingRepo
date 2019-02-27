@@ -30,6 +30,7 @@ public class VisionIntegration extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    //Robot.driveTrain.leftMaster.configSelectedFeedbackSensor();
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -42,13 +43,16 @@ public class VisionIntegration extends Command {
       return;
     }
 
+    /*
     Double[] previous = Robot.previousEncoderGyro.get(targets[0].getTimestamp());
     if (previous == null) {
       return;
     }
+    */
 
-    // TODO: figure out left vs right encoder value to pass in
-    double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance(), previous[0], previous[1]);
+    double enc = (Robot.driveTrain.rightMaster.getSelectedSensorPosition() + Robot.driveTrain.leftMaster.getSelectedSensorPosition())/2.0;
+
+    double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance(), Robot.ahrs.getAngle(), enc);
 
     Robot.driveTrain.leftMaster.set(ControlMode.Velocity, petersArray[0]);
     Robot.driveTrain.rightMaster.set(ControlMode.Velocity, petersArray[1]);
