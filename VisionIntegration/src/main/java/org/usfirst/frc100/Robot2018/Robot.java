@@ -120,13 +120,11 @@ public class Robot extends TimedRobot {
     public void robotInit() {
     	RobotMap.init();
     	
-    	NetworkTableInstance nt = NetworkTableInstance.create();
-    	nt.startClient();
-    	cameraData = nt.getTable("camera");
-    	
+        NetworkTableInstance nt = NetworkTableInstance.getDefault();
+        cameraData = nt.getTable("camera");
     	
     	//USBCamera camera = new USBCamera("Camera");
-    	CameraServer.getInstance().startAutomaticCapture(0);
+    	//CameraServer.getInstance().startAutomaticCapture(0);
     	
     	elevatorMultiplier = kElevatorMultiplierMax;
     	RobotMap.elevatorElevatorTalon.config_kP(0, 8, 0);

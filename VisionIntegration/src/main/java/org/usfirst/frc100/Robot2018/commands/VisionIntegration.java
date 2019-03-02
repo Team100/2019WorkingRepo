@@ -30,6 +30,7 @@ public class VisionIntegration extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    System.out.println("Initialized");
     //Robot.driveTrain.leftMaster.configSelectedFeedbackSensor();
   }
 
@@ -37,7 +38,11 @@ public class VisionIntegration extends Command {
   @Override
   protected void execute() {
     NetworkTableEntry data = Robot.cameraData.getEntry("data");
+    System.out.println(data.exists());
+    System.out.println(data.getString("[]"));
     VisionTarget[] targets = gson.fromJson(data.getString("[]"), VisionTarget[].class);
+
+    //System.out.println(targets.length);
 
     if (targets.length == 0) {
       return;
@@ -54,6 +59,8 @@ public class VisionIntegration extends Command {
 
     double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance(), Robot.ahrs.getAngle(), enc);
 
+    System.out.println(petersArray[0] + "," + petersArray[1]);
+
     Robot.driveTrain.leftMaster.set(ControlMode.Velocity, petersArray[0]);
     Robot.driveTrain.rightMaster.set(ControlMode.Velocity, petersArray[1]);
   }
@@ -67,6 +74,7 @@ public class VisionIntegration extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
+    System.out.println("done");
   }
 
   // Called when another command which requires one or more of the same
@@ -88,7 +96,7 @@ public class VisionIntegration extends Command {
   private double[] getRelativeWheelSpeed(double a1, double o1, double d, double g, double e) {
     a1 *= Math.PI/180;
     o1 *= Math.PI/180;
-    double s = 0.1;
+    double s = 3;
 
     double x = d * Math.cos(o1) - s * Math.cos(a1);
     double y = d * Math.sin(o1) - s * Math.sin(a1);
@@ -98,8 +106,8 @@ public class VisionIntegration extends Command {
     x = d * Math.cos(o1);
     y = d * Math.sin(o1);
 
-    x -= d * Math.cos(g);
-    y -= d * Math.sin(g);
+    x -= e * Math.cos(g);
+    y -= e * Math.sin(g);
 
     d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     o1 = Math.atan(y/x);
@@ -109,7 +117,7 @@ public class VisionIntegration extends Command {
     double a = Math.pow(1/Math.cos(o1), 2) * ( Math.tan(a1) - 2 * Math.tan(o1) ) / Math.pow(d, 2);
     double b = 1/Math.cos(o1) * ( 3 * Math.tan(o1) - Math.tan(a1) ) / d;
 
-    double l = 0.2;
+    double l = 10;
 
     double x1 = 0;
     double dx = 0.0001;

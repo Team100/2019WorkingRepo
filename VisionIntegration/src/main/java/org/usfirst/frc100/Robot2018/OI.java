@@ -90,7 +90,9 @@ public class OI {
     public JoystickButton binary1;
  	public JoystickButton binary2;
  	public JoystickButton binary3;
- 	public JoystickButton binary4;
+     public JoystickButton binary4;
+     
+    public JoystickButton vision;
 
 
 
@@ -107,6 +109,9 @@ public class OI {
         rightStick = new Joystick(1);
         
         leftController = new Joystick(0);
+        vision = new JoystickButton(leftController, 4);
+        vision.whenPressed(new VisionIntegration());
+
         binary1 = new JoystickButton(autoModeSelect, 1);
       	binary2 = new JoystickButton(autoModeSelect, 2);
       	binary3 = new JoystickButton(autoModeSelect, 3);
