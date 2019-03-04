@@ -1,0 +1,107 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
+package frc.robot.commands;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.networktables.*;
+import frc.robot.Robot;
+
+public class CameraTurn extends Command {
+  public boolean finished;
+  double currentDistance;
+  double currentAngle;
+  //public static NetworkTableInstance inst;
+  //public static edu.wpi.first.networktables.NetworkTable table;
+  public CameraTurn() {
+    // Use requires() here to declare subsystem dependencies
+    requires(Robot.driveTrain);
+  }/*
+  public static double getAngle(){
+    double angle;
+    try{
+      String cameraData = table.getEntry("data").getString(null);
+      angle = Double.parseDouble(cameraData.substring(cameraData.indexOf("angle\":") + 7, cameraData.indexOf("angle\":") + 11));   
+    }catch(Exception e){
+      angle=0;
+      //System.out.println("angle not found");
+    }
+    //System.out.println("angle: " + angle);
+    return angle;
+  }
+  public static double getDistance(){
+    double angle;
+    try{
+      String cameraData = table.getEntry("data").getString(null);
+      angle = Double.parseDouble(cameraData.substring(cameraData.indexOf("distance\":") + 10, cameraData.indexOf("distance\":") + 15));   
+    }catch(Exception e){
+      angle=0;
+      //System.out.println("distance not found");
+    }
+    //System.out.println("Distance: " + angle);
+    return angle;
+  }*/
+  // Called just before this Command runs the first time
+  @Override
+  protected void initialize() {
+    //inst = NetworkTableInstance.getDefault();
+    //table = inst.getTable("camera");
+    System.out.println("angle > 0");
+
+    finished = false;
+  }
+
+  // Called repeatedly when this Command is scheduled to run
+  @Override
+  protected void execute() {
+    /*currentAngle = 10;//getAngle();
+    currentDistance = 10;//getDistance();
+    if(currentDistance <= (3 * 12)){
+      finished = true;
+    }
+    if(!finished){
+      if(currentAngle == 0){
+        Robot.driveTrain.driveTrainLeftMaster.set(ControlMode.PercentOutput, currentAngle * (5/100));
+        Robot.driveTrain.driveTrainRightMaster.set(ControlMode.PercentOutput, currentAngle * (5/100));
+        //System.out.println("angle = 0");
+      }else if(currentAngle < 0){
+        Robot.driveTrain.driveTrainLeftMaster.set(ControlMode.PercentOutput, currentAngle * (30/100));
+        Robot.driveTrain.driveTrainRightMaster.set(ControlMode.PercentOutput, currentAngle * (50/100));
+        //System.out.println("angle < 0");
+
+      }else{*/
+        //Robot.driveTrain.driveTrainLeftMaster.set(ControlMode.PercentOutput, 0.01);//currentAngle * (50/100));
+        //Robot.driveTrain.driveTrainRightMaster.set(ControlMode.PercentOutput, 0.01);//currentAngle * (30/100));
+        System.out.println("angle > 0");
+
+      //}
+  //  }
+  Robot.driveTrain.driveTrainDifferentialDrive1.tankDrive(0.1, 0.1);
+  }
+
+  // Make this return true when this Command no longer needs to run execute()
+  @Override
+  protected boolean isFinished() {
+    //System.out.println("done");
+
+    return finished;
+  }
+
+  // Called once after isFinished returns true
+  @Override
+  protected void end() {
+  }
+
+  // Called when another command which requires one or more of the same
+  // subsystems is scheduled to run
+  @Override
+  protected void interrupted() {
+  }
+}

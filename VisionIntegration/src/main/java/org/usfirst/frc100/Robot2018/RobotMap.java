@@ -72,11 +72,13 @@ public class RobotMap {
     //	@SuppressWarnings(value = { "CTRE CAN Recieve Timeout" })
     	//DuoSol = new DoubleSolenoid(2,3);
         driveTrainRightMaster = new WPI_TalonSRX(1);
+        driveTrainRightMaster.configFactoryDefault();
 
         //driveTrainRightMaster.configOpenloopRamp(0.5, 0);
         //driveTrainLeftMaster.configOpenloopRamp(0.5, 0);
 
         driveTrainLeftMaster = new WPI_TalonSRX(2);
+        driveTrainLeftMaster.configFactoryDefault();
 
 
         
@@ -88,6 +90,7 @@ public class RobotMap {
         driveTrainDifferentialDrive1.setMaxOutput(1.0);
 
         driveTrainRightFollower = new WPI_VictorSPX(3);
+        driveTrainRightFollower.configFactoryDefault();
         
         driveTrainRightMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
         driveTrainLeftMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
@@ -96,6 +99,8 @@ public class RobotMap {
 
 
         driveTrainLeftFollower = new WPI_VictorSPX(4);
+        driveTrainLeftFollower.configFactoryDefault();
+
         driveTrainRightMaster.setInverted(true); //make sure these are correct on the actual drive train. 
         driveTrainLeftMaster.setInverted(true); 
         driveTrainLeftFollower.setInverted(true); 

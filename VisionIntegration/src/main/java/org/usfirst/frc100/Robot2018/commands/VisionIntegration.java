@@ -14,12 +14,18 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.google.gson.Gson;
 
 import org.usfirst.frc100.Robot2018.Robot;
+import org.usfirst.frc100.Robot2018.RobotMap;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionIntegration extends Command {
   private Gson gson = new Gson();
+  private double oldDisp = 0;
+  private double oldAng = 0;
+  private double updateStore = 0;
+  private long oldTime = System.currentTimeMillis();
 
   public VisionIntegration() {
     // Use requires() here to declare subsystem dependencies
@@ -38,8 +44,8 @@ public class VisionIntegration extends Command {
   @Override
   protected void execute() {
     NetworkTableEntry data = Robot.cameraData.getEntry("data");
-    System.out.println(data.exists());
-    System.out.println(data.getString("[]"));
+    //System.out.println(data.exists());
+    //System.out.println(data.getString("[]"));
     VisionTarget[] targets = gson.fromJson(data.getString("[]"), VisionTarget[].class);
 
     //System.out.println(targets.length);
@@ -55,14 +61,32 @@ public class VisionIntegration extends Command {
     }
     */
 
-    double enc = (Robot.driveTrain.rightMaster.getSelectedSensorPosition() + Robot.driveTrain.leftMaster.getSelectedSensorPosition())/2.0;
+    if (targets[0].getAngle() != updateStore) {
+      updateStore = targets[0].getAngle();
+      //double deltaT = (double) (System.currentTimeMillis() - oldTime);
+      //oldTime = System.currentTimeMillis();
+      double oldDisp = (Robot.driveTrain.rightMaster.getSelectedSensorPosition() + Robot.driveTrain.leftMaster.getSelectedSensorPosition())/2.0;
+      //oldDisp = tempDisp + (tempDisp - oldDisp) / deltaT * 100;
+      double oldAng = Robot.ahrs.getAngle();
+      //oldAng = tempAng + (tempAng - oldAng) / deltaT * 100;
+    }
 
-    double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance(), Robot.ahrs.getAngle(), enc);
+    double enc = (Robot.driveTrain.rightMaster.getSelectedSensorPosition() + Robot.driveTrain.leftMaster.getSelectedSensorPosition())/2.0;
+    double ang = Robot.ahrs.getAngle();
+    double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance(), (ang-oldAng)*Math.PI/180, (enc-oldDisp)/Constants.DRIVETRAIN_TICKS_PER_METER*39.37*4);
 
     System.out.println(petersArray[0] + "," + petersArray[1]);
 
-    Robot.driveTrain.leftMaster.set(ControlMode.Velocity, petersArray[0]);
-    Robot.driveTrain.rightMaster.set(ControlMode.Velocity, petersArray[1]);
+
+    //Robot.driveTrain.leftMaster.set(petersArray[0]);
+    //Robot.driveTrain.rightMaster.set(-petersArray[1]);
+    double speed = 0.5;
+    RobotMap.driveTrainDifferentialDrive1.tankDrive(-petersArray[0]*speed, -petersArray[1]*speed, false);
+    SmartDashboard.putNumber("DriveTrainLeft", RobotMap.driveTrainLeftMaster.get());
+    SmartDashboard.putNumber("DriveTrainRight", -RobotMap.driveTrainRightMaster.get());
+
+    SmartDashboard.putNumber("CalcDriveTrainLeft", petersArray[1]*speed);
+    SmartDashboard.putNumber("ClacDriveTrainRight", petersArray[0]*speed);
   }
 
   // Make this return true when this Command no longer needs to run execute()
@@ -96,21 +120,24 @@ public class VisionIntegration extends Command {
   private double[] getRelativeWheelSpeed(double a1, double o1, double d, double g, double e) {
     a1 *= Math.PI/180;
     o1 *= Math.PI/180;
-    double s = 3;
+
+    a1 = a1 - 0.46*(a1-o1);
+    double s = 0;
 
     double x = d * Math.cos(o1) - s * Math.cos(a1);
     double y = d * Math.sin(o1) - s * Math.sin(a1);
 
     a1 += g;
-    
-    x = d * Math.cos(o1);
-    y = d * Math.sin(o1);
 
     x -= e * Math.cos(g);
     y -= e * Math.sin(g);
 
     d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-    o1 = Math.atan(y/x);
+    o1 = Math.atan2(y,x);
+
+    SmartDashboard.putNumber("orientation", a1);
+    SmartDashboard.putNumber("angle", o1);
+    SmartDashboard.putNumber("dist", d);
 
 //peter wuz here
     // Coefficients for polynomial
@@ -131,8 +158,17 @@ public class VisionIntegration extends Command {
 
     double na = Math.max(Math.abs(s1), Math.abs(s2));
 
-    double n1 = s1 / na;
-    double n2 = s2 / na;
+    double n1 = s2 / na;
+    double n2 = s1 / na;
+    if (n1 > n2) {
+      n2 *= 0.7;
+    }
+    else {
+      n1 *= 0.7;
+    }
+    if (x1 > d*Math.cos(o1)) {
+      n1 = n2 = 1;
+    }
 
     return new double[]{n1, n2};
   }
