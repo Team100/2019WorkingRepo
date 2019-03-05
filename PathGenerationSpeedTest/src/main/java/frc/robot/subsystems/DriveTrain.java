@@ -100,11 +100,10 @@ public class DriveTrain extends Subsystem implements PIDOutput{
   public void pidTurn(){
     turn(turnPID.get(), turnPID.get());
   }
-  public double getVisionAngle() {
+  
+  public double getVisionAngle(NetworkTable table) {
     double angle;
     try{
-    NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    NetworkTable table = inst.getTable("camera");
     String cameraData = table.getEntry("data").getString(null);
     //if(){}
     angle = Double.parseDouble(cameraData.substring(cameraData.indexOf("angle\":") + 7, cameraData.indexOf("angle\":") + 11));   

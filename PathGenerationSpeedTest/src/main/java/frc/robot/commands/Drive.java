@@ -6,9 +6,9 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot.commands;
+import edu.wpi.first.networktables.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.OI;
@@ -16,6 +16,9 @@ import frc.robot.Robot;
 
 public class Drive extends Command {
   int i;
+  NetworkTableInstance networkTables = NetworkTableInstance.getDefault();
+  NetworkTable table = networkTables.getTable("camera");
+
   public Drive() {
     // Use requires() here to declare subsystem dependencies
     requires(Robot.driveTrain);
@@ -44,13 +47,19 @@ public class Drive extends Command {
       // SmartDashboard.putNumber("LeftVoltage", Robot.driveTrain.driveTrainLeftMaster.getMotorOutputVoltage());
     //  SmartDashboard.putNumber("Heading", Robot.driveTrain.ahrs.getAngle());
       //
-      System.out.println("current angle: " + Robot.driveTrain.ahrs.getAngle());
+      //System.out.println("current angle: " + Robot.driveTrain.ahrs.getAngle());
     }
   //  System.out.println("Angle" + Robot.driveTrain.ahrs.getAngle());
-    
+    if(OI.moveAndTurn.get()){
+      Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(-Math.min(Math.abs(OI.leftJoystick.getY()),0.5), 
+         //Math.max(-1.0/30.0*Robot.driveTrain.getVisionAngle(table), 0.5));
+        Math.tanh((-OI.leftJoystick.getY()*Robot.driveTrain.getVisionAngle(table))/5*0.6)*0.6, false);
+
+      System.out.println("Error:" +  Robot.driveTrain.getVisionAngle(table));
+    }else{
 
     Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(OI.leftJoystick.getY(),- OI.leftJoystick.getZ());
-    i++;
+    }i++;
   }
 
   // Make this return true when this Command no longer needs to run execute()
