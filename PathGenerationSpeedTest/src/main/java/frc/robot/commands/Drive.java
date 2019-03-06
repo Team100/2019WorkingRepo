@@ -45,21 +45,31 @@ public class Drive extends Command {
       // SmartDashboard.putString("LeftMode", Robot.driveTrain.driveTrainLeftMaster.getControlMode().toString());
       // SmartDashboard.putNumber("LeftCommandReceived", Robot.driveTrain.driveTrainLeftMaster.getClosedLoopTarget(0));
       // SmartDashboard.putNumber("LeftVoltage", Robot.driveTrain.driveTrainLeftMaster.getMotorOutputVoltage());
-    //  SmartDashboard.putNumber("Heading", Robot.driveTrain.ahrs.getAngle());
-      //
+      //SmartDashboard.putNumber("Heading", Robot.driveTrain.ahrs.getAngle());
       //System.out.println("current angle: " + Robot.driveTrain.ahrs.getAngle());
     }
   //  System.out.println("Angle" + Robot.driveTrain.ahrs.getAngle());
     if(OI.moveAndTurn.get()){
-      Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(-Math.min(Math.abs(OI.leftJoystick.getY()),0.5), 
+      Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(-Math.min(Math.abs(OI.leftJoystick.getY()),0.6), 
          //Math.max(-1.0/30.0*Robot.driveTrain.getVisionAngle(table), 0.5));
-        Math.tanh((-OI.leftJoystick.getY()*Robot.driveTrain.getVisionAngle(table))/5*0.6)*0.6, false);
+        //Math.tanh((-OI.leftJoystick.getY()*Robot.driveTrain.getVisionAngle(table))/6*0.7)*0.7, false);
+        turnFunc(-OI.leftJoystick.getY(), Robot.driveTrain.getVisionAngle(table), Robot.driveTrain.getPlane(table), Robot.driveTrain.getDistance(table), 0.9, 6));
 
       System.out.println("Error:" +  Robot.driveTrain.getVisionAngle(table));
     }else{
 
-    Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(OI.leftJoystick.getY(),- OI.leftJoystick.getZ());
+    Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(OI.leftJoystick.getY()*0.8,- OI.leftJoystick.getZ()*0.8);
     }i++;
+  }
+
+  private double turnFunc(double x, double a, double p, double d, double b, double c){
+    if(a != 0.0){
+      if(d >= 40){
+        return Math.tanh((c*a*b*x)/d)*b;
+      } else {
+        return Math.tanh((c*a*0.3*(-p)*b*x)/d)*b;
+      }
+    } else return 0.0;
   }
 
   // Make this return true when this Command no longer needs to run execute()

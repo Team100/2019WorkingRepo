@@ -114,4 +114,30 @@ public class DriveTrain extends Subsystem implements PIDOutput{
 
     return angle;
   }
+  public double getDistance(NetworkTable table) {
+    double angle;
+    try{
+    String cameraData = table.getEntry("data").getString(null);
+    //if(){}
+    angle = Double.parseDouble(cameraData.substring(cameraData.indexOf("distance\":") + 11, cameraData.indexOf("distance\":") + 15));   
+  }catch(Exception e){
+      angle=0;
+    }
+    System.out.println("Distance: " + angle);
+
+    return angle;
+  }
+  public double getPlane(NetworkTable table) {
+    double angle;
+    try{
+    String cameraData = table.getEntry("data").getString(null);
+    //if(){}
+    angle = Double.parseDouble(cameraData.substring(cameraData.indexOf("plane\":") + 7, cameraData.indexOf("plane\":") + 11));   
+  }catch(Exception e){
+      angle=0;
+    }
+    System.out.println("Plane: " + angle);
+
+    return angle;
+  }
 }
