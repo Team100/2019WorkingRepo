@@ -6,11 +6,7 @@ import math
 class Target:
     def __init__(self, pos, size, angle, poly, extr, cnt):
         (self.x, self.y) = pos  # center point position (pixels)
-        self.x /= 2
-        self.y /= 2
         (self.w, self.h) = size  # width/height (pixels)
-        self.w /= 2
-        self.h /= 2
         self.angle = angle  # angle (degrees)
         self.rect = ((self.x, self.y), (self.w, self.h), angle)
         self.poly = poly
@@ -47,10 +43,7 @@ def process(frame, config, lower, upper):
 
     mask = cv2.inRange(hsv, lower, upper)
 
-
     cv2.imshow("test", mask)
-
-
 
     if config.opencv_version == 4:
         cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
@@ -58,9 +51,9 @@ def process(frame, config, lower, upper):
         cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
     sd = ShapeDetector()
 
-    cv2.drawContours(frame, cnts, -1, (255, 255, 255), 2)
-
     targets = []
+
+    cv2.drawContours(frame, cnts, -1, (255, 255, 255), 2)
 
     # loop over the contours
     if cnts is None:

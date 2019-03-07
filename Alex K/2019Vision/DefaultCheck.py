@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 
 frame = cv2.imread("chessboard1.png")
-frame = cv2.resize(frame, (int(1280), int(720)))
+frame = frame[0:360, 10:410]
+#print(frame.shape[:2])
+#frame = cv2.resize(frame, (int(640), int(480)))
 
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -37,7 +39,7 @@ if ret == True:
     cv2.imwrite('calibresult.png', frame)
 
 # Start connection
-camera = cv2.VideoCapture(2)
+camera = cv2.VideoCapture(0)
 
 while True:
     # Get frame

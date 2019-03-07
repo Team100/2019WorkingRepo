@@ -62,15 +62,15 @@ def draw(img, corners, imgpts):
     return img
 
 
-H = np.array([[5.00514201e-01, -9.13498146e-02, 1.63918922e+02],
-              [-6.02599046e-02, 5.19652703e-01, 1.05971366e+02],
-              [-1.48083400e-04, -2.88541810e-04, 1.00000000e+00]], dtype=np.double)
+H = np.array([[1.00040505e+00, -3.92501827e-02, 1.26854044e+01],
+              [4.48596713e-02, 9.87873809e-01, -2.99077841e+01],
+              [3.94501787e-05, -1.22623121e-05, 1.00000000e+00]], dtype=np.double)
 
 H = cv2.UMat(H)
 
-H2 = np.array([[5.00514201e-01, -9.13498146e-02, 1.63918922e+02],
-               [-6.02599046e-02, 5.19652703e-01, 1.05971366e+02],
-               [-1.48083400e-04, -2.88541810e-04, 1.00000000e+00]], dtype=np.double)
+H2 = np.array([[1.00040505e+00, -3.92501827e-02, 1.26854044e+01],
+               [4.48596713e-02, 9.87873809e-01, -2.99077841e+01],
+               [3.94501787e-05, -1.22623121e-05, 1.00000000e+00]], dtype=np.double)
 
 HI = np.array([[2.20421542e+00, 1.80786366e-01, -3.88363174e+02],
                [1.83879137e-01, 2.09554202e+00, -2.56953105e+02],
@@ -92,7 +92,6 @@ try:
         # frame = cv2.warpPerspective(frame, H, (w, h)).get()
 
         # Check for target
-
 
         frame = cv2.resize(frame, (int(1280 / 2), int(720 / 2)))
         targets = pipeline.process(frame, config, lower, upper)
@@ -228,118 +227,48 @@ try:
             dt1 = TARGET_SIZE * (rad_height1t / (rad_height1t - rad_height1b))
             dt2 = TARGET_SIZE * (rad_height2t / (rad_height2t - rad_height2b))
 
-            d1 = dt1 / math.tan(rad_height1t / RAD2DEG)
-            d2 = abs(dt2 / math.tan(rad_height2t / RAD2DEG))
+            d1 = abs(dt1 / math.tan(rad_height1t / RAD2DEG)) * config.conversion_factors.distance
+            d2 = abs(dt2 / math.tan(rad_height2t / RAD2DEG)) * config.conversion_factors.distance
 
-            dtt = round(((d1 + d2) / 2) * config.conversion_factors.distance, 4)
+            dtt = round(((d1 + d2) / 2), 4)
 
             # Fix division by zero errors
             try:
                 # ##
                 # ##  Begin calculating angle of plane
                 # ##
-                (nx1, ny1) = targets[i].top
-                (nx2, ny2) = targets[i - 1].top
 
-                # pts1 = np.array([[nx1, ny1]], dtype='float32')
-                # pts1 = np.array([pts1])
+                d3 = 11
+
+                # rad_height1t = (config.image_center.y - target.top) * config.degrees_per_pixel.vertical
+                # rad_height1b = (config.image_center.y - target.bottom) * config.degrees_per_pixel.vertical
+                # d1 = TARGET_SIZE * (rad_height1t / (rad_height1t - rad_height1b))
                 #
-                ##print(pts1, HI)
+                # aop = d1
                 #
-                # invtranpoints = cv2.perspectiveTransform(pts1, HI)
-                # nx1 = invtranpoints[0][0][0]
-                # ny1 = invtranpoints[0][0][1]
-                #
-                # pts2 = np.array([[nx2, ny2]], dtype='float32')
-                # pts2 = np.array([pts2])
-                #
-                # invtranpoints = cv2.perspectiveTransform(pts2, HI)
-                # nx2 = invtranpoints[0][0][0]
-                # ny2 = invtranpoints[0][0][1]
+                # rad_height2t = (config.image_center.y - targets[i - 1].top) * config.degrees_per_pixel.vertical
+                # rad_height2b = (config.image_center.y - targets[i - 1].bottom) * config.degrees_per_pixel.vertical
+                # d2 = TARGET_SIZE * (rad_height2t / (rad_height2t - rad_height2b))
 
-                slope = (ny1 - ny2) / (nx1 - nx2)
+                theta1 = math.acos((d1 ** 2 - d3 ** 2 - d2 ** 2) / (-2 * d3 * d2))
+                theta2 = math.acos((d2 ** 2 - d3 ** 2 - d1 ** 2) / (-2 * d3 * d1))
 
-                my = ny1
-                v1 = (nx1 - nx2)
-                v2 = (ny1 - ny2)
-                v3 = 0
+                alpha1 = (cx1 - config.image_center.x) * config.degrees_per_pixel.horizontal / RAD2DEG
+                alpha2 = (cx2 - config.image_center.x) * config.degrees_per_pixel.horizontal / RAD2DEG
+                #aop = theta1 * RAD2DEG
 
-                if slope != 0:
-                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
-                            slope * slope + 1) - 2
+                beta1 = theta1 #- alpha1
+                beta2 = theta2 #- alpha2
+                #aop = alpha1 * RAD2DEG
 
-                # Display debugging parallel lines
-                if config.display.debug:
-                    cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
-                    cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
-
-                my -= config.image_center.y
-                norm_theta = my * config.degrees_per_pixel.vertical
-
-                om1 = 0
-                om2 = math.cos(norm_theta / RAD2DEG)
-                om3 = math.sin(norm_theta / RAD2DEG)
-
-                n11 = v2 * om3 - v3 * om2
-                n12 = v3 * om1 - v1 * om3
-                n13 = v1 * om2 - v2 * om1
-
-                (nx1, ny1) = targets[i].bottom
-                (nx2, ny2) = targets[i - 1].bottom
-
-                # pts1 = np.array([[nx1, ny1]], dtype='float32')
-                # pts1 = np.array([pts1])
-                #
-                ## print(pts1, HI)
-                #
-                # invtranpoints = cv2.perspectiveTransform(pts1, HI)
-                # nx1 = invtranpoints[0][0][0]
-                # ny1 = invtranpoints[0][0][1]
-                #
-                # pts2 = np.array([[nx2, ny2]], dtype='float32')
-                # pts2 = np.array([pts2])
-                #
-                # invtranpoints = cv2.perspectiveTransform(pts2, HI)
-                # nx2 = invtranpoints[0][0][0]
-                # ny2 = invtranpoints[0][0][1]
-
-                slope = (ny1 - ny2) / (nx1 - nx2)
-
-                my = ny1
-                v1 = (nx1 - nx2)
-                v2 = (ny1 - ny2)
-                v3 = 0
-                if slope != 0:
-                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
-                            slope * slope + 1) - 2
-
-                if config.display.debug:
-                    cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
-                    cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
-
-                my -= config.image_center.y
-                norm_theta = my * config.degrees_per_pixel.vertical
-
-                om1 = 0
-                om2 = math.cos(norm_theta / RAD2DEG)
-                om3 = math.sin(norm_theta / RAD2DEG)
-
-                n21 = v2 * om3 - v3 * om2
-                n22 = v3 * om1 - v1 * om3
-                n23 = v1 * om2 - v2 * om1
-
-                ab1 = n12 * n23 - n13 * n22
-                ab2 = n13 * n21 - n11 * n23
-
-                temp_angle = math.atan(ab1 / (ab2 + 0.000001)) * RAD2DEG
-
-                aop = (90 - abs(temp_angle)) * math.copysign(1, temp_angle)
+                aop = (beta1 + beta2) / 2 * RAD2DEG - 90
 
                 # ##
                 # ## End calculating angle of plane
                 # ##
             except:
                 aop = 0
+
             if dtt > abs(config.camera_position_offset.height):
                 dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.height ** 2)
 
@@ -352,19 +281,32 @@ try:
             if dtt > abs(config.camera_position_offset.side):
                 dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.side ** 2)
 
-            avgaop = 0
-            for i in last3:
-                avgaop += i
-            last3.append(aop)
-            aop = avgaop / 4
-            if len(last3) > 3:
-                last3.pop(0)
-            aop *= math.sqrt(dtt)
-            aop += 23.5
-            aop *= config.conversion_factors.angle
+            #aop += (att+4)
+
+            # avgaop = 0
+            # for i in last3:
+            #    avgaop += i
+            # last3.append(aop)
+            # aop = avgaop / 4
+            # if len(last3) > 3:
+            #    last3.pop(0)
+            # aop *= math.sqrt(dtt)
+            # aop += 23.5
+            # aop *= config.conversion_factors.angle
 
             # print(dtt, att, aop)
-
+            #dtt = alpha1 * RAD2DEG
+            #25     26
+            #23.5   25
+            #15     13
+            #-3     -1
+            #-12    -10.5
+            #
+            #
+            #76    75
+            #25    39
+            #140   134
+            #110   105
             if config.display.debug:
                 cv2.putText(frame, "Angle of Plane: {0}".format(round(aop, 4)), (16, 310), cv2.FONT_HERSHEY_SIMPLEX,
                             0.5,
@@ -388,7 +330,7 @@ try:
         # if config.network_tables:
         #   table.putString("data", stringify_json(json_representation))
 
-        print(1/(time.time()-time1))
+        # print(1 / (time.time() - time1))
 
         # Check if should display
         if config.display.window:
