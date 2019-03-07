@@ -1,28 +1,31 @@
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
+    volatile static ArrayList<VisionTarget> targets = new ArrayList<>();
     public static void main(String[] args) {
         String host = "0.0.0.0";
         int port = 8080;
+        try {
+            Thread server = new Thread(new UDPServer(host, port));
+            server.start();
 
-        if (System.getenv("type").equals("tcp")) {
-            try {
-                TCPServer s = new TCPServer(host, port);
-                Thread t = new Thread(s);
-                t.start();
-                t.join();
-            } catch (IOException | InterruptedException e) {
-                System.out.println(e.getMessage());
+            System.out.format("Running on %s:%s...\n", host, port);
+
+            while (true) {
+                if (targets.size() > 0) {
+                    for (VisionTarget target: Main.targets) {
+                        System.out.printf("%s, ", target);
+                    }
+                    System.out.println();
+                } else {
+                    System.out.println("No targets found");
+                }
+                TimeUnit.MILLISECONDS.sleep(100);
             }
-        } else {
-            try {
-                UDPServer s = new UDPServer(host, port);
-                Thread t = new Thread(s);
-                t.start();
-                t.join();
-            } catch (IOException | InterruptedException e) {
-                System.out.println(e.getMessage());
-            }
+        } catch (IOException | InterruptedException e) {
+            System.out.println(e.getMessage());
         }
     }
 }

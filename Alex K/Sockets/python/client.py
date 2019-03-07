@@ -12,7 +12,7 @@ for i in range(10):
         "distance": round(random.uniform(0, 60), 4),
         "plane": round(random.uniform(-45, 45), 4),
         "timestamp": int(time.time() * 1000)
-    }]
+    } for x in range(random.randint(0, 5))]
     s.sendall(json.dumps(data).encode())
     time.sleep(1)
 

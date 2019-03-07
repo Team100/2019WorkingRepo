@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
 
 public class UDPServer implements Runnable {
     private DatagramSocket server;
@@ -13,7 +14,6 @@ public class UDPServer implements Runnable {
     UDPServer(String host, int port) throws IOException {
         InetAddress addr = InetAddress.getByName(host);
         server = new DatagramSocket(port, addr);
-        System.out.format("Running on %s:%s...\n", host, port);
     }
 
     @Override
@@ -25,10 +25,8 @@ public class UDPServer implements Runnable {
 
                 VisionTarget[] targets = json.fromJson(new String(packet.getData(), 0, packet.getLength()), VisionTarget[].class);
 
-                for (VisionTarget target: targets) {
-                    System.out.println(target);
-                    System.out.println((System.currentTimeMillis() - target.getTimestamp())/1000.0);
-                }
+                Main.targets.clear();
+                Main.targets.addAll(Arrays.asList(targets));
             }
         } catch (IOException e) {
             e.printStackTrace();
