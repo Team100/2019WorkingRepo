@@ -34,6 +34,10 @@
     "x": 319.5,
     "y": 239.5
   },
-  "network_tables": "127.0.0.1",
+  "socket": {
+    "host": "10.1.0.2",
+    "port": 5810,
+    "enabled": true
+  },
   "opencv_version": 3
 }
