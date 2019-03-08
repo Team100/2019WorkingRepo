@@ -28,9 +28,8 @@ import org.usfirst.frc100.Robot2018.commands.*;
 import org.usfirst.frc100.Robot2018.subsystems.*;
 import org.usfirst.frc100.Robot2018.RobotMap;
 
-
+import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -47,6 +46,9 @@ import java.util.*;
  * the project.
  */
 public class Robot extends TimedRobot {
+    public volatile static ArrayList<VisionTarget> targets = new ArrayList<>();
+    public static final String HOST = "0.0.0.0";
+    public static final int PORT = 5810;
 	
 
     Command autonomousCommand;
@@ -122,6 +124,15 @@ public class Robot extends TimedRobot {
     	
         NetworkTableInstance nt = NetworkTableInstance.getDefault();
         cameraData = nt.getTable("camera");
+
+        try {
+            Thread server = new Thread(new Server(HOST, PORT));
+            server.start();
+
+            System.out.format("Running on %s:%s...\n", HOST, PORT);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     	
     	//USBCamera camera = new USBCamera("Camera");
     	//CameraServer.getInstance().startAutomaticCapture(0);

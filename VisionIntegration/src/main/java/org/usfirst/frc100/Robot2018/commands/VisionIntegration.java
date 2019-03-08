@@ -43,26 +43,13 @@ public class VisionIntegration extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    NetworkTableEntry data = Robot.cameraData.getEntry("data");
-    //System.out.println(data.exists());
-    //System.out.println(data.getString("[]"));
-    VisionTarget[] targets = gson.fromJson(data.getString("[]"), VisionTarget[].class);
-
-    //System.out.println(targets.length);
-
-    if (targets.length == 0) {
+    if (Robot.targets.size() == 0) {
       return;
     }
 
     /*
-    Double[] previous = Robot.previousEncoderGyro.get(targets[0].getTimestamp());
-    if (previous == null) {
-      return;
-    }
-    */
-
-    if (targets[0].getAngle() != updateStore) {
-      updateStore = targets[0].getAngle();
+    if (Robot.targets.get(0).getAngle() != updateStore) {
+      updateStore = Robot.targets.get(0).getAngle();
       //double deltaT = (double) (System.currentTimeMillis() - oldTime);
       //oldTime = System.currentTimeMillis();
       double oldDisp = (Robot.driveTrain.rightMaster.getSelectedSensorPosition() + Robot.driveTrain.leftMaster.getSelectedSensorPosition())/2.0;
@@ -70,10 +57,11 @@ public class VisionIntegration extends Command {
       double oldAng = Robot.ahrs.getAngle();
       //oldAng = tempAng + (tempAng - oldAng) / deltaT * 100;
     }
+    */
 
     double enc = (Robot.driveTrain.rightMaster.getSelectedSensorPosition() + Robot.driveTrain.leftMaster.getSelectedSensorPosition())/2.0;
     double ang = Robot.ahrs.getAngle();
-    double[] petersArray = getRelativeWheelSpeed(targets[0].getPlane(), targets[0].getAngle(), targets[0].getDistance(), (ang-oldAng)*Math.PI/180, (enc-oldDisp)/Constants.DRIVETRAIN_TICKS_PER_METER*39.37*4);
+    double[] petersArray = getRelativeWheelSpeed(Robot.targets.get(0).getPlane(), Robot.targets.get(0).getAngle(), Robot.targets.get(0).getDistance(), (ang-oldAng)*Math.PI/180, (enc-oldDisp)/Constants.DRIVETRAIN_TICKS_PER_METER*39.37*4);
 
     System.out.println(petersArray[0] + "," + petersArray[1]);
 
@@ -161,13 +149,13 @@ public class VisionIntegration extends Command {
     double n1 = s2 / na;
     double n2 = s1 / na;
     if (n1 > n2) {
-      n2 *= 0.7;
+      //n2 *= 0.7;
     }
     else {
-      n1 *= 0.7;
+      //n1 *= 0.7;
     }
     if (x1 > d*Math.cos(o1)) {
-      n1 = n2 = 1;
+      //n1 = n2 = 1;
     }
 
     return new double[]{n1, n2};
