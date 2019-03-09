@@ -61,7 +61,7 @@ public class VisionIntegration extends Command {
 
     double enc = (Robot.driveTrain.rightMaster.getSelectedSensorPosition() + Robot.driveTrain.leftMaster.getSelectedSensorPosition())/2.0;
     double ang = Robot.ahrs.getAngle();
-    double[] petersArray = getRelativeWheelSpeed(Robot.targets.get(0).getPlane(), Robot.targets.get(0).getAngle(), Robot.targets.get(0).getDistance(), (ang-oldAng)*Math.PI/180, (enc-oldDisp)/Constants.DRIVETRAIN_TICKS_PER_METER*39.37*4);
+    double[] petersArray = getRelativeWheelSpeed(-Robot.targets.get(0).getPlane(), -Robot.targets.get(0).getAngle(), Robot.targets.get(0).getDistance(), (ang-oldAng)*Math.PI/180, (enc-oldDisp)/Constants.DRIVETRAIN_TICKS_PER_METER*39.37*4);
 
     System.out.println(petersArray[0] + "," + petersArray[1]);
 
@@ -106,22 +106,24 @@ public class VisionIntegration extends Command {
    * @return
    */
   private double[] getRelativeWheelSpeed(double a1, double o1, double d, double g, double e) {
+    //o1 = Math.signum(o1)*Math.sqrt(Math.abs(o1))*5;
+    o1  *= 2;
     a1 *= Math.PI/180;
     o1 *= Math.PI/180;
 
-    a1 = a1 - 0.46*(a1-o1);
-    double s = 0;
+    //a1 = a1 - 0.46*(a1-o1);
+    //double s = 0;
 
-    double x = d * Math.cos(o1) - s * Math.cos(a1);
-    double y = d * Math.sin(o1) - s * Math.sin(a1);
+    //double x = d * Math.cos(o1) - s * Math.cos(a1);
+    //double y = d * Math.sin(o1) - s * Math.sin(a1);
 
-    a1 += g;
+    //a1 += g;
 
-    x -= e * Math.cos(g);
-    y -= e * Math.sin(g);
+    //x -= e * Math.cos(g);
+    //y -= e * Math.sin(g);
 
-    d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-    o1 = Math.atan2(y,x);
+    //d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    //o1 = Math.atan2(y,x);
 
     SmartDashboard.putNumber("orientation", a1);
     SmartDashboard.putNumber("angle", o1);
@@ -134,12 +136,16 @@ public class VisionIntegration extends Command {
 
     double l = 10;
 
-    double x1 = 0;
+    double x1 = 1+Math.abs(6*a*20+2*b)*500;
     double dx = 0.0001;
     double x2 = x1 + dx;
 
+    System.out.println(a + ". " + b);
+
     double t1 = lx(x1, l, a, b) - lx(x2, l, a, b);
     double t2 = rx(x1, l, a, b) - rx(x2, l, a, b);
+
+    //System.out.println(t1 + ", " + t2);
 
     double s1 = -Math.sqrt(Math.pow((t1 / dx), 2) + Math.pow( ( ly(x1, l, a, b) - ly(x2, l, a, b)) / dx, 2)) * Math.signum(t1);
     double s2 = -Math.sqrt(Math.pow((t2 / dx), 2) + Math.pow( ( ry(x1, l, a, b) - ry(x2, l, a, b)) / dx, 2)) * Math.signum(t2);
@@ -149,10 +155,10 @@ public class VisionIntegration extends Command {
     double n1 = s2 / na;
     double n2 = s1 / na;
     if (n1 > n2) {
-      //n2 *= 0.7;
+      //n2 *= 0.95;
     }
     else {
-      //n1 *= 0.7;
+      //n1 *= 0.95;
     }
     if (x1 > d*Math.cos(o1)) {
       //n1 = n2 = 1;

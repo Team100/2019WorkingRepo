@@ -110,7 +110,7 @@ public class OI {
         
         leftController = new Joystick(0);
         vision = new JoystickButton(leftController, 4);
-        vision.whenPressed(new VisionIntegration());
+        vision.whileHeld(new VisionIntegration());
 
         binary1 = new JoystickButton(autoModeSelect, 1);
       	binary2 = new JoystickButton(autoModeSelect, 2);
