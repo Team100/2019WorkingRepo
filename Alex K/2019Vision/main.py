@@ -1,4 +1,3 @@
-import socket
 from collections import namedtuple
 from copy import deepcopy
 import cv2
@@ -551,7 +550,7 @@ except KeyboardInterrupt:
     cv2.destroyAllWindows()
     camera.release()
     observer.stop()
-    s.close()
+    robot_socket.close()
 
 # Wait for observer to finish
 observer.join()
