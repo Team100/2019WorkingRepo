@@ -5,7 +5,7 @@
     "side": 0
   },
   "conversion_factors": {
-    "angle": 0.323,
+    "angle": 1,
     "distance": 0.8947368
   },
   "degrees_per_pixel": {
@@ -34,6 +34,6 @@
     "x": 319.5,
     "y": 239.5
   },
-  "network_tables": "127.0.0.1",
+  "network_tables": null,
   "opencv_version": 3
 }
