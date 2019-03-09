@@ -4,16 +4,15 @@ from copy import deepcopy
 import cv2
 from json import dumps as stringify_json, load as parse_json, JSONDecodeError
 import logging
-from networktables import NetworkTables
 import numpy as np
 import math
 import pipeline
-from time import sleep as wait, time
+from time import time
 from watchdog.observers import Observer
 from watcher import FileWatcher
 from os import system as execute
 from sys import platform as os_platform
-import time
+from socket import socket, AF_INET, SOCK_DGRAM
 
 # Target size
 TARGET_SIZE = 5 + 5 / 8
@@ -133,14 +132,11 @@ observer = Observer()
 observer.schedule(FileWatcher(update_config), path=".", recursive=False)
 observer.start()
 
-# Connect to NetworkTables
-if config.network_tables:
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("127.0.0.1", 8080))
-
-    # NetworkTables.initialize(server=config.network_tables)
-    # wait(3)
-    # table = NetworkTables.getTable("camera")
+# Connect to robot socket
+robot_socket = None
+if config.socket.enabled:
+    robot_socket = socket(AF_INET, SOCK_DGRAM)
+    robot_socket.connect((config.socket.host, config.socket.port))
 
 # Start connection
 camera = cv2.VideoCapture(config.camera_port)
@@ -177,7 +173,6 @@ upper = np.array([81, 255, 255])
 
 try:
     while True:
-        time1 = time.time()
         # Get frame
         _, frame = camera.read()
         # 46, 11
@@ -211,7 +206,7 @@ try:
             points1 = np.asarray(bounding_box).tolist()  # type: list
 
             # Draw rotated bounding box
-            if config.display.bounding:
+            if config.display.bounding and config.display.window:
                 cv2.drawContours(frame, [bounding_box], 0, (0, 0, 255), 2)
 
             if points1[3][1] - points1[0][1] > points1[1][1] - points1[0][1]:
@@ -225,7 +220,7 @@ try:
                 else:
                     facing.append(-1)
 
-            if config.display.debug:
+            if config.display.debug and config.display.window:
                 cv2.putText(frame, str(facing[i]), (int(cx1), int(cy1)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255),
                             1)
                 cv2.putText(frame, "1", tuple(points1[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
@@ -244,7 +239,7 @@ try:
             cx = int((cx1 + cx2) / 2)
             cy = int((cy1 + cy2) / 2)
 
-            if config.display.debug:
+            if config.display.debug and config.display.window:
                 cv2.circle(frame, (cx, cy), 2, (255, 0, 0), -1)
 
             # Calculate rotated bounding box
@@ -484,7 +479,7 @@ try:
             if dtt > abs(config.camera_position_offset.side):
                 dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.side ** 2)
 
-            #aop += (att+4)
+            # aop += (att+4)
 
             avgaop = 0
             for i in last3:
@@ -510,7 +505,7 @@ try:
             # 25    39
             # 140   134
             # 110   105
-            if config.display.debug:
+            if config.display.debug and config.display.window:
                 cv2.putText(frame, "Angle of Plane: {0}".format(round(aop, 4)), (16, 310), cv2.FONT_HERSHEY_SIMPLEX,
                             0.5,
                             (255, 255, 255), 1)
@@ -521,32 +516,24 @@ try:
 
             # Add to respective lists
             json_representation.append({
-                "center": (cx, cy),
                 "angle": att,
                 "distance": dtt,
-                "plane": 0.0,
-                "bounding": bounding_box.tolist(),
-                "timestamp": 0
+                "plane": aop,
+                "timestamp": int(time() * 1000)
             })
 
-        # Post to NetworkTables
-        if config.network_tables:
-            s.sendall(stringify_json(json_representation).encode())
-
-        # print(1 / (time.time() - time1))
+        # Send to robot socket
+        if config.socket.enabled and robot_socket:
+            robot_socket.sendall(stringify_json(json_representation).encode("utf-8"))
 
         # Check if should display
         if config.display.window:
             # Display stream
-            # frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR)
             cv2.imshow("Video Stream", frame)
 
             if cv2.waitKey(1) & 0xFF == ord('e'):
                 # Set exposure if MacOS
                 if os_platform == "darwin":
-                    # execute(
-                    #    "uvcc --vendor 0x45e --product 0x779 set autoExposureMode 1 && uvcc --vendor 0x45e --product 0x779 "
-                    #    "set absoluteExposureTime 5")
                     execute(
                         "uvcc --vendor 0x46d --product 0x843 set autoExposurePriority 1 && "
                         "uvcc --vendor 0x46d --product 0x843 set autoExposureMode 1 && "

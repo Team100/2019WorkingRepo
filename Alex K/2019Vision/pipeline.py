@@ -42,8 +42,8 @@ def process(frame, config, lower, upper):
     # grey = np.uint8(grey)
 
     mask = cv2.inRange(hsv, lower, upper)
-
-    cv2.imshow("test", mask)
+    if config.display.debug and config.display.window:
+        cv2.imshow("Mask", mask)
 
     if config.opencv_version == 4:
         cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
