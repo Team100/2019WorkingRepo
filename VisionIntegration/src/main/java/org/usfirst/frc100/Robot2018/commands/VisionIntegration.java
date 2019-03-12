@@ -68,7 +68,7 @@ public class VisionIntegration extends Command {
 
     //Robot.driveTrain.leftMaster.set(petersArray[0]);
     //Robot.driveTrain.rightMaster.set(-petersArray[1]);
-    double speed = 0.5;
+    double speed = 0.4;
     RobotMap.driveTrainDifferentialDrive1.tankDrive(-petersArray[0]*speed, -petersArray[1]*speed, false);
     SmartDashboard.putNumber("DriveTrainLeft", RobotMap.driveTrainLeftMaster.get());
     SmartDashboard.putNumber("DriveTrainRight", -RobotMap.driveTrainRightMaster.get());
@@ -107,8 +107,9 @@ public class VisionIntegration extends Command {
    */
   private double[] getRelativeWheelSpeed(double a1, double o1, double d, double g, double e) {
     //o1 = Math.signum(o1)*Math.sqrt(Math.abs(o1))*5;
-    o1  *= 2;
+    //o1  *= 2;
     a1 *= Math.PI/180;
+    o1 = Math.sqrt(Math.abs(o1))*Math.signum(o1)*5;
     o1 *= Math.PI/180;
 
     //a1 = a1 - 0.46*(a1-o1);
@@ -127,6 +128,7 @@ public class VisionIntegration extends Command {
 
     SmartDashboard.putNumber("orientation", a1);
     SmartDashboard.putNumber("angle", o1);
+    d -= 40;
     SmartDashboard.putNumber("dist", d);
 
 //peter wuz here
@@ -136,7 +138,7 @@ public class VisionIntegration extends Command {
 
     double l = 10;
 
-    double x1 = 1+Math.abs(6*a*20+2*b)*500;
+    double x1 = ;//1+Math.abs(6*a*20+2*b)*500;
     double dx = 0.0001;
     double x2 = x1 + dx;
 
@@ -162,6 +164,10 @@ public class VisionIntegration extends Command {
     }
     if (x1 > d*Math.cos(o1)) {
       //n1 = n2 = 1;
+    }
+
+    if (d < 15) {
+      n1 = n2 = 1;
     }
 
     return new double[]{n1, n2};
