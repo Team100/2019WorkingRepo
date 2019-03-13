@@ -47,55 +47,34 @@ s.listen(1)
 t = None
 
 try:
-    conn, _ = s.accept()
-
-    t = threading.Thread(target=worker, args=(conn,))
-    t.start()
-
     while True:
-        if args.dual and CURRENT:
-            _, frame = camera0.read()
-        elif args.dual and not CURRENT:
-            _, frame = camera1.read()
-        else:
-            _, frame = camera0.read()
+        try:
+            conn, _ = s.accept()
 
-        frame = cv2.resize(frame, (args.width, args.height))
+            t = threading.Thread(target=worker, args=(conn,))
+            t.start()
 
-        _, buffer = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 25])
-        compressed = gzip.compress(buffer)
+            while True:
+                if args.dual and CURRENT:
+                    _, frame = camera0.read()
+                elif args.dual and not CURRENT:
+                    _, frame = camera1.read()
+                else:
+                    _, frame = camera0.read()
 
-        for i in range(0, len(compressed), 1024):
-            conn.send(compressed[i:i+1024])
+                frame = cv2.resize(frame, (args.width, args.height))
 
-        conn.send(b"rst")
+                _, buffer = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 25])
+                compressed = gzip.compress(buffer)
 
+                for i in range(0, len(compressed), 1024):
+                    conn.send(compressed[i:i+1024])
+
+                conn.send(b"rst")
+
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
+            pass
 except KeyboardInterrupt:
-    s.close()
-
-    camera0.release()
-    if args.dual:
-        camera1.release()
-
-    t.join()
-except ConnectionResetError:
-    s.close()
-
-    camera0.release()
-    if args.dual:
-        camera1.release()
-
-    t.join()
-except ConnectionAbortedError:
-    s.close()
-
-    camera0.release()
-    if args.dual:
-        camera1.release()
-
-    t.join()
-
-except BrokenPipeError:
     s.close()
 
     camera0.release()

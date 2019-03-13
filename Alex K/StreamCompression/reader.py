@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 import cv2
 from gzip import decompress
 import numpy as np
+from pynput.keyboard import Listener, KeyCode
 import socket
 import threading
 import tkinter
@@ -14,13 +15,14 @@ CONTROL = None
 def control_window(c: socket.socket):
     global RUNNING, CONTROL
 
-    def callback(_):
+    def callback(_=None):
         c.send(b"switch")
 
-    def stop():
+    def stop(_=None):
         global RUNNING
         CONTROL.quit()
         RUNNING = False
+        hotkey.stop()
 
     CONTROL = tkinter.Tk()
 
@@ -30,10 +32,22 @@ def control_window(c: socket.socket):
     tkinter.Button(CONTROL, text="Switch Cameras", command=callback).place(anchor="center", x=175, y=25)
     tkinter.Button(CONTROL, text="Quit", command=stop).place(anchor="center", x=75, y=25)
 
-    CONTROL.bind("s", callback)
-    CONTROL.bind("q", stop)
-
     CONTROL.mainloop()
+
+
+def on_keypress(key: KeyCode):
+    if type(key) != KeyCode:
+        pass
+    elif key.char == "s":
+        try:
+            s.send(b"switch")
+        except ConnectionResetError:
+            pass
+    elif key.char == "q":
+        global RUNNING
+        RUNNING = False
+        CONTROL.quit()
+        hotkey.stop()
 
 
 parser = ArgumentParser(description="Decode gzip compressed video frames")
@@ -50,52 +64,48 @@ except ConnectionRefusedError:
     print("Connection Refused: Please check the camera streamer...")
     sys.exit(1)
 
+hotkey = Listener(on_press=on_keypress)
+hotkey.start()
+
 buffer = []
-t = None
+t = threading.Thread(target=control_window, args=(s,))
+t.start()
 
-try:
-    t = threading.Thread(target=control_window, args=(s,))
-    t.start()
-    while RUNNING:
-        data = s.recv(1024)
+while RUNNING:
+    try:
+        buffer = []
+        while RUNNING:
+            data = s.recv(1024)
 
-        if b"rst" in data:
-            try:
-                buffer.append(data[:data.index(b"rst")])
-                assembled = b''.join(buffer)
+            if b"rst" in data:
+                try:
+                    buffer.append(data[:data.index(b"rst")])
+                    assembled = b''.join(buffer)
 
-                decompressed_buffer = decompress(assembled)
+                    decompressed_buffer = decompress(assembled)
 
-                frame = np.frombuffer(decompressed_buffer, dtype=np.uint8)
-                frame = cv2.imdecode(frame, 1)
+                    frame = np.frombuffer(decompressed_buffer, dtype=np.uint8)
+                    frame = cv2.imdecode(frame, 1)
 
-                if args.upscale_height != 0 and args.upscale_width != 0:
-                    frame = cv2.resize(frame, (args.upscale_width, args.upscale_height))
+                    if args.upscale_height != 0 and args.upscale_width != 0:
+                        frame = cv2.resize(frame, (args.upscale_width, args.upscale_height))
 
-                cv2.imshow("Stream", frame)
-                cv2.waitKey(1)
-            except EOFError:
-                pass
-            except OSError:
-                pass
+                    cv2.imshow("Stream", frame)
+                    cv2.waitKey(1)
+                except (EOFError, OSError):
+                    pass
 
-            buffer.clear()
-            continue
+                buffer.clear()
+                continue
 
-        buffer.append(data)
+            buffer.append(data)
 
-except KeyboardInterrupt:
-    cv2.destroyAllWindows()
-    s.close()
-    CONTROL.quit()
-    t.join()
-except ConnectionResetError:
-    cv2.destroyAllWindows()
-    s.close()
-    CONTROL.quit()
-    t.join()
-except ConnectionAbortedError:
-    cv2.destroyAllWindows()
-    s.close()
-    CONTROL.quit()
-    t.join()
+    except (KeyboardInterrupt, ConnectionResetError, ConnectionAbortedError):
+        pass
+
+cv2.destroyAllWindows()
+s.close()
+CONTROL.quit()
+t.join()
+hotkey.stop()
+hotkey.join()
