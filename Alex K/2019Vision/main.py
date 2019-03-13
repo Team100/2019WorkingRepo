@@ -16,6 +16,96 @@ from socket import socket, AF_INET, SOCK_DGRAM
 # Target size
 TARGET_SIZE = 5 + 5 / 8
 
+# real world dimensions of the switch target
+# These are the full dimensions around both strips
+
+TARGET_STRIP_WIDTH = 2.0  # inches
+TARGET_STRIP_LENGTH = 5.5  # inches
+TARGET_STRIP_CORNER_OFFSET = 4.0  # inches
+TARGET_STRIP_ROT = math.radians(14.5)
+
+cos_a = math.cos(TARGET_STRIP_ROT)
+sin_a = math.sin(TARGET_STRIP_ROT)
+
+pt = [TARGET_STRIP_CORNER_OFFSET, 0.0, 0.0]
+right_strip = [tuple(pt), ]  # this makes a copy, so we are safe
+pt[0] += TARGET_STRIP_WIDTH * cos_a
+pt[1] += TARGET_STRIP_WIDTH * sin_a
+right_strip.append(tuple(pt))
+pt[0] += TARGET_STRIP_LENGTH * sin_a
+pt[1] -= TARGET_STRIP_LENGTH * cos_a
+right_strip.append(tuple(pt))
+pt[0] -= TARGET_STRIP_WIDTH * cos_a
+pt[1] -= TARGET_STRIP_WIDTH * sin_a
+right_strip.append(tuple(pt))
+
+# left strip is mirror of right strip
+left_strip = [(-p[0], p[1], p[2]) for p in right_strip]
+
+all_target_coords = np.concatenate([right_strip, left_strip])
+outside_target_coords = np.float32(np.array([left_strip[2], left_strip[1],
+                                             right_strip[1], right_strip[2]]))
+
+right_strip = [(563, 200, 0), (587, 273, 0)]
+left_strip = [(16, 283, 0), (36, 218, 0)]
+
+outside_target_coords = np.float32(np.array([left_strip[0], left_strip[1],
+                                             right_strip[0], right_strip[1]]))
+
+
+# outside_target_coords = np.float32(np.array(((16, 283), (36, 218), (563, 200), (587, 273))))
+
+
+def draw(img, corners, imgpts):
+    corner = tuple(corners[0].ravel())
+    img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255, 0, 0), 5)
+    img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0, 255, 0), 5)
+    img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0, 0, 255), 5)
+    return img
+
+
+def get_outside_corners_single(contour, is_left):
+    y_ave = 0.0
+    for cnr in contour:
+        y_ave += cnr[1]
+    y_ave /= len(contour)
+
+    corners = [None, None]
+    # split the loop on left/right on the outside
+    #  much faster and simpler than trying to figure out how to flip the comparison on every iteration
+    if is_left:
+        for cnr in contour:
+            # larger y (lower in picture) at index 1
+            index = 1 if cnr[1] > y_ave else 0
+            if corners[index] is None or cnr[0] < corners[index][0]:
+                corners[index] = cnr
+    else:
+        for cnr in contour:
+            # larger y (lower in picture) at index 1
+            index = 1 if cnr[1] > y_ave else 0
+            if corners[index] is None or cnr[0] > corners[index][0]:
+                corners[index] = cnr
+    return corners
+
+
+def compute_output_values(rvec, tvec):
+    x = tvec[0][0]
+    z = tvec[2][0]
+    # distance in the horizontal plane between camera and target
+    distance = math.sqrt(x ** 2 + z ** 2)
+    # horizontal angle between camera center line and target
+    angle1 = math.atan2(x, z) * RAD2DEG
+    rot, _ = cv2.Rodrigues(rvec)
+    rot_inv = rot.transpose()
+    pzero_world = np.matmul(rot_inv, -tvec)
+    angle2 = math.atan2(pzero_world[0][0], pzero_world[2][0]) * RAD2DEG
+    if angle2 < 0:
+        angle2 = 180 + angle2
+    # angle2 = 90 - abs(angle2 * RAD2DEG) - abs(angle1 * RAD2DEG)
+    # if angle1 < 0:
+    #    angle2 = 90 - angle2
+    return distance, angle1, angle2
+
 
 # Update the configuration
 def update_config(_):
@@ -159,6 +249,8 @@ try:
             points2 = np.asarray(box).tolist()  # type: list
 
             # Get angle
+            tcx = cx
+            tcy = cy
             pts1 = np.array([[cx, cy]], dtype='float32')
             pts1 = np.array([pts1])
 
@@ -230,36 +322,143 @@ try:
 
             dtt = round(((d1 + d2) / 2), 4)
 
+            """cnt_left = np.squeeze(targets[i - 1].cnt).tolist()
+            cnt_right = np.squeeze(target.cnt).tolist()
+            left = get_outside_corners_single(cnt_left, True)
+            right = get_outside_corners_single(cnt_right, False)
+            image_corners = np.float32(np.array((left[1], left[0], right[0], right[1])))
+            print(left[1], left[0], right[0], right[1])
+            camera_matrix = np.array(
+                [[197.40349481540636, 0, frame.shape[1] / 2],
+                 [0, 197.3173815257199, frame.shape[0] / 2],
+                 [0, 0, 1]], dtype="double"
+            )
+            retval, rvec, tvec = cv2.solvePnP(outside_target_coords, image_corners,
+                                              camera_matrix, np.zeros((4, 1)), flags = cv2.SOLVEPNP_ITERATIVE)
+
+            (nose_end_point2D, jacobian) = cv2.projectPoints(np.array([(0.0, 0.0, 1.0)]), rvec,
+                                                             tvec, camera_matrix, np.zeros((4, 1)))
+
+            p1 = (int(tcx), int(tcy))
+            p2 = (int(nose_end_point2D[0][0][0]), int(nose_end_point2D[0][0][1]))
+
+            frame = cv2.line(frame, p1, p2, (255, 0, 0), 2)"""
+
             # Fix division by zero errors
             try:
+                print(target.x, target.y)
                 # ##
                 # ##  Begin calculating angle of plane
                 # ##
+                h1 = max(targets[i].h, targets[i].w)
+                h2 = max(targets[i - 1].h, targets[i - 1].w)
+                tempx1 = targets[i].x
+                tempx2 = targets[i - 1].x
+                y = (targets[i].y + targets[i - 1].y)/2
+                tempsign = 1
+                if h1 > h2:
+                    #h2 = min(targets[i - 1].h, targets[i - 1].w)
+                    tempsign = -1
+                else:
+                    (tempx1, tempx2) = (tempx2, tempx1)
+                    (h1, h2) = (h2, h1)
+                    #h1 = min(targets[i].h, targets[i].w)
+                (nx1, ny1) = (tempx1, y + h1)
+                (nx2, ny2) = (tempx2, y + h2)
 
-                d3 = 11
-
-                # rad_height1t = (config.image_center.y - target.top) * config.degrees_per_pixel.vertical
-                # rad_height1b = (config.image_center.y - target.bottom) * config.degrees_per_pixel.vertical
-                # d1 = TARGET_SIZE * (rad_height1t / (rad_height1t - rad_height1b))
+                # pts1 = np.array([[nx1, ny1]], dtype='float32')
+                # pts1 = np.array([pts1])
                 #
-                # aop = d1
+                ##print(pts1, HI)
                 #
-                # rad_height2t = (config.image_center.y - targets[i - 1].top) * config.degrees_per_pixel.vertical
-                # rad_height2b = (config.image_center.y - targets[i - 1].bottom) * config.degrees_per_pixel.vertical
-                # d2 = TARGET_SIZE * (rad_height2t / (rad_height2t - rad_height2b))
+                # invtranpoints = cv2.perspectiveTransform(pts1, HI)
+                # nx1 = invtranpoints[0][0][0]
+                # ny1 = invtranpoints[0][0][1]
+                #
+                # pts2 = np.array([[nx2, ny2]], dtype='float32')
+                # pts2 = np.array([pts2])
+                #
+                # invtranpoints = cv2.perspectiveTransform(pts2, HI)
+                # nx2 = invtranpoints[0][0][0]
+                # ny2 = invtranpoints[0][0][1]
 
-                theta1 = math.acos((d1 ** 2 - d3 ** 2 - d2 ** 2) / (-2 * d3 * d2))
-                theta2 = math.acos((d2 ** 2 - d3 ** 2 - d1 ** 2) / (-2 * d3 * d1))
+                slope = (ny1 - ny2) / (nx1 - nx2)
 
-                alpha1 = (cx1 - config.image_center.x) * config.degrees_per_pixel.horizontal / RAD2DEG
-                alpha2 = (cx2 - config.image_center.x) * config.degrees_per_pixel.horizontal / RAD2DEG
-                #aop = theta1 * RAD2DEG
+                my = ny1
+                v1 = (nx1 - nx2)
+                v2 = (ny1 - ny2)
+                v3 = 0
 
-                beta1 = theta1 #- alpha1
-                beta2 = theta2 #- alpha2
-                #aop = alpha1 * RAD2DEG
+                if slope != 0:
+                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
+                            slope * slope + 1) - 2
 
-                aop = (beta1 + beta2) / 2 * RAD2DEG - 90
+                # Display debugging parallel lines
+                if config.display.debug:
+                    cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
+                    cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
+
+                my -= config.image_center.y
+                norm_theta = my * config.degrees_per_pixel.vertical
+
+                om1 = 0
+                om2 = math.cos(norm_theta / RAD2DEG)
+                om3 = math.sin(norm_theta / RAD2DEG)
+
+                n11 = v2 * om3 - v3 * om2
+                n12 = v3 * om1 - v1 * om3
+                n13 = v1 * om2 - v2 * om1
+
+                (nx1, ny1) = (tempx1, y - h1)
+                (nx2, ny2) = (tempx2, y - h2)
+
+                # pts1 = np.array([[nx1, ny1]], dtype='float32')
+                # pts1 = np.array([pts1])
+                #
+                ## print(pts1, HI)
+                #
+                # invtranpoints = cv2.perspectiveTransform(pts1, HI)
+                # nx1 = invtranpoints[0][0][0]
+                # ny1 = invtranpoints[0][0][1]
+                #
+                # pts2 = np.array([[nx2, ny2]], dtype='float32')
+                # pts2 = np.array([pts2])
+                #
+                # invtranpoints = cv2.perspectiveTransform(pts2, HI)
+                # nx2 = invtranpoints[0][0][0]
+                # ny2 = invtranpoints[0][0][1]
+
+                slope = (ny1 - ny2) / (nx1 - nx2)
+
+                my = ny1
+                v1 = (nx1 - nx2)
+                v2 = (ny1 - ny2)
+                v3 = 0
+                if slope != 0:
+                    my = (slope * (config.image_center.x + slope * config.image_center.y) + (-slope * nx1 + ny1)) / (
+                            slope * slope + 1) - 2
+
+                if config.display.debug:
+                    cv2.line(frame, (int(nx1 * 0), int(my)), (int(nx2 * 0 + 640), int(my)), (255, 0, 0), 2)
+                    cv2.line(frame, (int(nx1), int(ny1)), (int(nx2), int(ny2)), (255, 255, 0), 2)
+
+                my -= config.image_center.y
+                norm_theta = my * config.degrees_per_pixel.vertical
+
+                om1 = 0
+                om2 = math.cos(norm_theta / RAD2DEG)
+                om3 = math.sin(norm_theta / RAD2DEG)
+
+                n21 = v2 * om3 - v3 * om2
+                n22 = v3 * om1 - v1 * om3
+                n23 = v1 * om2 - v2 * om1
+
+                ab1 = n12 * n23 - n13 * n22
+                ab2 = n13 * n21 - n11 * n23
+
+                temp_angle = math.atan(ab1 / (ab2 + 0.000001)) * RAD2DEG
+
+                aop = (abs(90 - abs(temp_angle))) * tempsign * 23 / 4
 
                 # ##
                 # ## End calculating angle of plane
@@ -267,7 +466,7 @@ try:
             except:
                 aop = 0
 
-            if dtt > abs(config.camera_position_offset.height):
+            """if dtt > abs(config.camera_position_offset.height):
                 dtt = math.sqrt(dtt ** 2 - config.camera_position_offset.height ** 2)
 
             x_1 = dtt * math.cos(att / RAD2DEG)
@@ -281,16 +480,16 @@ try:
 
             # aop += (att+4)
 
-            # avgaop = 0
-            # for i in last3:
-            #    avgaop += i
-            # last3.append(aop)
-            # aop = avgaop / 4
-            # if len(last3) > 3:
-            #    last3.pop(0)
-            # aop *= math.sqrt(dtt)
-            # aop += 23.5
-            # aop *= config.conversion_factors.angle
+            avgaop = 0
+            for i in last3:
+               avgaop += i
+            last3.append(aop)
+            aop = avgaop / 4
+            if len(last3) > 3:
+               last3.pop(0)
+            aop *= math.sqrt(dtt)
+            aop += 23.5
+            aop *= config.conversion_factors.angle"""
 
             # print(dtt, att, aop)
             # dtt = alpha1 * RAD2DEG
@@ -351,6 +550,7 @@ except KeyboardInterrupt:
     cv2.destroyAllWindows()
     camera.release()
     observer.stop()
+    robot_socket.close()
 
 # Wait for observer to finish
 observer.join()
