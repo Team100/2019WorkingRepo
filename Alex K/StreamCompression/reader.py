@@ -56,13 +56,25 @@ parser.add_argument("--port", help="Port to send to", type=int, default=5802)
 parser.add_argument("--upscale-width", help="Upscale the received stream - width", type=int, default=0)
 parser.add_argument("--upscale-height", help="Upscale the received stream - height", type=int, default=0)
 parser.add_argument("--rotate", help="Specify how to rotate the image", type=int, default=0, choices=[0, 90, 180, 270])
+parser.add_argument("--ipv6", help="Use IPv6 over IPv4", action="store_true")
 args = parser.parse_args()
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket_info = set(socket.getaddrinfo(args.host, args.port))
+socket_address = None
+for res in socket_info:
+    af, _, _, _, server_address = res
+    if (af == socket.AF_INET and not args.ipv6) or (af == socket.AF_INET6 and args.ipv6):
+        socket_address = (af, server_address)
+
+if socket_address is None:
+    print("Listen address '{address}' is invalid for selected IP version {version}...".format(address=args.host, version=6 if args.ipv6 else 4))
+    sys.exit(1)
+
+s = socket.socket(socket_address[0], socket.SOCK_STREAM)
 try:
-    s.connect((args.host, args.port))
-except ConnectionRefusedError:
-    print("Connection Refused: Please check the camera streamer...")
+    s.connect(socket_address[1])
+except (ConnectionRefusedError, TimeoutError) as e:
+    print("{error}: Please check the camera streamer...".format(error=e.__class__.__name__))
     sys.exit(1)
 
 hotkey = Listener(on_press=on_keypress)

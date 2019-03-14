@@ -26,6 +26,7 @@ parser.add_argument("--port", help="Port for server to run on", type=int, defaul
 parser.add_argument("--width", help="Width of the stream", type=int, default=320)
 parser.add_argument("--height", help="Height of the stream", type=int, default=240)
 parser.add_argument("--dual", help="Use two cameras", action="store_true")
+parser.add_argument("--ipv6", help="Use IPv6 over IPv4", action="store_true")
 parser.add_argument("--camera1", help="Port the first camera is on", type=int, default=0)
 parser.add_argument("--camera2", help="Port the second camera is on", type=int, default=1)
 args = parser.parse_args()
@@ -40,8 +41,18 @@ if args.dual:
     if not camera1.isOpened():
         raise ValueError("Camera 1 is not attached or is in use")
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((args.host, args.port))
+socket_info = set(socket.getaddrinfo(args.host, args.port))
+socket_address = None
+for res in socket_info:
+    af, _, _, _, server_address = res
+    if (af == socket.AF_INET and not args.ipv6) or (af == socket.AF_INET6 and args.ipv6):
+        socket_address = (af, server_address)
+
+if socket_address is None:
+    raise ValueError("Invalid listen address for selected IP version")
+
+s = socket.socket(socket_address[0], socket.SOCK_STREAM)
+s.bind(socket_address[1])
 s.listen(1)
 
 t = None
