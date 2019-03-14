@@ -38,6 +38,7 @@ public class OI {
       
       rightJoystick = new Joystick(0);
       moveAndTurn = new JoystickButton(leftJoystick, 4);
+      moveAndTurn.whileHeld(new PathfindingSimpler());
       shiftOff = new JoystickButton(leftJoystick, 2);
       shiftOff.whenPressed(new Shift());
       turnToGoButton = new JoystickButton(leftJoystick, 1);

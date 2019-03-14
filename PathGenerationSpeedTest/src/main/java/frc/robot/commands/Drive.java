@@ -28,38 +28,18 @@ public class Drive extends Command {
   @Override
   protected void initialize() {
     i=0;
+    networkTables.setUpdateRate(0.02);
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    if(i%10 == 0){
-      // System.out.println(Robot.driveTrain.driveTrainRightMaster.getSelectedSensorVelocity());
-      // SmartDashboard.putNumber("Right Position", Robot.driveTrain.driveTrainRightMaster.getSelectedSensorPosition());
-      // SmartDashboard.putNumber("Left Position", Robot.driveTrain.driveTrainLeftMaster.getSelectedSensorPosition());
-      // SmartDashboard.putNumber("Pathfinder ticks per meter", Constants.DRIVETRAIN_TICKS_PER_METER);
-      // SmartDashboard.putNumber("RightVelocity", Robot.driveTrain.driveTrainRightMaster.getSelectedSensorVelocity(0));
-      // SmartDashboard.putNumber("LeftVelocity", Robot.driveTrain.driveTrainLeftMaster.getSelectedSensorVelocity(0));
-      // SmartDashboard.putNumber("RightErrorAtSRX", Robot.driveTrain.driveTrainRightMaster.getClosedLoopError());
-      // SmartDashboard.putNumber("LeftErrorAtSRX", Robot.driveTrain.driveTrainLeftMaster.getClosedLoopError());
-      // SmartDashboard.putString("LeftMode", Robot.driveTrain.driveTrainLeftMaster.getControlMode().toString());
-      // SmartDashboard.putNumber("LeftCommandReceived", Robot.driveTrain.driveTrainLeftMaster.getClosedLoopTarget(0));
-      // SmartDashboard.putNumber("LeftVoltage", Robot.driveTrain.driveTrainLeftMaster.getMotorOutputVoltage());
-      //SmartDashboard.putNumber("Heading", Robot.driveTrain.ahrs.getAngle());
-      //System.out.println("current angle: " + Robot.driveTrain.ahrs.getAngle());
-    }
-  //  System.out.println("Angle" + Robot.driveTrain.ahrs.getAngle());
-    if(OI.moveAndTurn.get()){
-      Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(-Math.min(Math.abs(OI.leftJoystick.getY()),0.6), 
-         //Math.max(-1.0/30.0*Robot.driveTrain.getVisionAngle(table), 0.5));
-        //Math.tanh((-OI.leftJoystick.getY()*Robot.driveTrain.getVisionAngle(table))/6*0.7)*0.7, false);
-        turnFunc(-OI.leftJoystick.getY(), Robot.driveTrain.getVisionAngle(table), Robot.driveTrain.getPlane(table), Robot.driveTrain.getDistance(table), 0.9, 6));
-
-      System.out.println("Error:" +  Robot.driveTrain.getVisionAngle(table));
-    }else{
-
+//    if(OI.moveAndTurn.get()){
+      //Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(-Math.min(Math.abs(OI.leftJoystick.getY()),0.6),  turnFunc(-OI.leftJoystick.getY(), Robot.driveTrain.getVisionAngle(table), Robot.driveTrain.getPlane(table), Robot.driveTrain.getDistance(table), 0.9, 6));
+    //  System.out.println("Error:" +  Robot.driveTrain.getVisionAngle(table));
+  //  }else{
     Robot.driveTrain.driveTrainDifferentialDrive1.arcadeDrive(OI.leftJoystick.getY()*0.8,- OI.leftJoystick.getZ()*0.8);
-    }i++;
+    //}i++;
   }
 
   private double turnFunc(double x, double a, double p, double d, double b, double c){

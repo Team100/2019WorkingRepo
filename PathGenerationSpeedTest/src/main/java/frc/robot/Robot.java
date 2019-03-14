@@ -16,6 +16,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.subsystems.DriveTrain;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 import com.kauailabs.navx.frc.*;
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -25,6 +28,10 @@ import com.kauailabs.navx.frc.*;
  * project.
  */
 public class Robot extends TimedRobot {
+  public volatile static ArrayList<VisionTarget> targets = new ArrayList<>();
+  public static final String HOST = "0.0.0.0";
+  public static final int PORT = 5810;
+
 // public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
   public static DriveTrain driveTrain = new DriveTrain();
 
@@ -42,7 +49,14 @@ public class Robot extends TimedRobot {
     m_oi = new OI();
     // chooser.addOption("My Auto", new MyAutoCommand());
     SmartDashboard.putData("Auto mode", m_chooser);
+    try {
+      Thread server = new Thread(new Server(HOST, PORT));
+      server.start();
 
+      System.out.format("Running on %s:%s...\n", HOST, PORT);
+    } catch(IOException e) {
+      e.printStackTrace();
+   }
   }
 
   /**
