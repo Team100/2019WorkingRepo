@@ -29,6 +29,7 @@ public class Server implements Runnable {
 
                 Robot.targets.clear();
                 Robot.targets.addAll(Arrays.asList(targets));
+                System.out.println(Arrays.toString(targets));
             }
         } catch (IOException e) {
             e.printStackTrace();

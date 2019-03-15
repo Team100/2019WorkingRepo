@@ -87,7 +87,7 @@ public class Constants {
 	/**
 	 * P value for the drivetrain
 	 */
-	public static final double DRIVETRAIN_P = 0.02;//0.6
+	public static final double DRIVETRAIN_P = 1;//0.6
 	
 	public static double DT_TURN_MIN_ROTATION_ANGLE = -180;
     public static double DT_TURN_MAX_ROTATION_ANGLE = 180;

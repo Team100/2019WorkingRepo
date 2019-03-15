@@ -42,8 +42,11 @@ public class PathfindingSimpler extends Command {
   protected void execute() {
     try{
       double [] speeds = getWheelSpeeds();
-      Robot.driveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, speeds[0]);
-      Robot.driveTrain.driveTrainRightMaster.set(ControlMode.Velocity, speeds[1]);
+      System.out.println(speeds[0] + ", " + speeds[1]);
+      Robot.driveTrain.driveTrainLeftMaster.set(ControlMode.PercentOutput, -speeds[1]/5);
+      Robot.driveTrain.driveTrainRightMaster.set(ControlMode.PercentOutput, speeds[0]/5);
+      // Robot.driveTrain.driveTrainLeftMaster.set(ControlMode.Velocity, speeds[0]);
+      // Robot.driveTrain.driveTrainRightMaster.set(ControlMode.Velocity, speeds[1]);
     }catch(Exception e){
       System.out.println("caught: ladies and gentlemen we gottem");
     }

@@ -138,6 +138,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
+
+    SmartDashboard.putString("Left Control Mode", driveTrain.driveTrainLeftMaster.getControlMode().toString());
   }
 
   /**
