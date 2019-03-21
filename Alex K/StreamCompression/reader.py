@@ -181,8 +181,8 @@ while RUNNING:
                         cv2.line(frame, (w // 2, (h // 2) - 20), (w // 2, (h // 2) + 20), (255, 255, 255), 2)
 
                     if args.chassis_lines:
-                        cv2.line(frame, tuple(POINTS["ul"]), tuple(POINTS["bl"]), (208, 208, 208), 2)
-                        cv2.line(frame, tuple(POINTS["ur"]), tuple(POINTS["br"]), (208, 208, 208), 2)
+                        cv2.line(frame, tuple(POINTS["ul"]), tuple(POINTS["bl"]), (0, 255, 0), 4)
+                        cv2.line(frame, tuple(POINTS["ur"]), tuple(POINTS["br"]), (0, 255, 0), 4)
 
                     cv2.imshow("Stream", frame)
                     cv2.waitKey(1)
