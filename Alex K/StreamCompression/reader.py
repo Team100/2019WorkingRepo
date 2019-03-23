@@ -13,11 +13,11 @@ RUNNING = True
 CONTROL = None
 
 
-def control_window(c: socket.socket):
-    global RUNNING, CONTROL, POINTS
+def control_window():
+    global RUNNING, CONTROL, POINTS, SOCKET
 
     def callback(_=None):
-        c.send(b"switch")
+        SOCKET.send(b"switch")
 
     def stop(_=None):
         global RUNNING
@@ -92,7 +92,7 @@ def on_keypress(key: KeyCode):
         pass
     elif key.char == "s":
         try:
-            s.send(b"switch")
+            SOCKET.send(b"switch")
         except ConnectionResetError:
             pass
     elif key.char == "q":
@@ -100,6 +100,12 @@ def on_keypress(key: KeyCode):
         RUNNING = False
         CONTROL.quit()
         hotkey.stop()
+
+
+def connect(s_addr):
+    global SOCKET
+    SOCKET = socket.socket(s_addr[0], socket.SOCK_STREAM)
+    SOCKET.connect(s_addr[1])
 
 
 parser = ArgumentParser(description="Decode gzip compressed video frames")
@@ -134,9 +140,9 @@ if socket_address is None:
     print("Listen address '{address}' is invalid for selected IP version {version}...".format(address=args.host, version=6 if args.ipv6 else 4))
     sys.exit(1)
 
-s = socket.socket(socket_address[0], socket.SOCK_STREAM)
+SOCKET = socket.socket(socket_address[0], socket.SOCK_STREAM)
 try:
-    s.connect(socket_address[1])
+    SOCKET.connect(socket_address[1])
 except (ConnectionRefusedError, TimeoutError) as e:
     print("{error}: Please check the camera streamer...".format(error=e.__class__.__name__))
     sys.exit(1)
@@ -145,14 +151,14 @@ hotkey = Listener(on_press=on_keypress)
 hotkey.start()
 
 buffer = []
-t = threading.Thread(target=control_window, args=(s,))
+t = threading.Thread(target=control_window)
 t.start()
 
 while RUNNING:
     try:
         buffer = []
         while RUNNING:
-            data = s.recv(1024)
+            data = SOCKET.recv(1024)
 
             if b"rst" in data:
                 try:
@@ -194,11 +200,21 @@ while RUNNING:
 
             buffer.append(data)
 
-    except (KeyboardInterrupt, ConnectionResetError, ConnectionAbortedError):
-        pass
+    except (KeyboardInterrupt, ConnectionResetError, ConnectionAbortedError) as e:
+        if type(e) == KeyboardInterrupt:
+            break
+
+        closed = True
+        while closed:
+            try:
+                connect(socket_address)
+                closed = False
+            except ConnectionRefusedError:
+                pass
+
 
 cv2.destroyAllWindows()
-s.close()
+SOCKET.close()
 CONTROL.quit()
 t.join()
 hotkey.stop()

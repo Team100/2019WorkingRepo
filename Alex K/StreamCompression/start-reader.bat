@@ -1,1 +1,1 @@
-start "Vision" "C:\Program Files\Python37\python.exe" reader.py --host 10.1.0.24 --port 5805 --upscale-width 1280 --upscale-height 960 --rotate 180 --crosshair --chassis-lines --ipv6
+start "Vision" "C:\Program Files\Python37\python.exe" reader.py --host 10.1.0.24 --port 5805 --upscale-width 1280 --upscale-height 960 --rotate 180 --crosshair --chassis-lines
