@@ -17,6 +17,7 @@ bool dochaseR = false;
 bool dochaseG = false;
 bool dochaseB = false;
 bool dochaseY = false;
+bool dochaseO = false;
 // Generally, you should use "unsigned long" for variables that hold time
 // The value will quickly become too large for an int to store
 unsigned long previousMillis = 0;        // will store last time LED was updated
@@ -125,6 +126,11 @@ void loop() {
         Serial.println("Ychase");
         noDos();
         dochaseY = true;
+        break;
+      case '5':
+        Serial.println("Ochase");
+        noDos();
+        dochaseO = true;
         break;
     }
     strip.show();
@@ -235,10 +241,32 @@ void loop() {
     color = 0x000000;
     unsigned long currentMillis = millis();
     Serial.println(currentMillis);
-    if (currentMillis - previousMillis >= interval) {
+    if (currentMillis - previousMillis >= interval) {X
+    
       previousMillis = currentMillis;
       for (int i = tail; i < head; i++) {
         strip.setPixelColor(i, 0x0000FF);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0x000000);
+        strip.show();
+        delay(10);
+        color = 0x000000;
+      }
+    }
+    simpleOn(color, tail, head);
+  }
+  if (dochaseO) {
+    color = 0x000000;
+    unsigned long currentMillis = millis();
+    Serial.println(currentMillis);
+    if (currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;
+      for (int i = tail; i < head; i++) {
+        strip.setPixelColor(i, 0x35FF00);
         strip.show();
         delay(10);
         color = 0x000000;
@@ -273,6 +301,7 @@ void loop() {
     }
     simpleOn(color, tail, head);
   }
+
   if (!doblinkR && !doblinkG && !doblinkB && !doblinkY && !dochaseR && !dochaseG && !dochaseB && !dochaseY) {
     Serial.println("Solid Color");
     simpleOn(color, tail, head);
