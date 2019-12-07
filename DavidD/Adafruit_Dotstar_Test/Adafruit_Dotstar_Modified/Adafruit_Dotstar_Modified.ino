@@ -16,6 +16,7 @@ Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DOTSTAR_BRG);
 //---------------------------------------------------------------------------------------//
 int mode = 0;
 int blinkState = LOW;
+int val = 0;
 int altState = LOW;
 // Generally, you should use "unsigned long" for variables that hold time
 // The value will quickly become too large for an int to store
@@ -44,7 +45,18 @@ void setup() {
 void loop() {
   int tail = 0;
   int head = 60;
-  if (Serial.available() > 0) {
+
+  byte input[3];
+  Serial.readBytes(input, 3);
+  color = (input[0]<<8) + (input[1]<<8) + (input[2]<<8);
+  Serial.println(color, HEX);
+  
+  mode = MODE_SOLID;
+
+  strip.show();
+  
+  
+  if (false){ //Serial.available() > 0) {
     //String firstByte = Serial.read(); //fix this
     //String colorByte = firstByte.substring(0, 1);
     int colorByte = Serial.read();
@@ -124,7 +136,6 @@ void loop() {
     }
     strip.show();
   }
-  Serial.println(mode);
   switch (mode) {
     case MODE_OFF:
       simpleOn(0x000000, tail, head);

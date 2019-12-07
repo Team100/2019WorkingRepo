@@ -241,7 +241,7 @@ void loop() {
     color = 0x000000;
     unsigned long currentMillis = millis();
     Serial.println(currentMillis);
-    if (currentMillis - previousMillis >= interval) {X
+    if (currentMillis - previousMillis >= interval) {
     
       previousMillis = currentMillis;
       for (int i = tail; i < head; i++) {
